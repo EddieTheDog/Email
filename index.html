@@ -4,516 +4,248 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Mail</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet" />
 <style>
-  :root {
-    --bg: #f5f2ee;
-    --surface: #faf8f5;
-    --surface2: #f0ece6;
-    --border: #ddd8d0;
-    --border2: #ccc6bc;
-    --text: #1a1814;
-    --text2: #6b6560;
-    --text3: #9e9890;
-    --accent: #2d5a3d;
-    --accent-light: #e8f0eb;
-    --accent-text: #1e3d2a;
-    --danger: #8b2f2f;
-    --danger-bg: #f7eaea;
-    --radius: 10px;
-    --radius-sm: 6px;
-  }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f0ede8; --surface: #faf8f5; --surface2: #eeebe5;
+  --border: #ddd8cf; --border2: #ccc6bb;
+  --text: #1c1a17; --text2: #6b6459; --text3: #a09890;
+  --accent: #2d5a3d; --accent2: #e6f0e9; --accent-text: #1a3d28;
+  --danger: #8b2f2f; --radius: 10px; --radius-sm: 6px;
+}
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* AUTH */
+#auth-screen { flex: 1; display: flex; align-items: center; justify-content: center; }
+.auth-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 52px 56px; text-align: center; width: 400px; box-shadow: 0 4px 32px rgba(0,0,0,0.07); }
+.auth-logo { font-family: 'DM Serif Display', serif; font-size: 38px; letter-spacing: -0.5px; margin-bottom: 8px; }
+.auth-sub { font-size: 14px; color: var(--text2); margin-bottom: 36px; font-weight: 300; }
+.google-btn { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; padding: 13px 20px; background: white; border: 1px solid var(--border2); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; color: var(--text); cursor: pointer; transition: background 0.15s, transform 0.1s; }
+.google-btn:hover { background: var(--surface2); }
+.google-btn:active { transform: scale(0.99); }
+.g-icon { width: 20px; height: 20px; flex-shrink: 0; }
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
+/* APP */
+#app-screen { display: none; flex-direction: column; height: 100vh; overflow: hidden; }
+header { height: 52px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; gap: 14px; flex-shrink: 0; }
+.h-logo { font-family: 'DM Serif Display', serif; font-size: 21px; letter-spacing: -0.3px; }
+.h-div { width: 1px; height: 18px; background: var(--border); }
+.user-chip { display: flex; align-items: center; gap: 8px; padding: 3px 10px 3px 4px; background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; }
+.u-avatar { width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: white; font-size: 10px; font-weight: 500; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+.u-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.u-name { font-size: 12.5px; color: var(--text2); }
+.h-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.h-btn { font-size: 13px; color: var(--text3); background: none; border: none; cursor: pointer; padding: 5px 10px; border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; }
+.h-btn:hover { color: var(--text); background: var(--surface2); }
+.send-btn { padding: 7px 18px; background: var(--accent); color: white; border: none; border-radius: var(--radius-sm); font-size: 13.5px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; display: flex; align-items: center; gap: 7px; transition: opacity 0.15s, transform 0.1s; }
+.send-btn:hover { opacity: 0.87; }
+.send-btn:active { transform: scale(0.98); }
+.send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  /* ── Auth screen ── */
-  #auth-screen {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 32px;
-    padding: 40px 20px;
-  }
+/* BODY LAYOUT */
+.body { display: flex; flex: 1; overflow: hidden; }
 
-  .auth-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 48px 52px;
-    text-align: center;
-    max-width: 420px;
-    width: 100%;
-    box-shadow: 0 2px 20px rgba(0,0,0,0.06);
-  }
+/* SIDEBAR */
+.sidebar { width: 212px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0; padding-bottom: 16px; }
+.sb-sec { font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); padding: 14px 14px 5px; }
+.tpl-btn { display: flex; align-items: center; gap: 9px; width: 100%; padding: 8px 12px; border: 1px solid transparent; background: transparent; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text2); text-align: left; transition: all 0.1s; }
+.tpl-btn:hover { background: var(--surface2); color: var(--text); }
+.tpl-btn.active { background: var(--accent2); color: var(--accent-text); border-color: rgba(45,90,61,0.15); font-weight: 500; }
+.t-icon { width: 24px; height: 24px; border-radius: 5px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+.tpl-btn.active .t-icon { background: rgba(45,90,61,0.12); }
+.sb-rule { height: 1px; background: var(--border); margin: 8px 14px; }
+.block-list { padding: 4px 10px; display: flex; flex-direction: column; gap: 3px; }
+.blk-btn { display: flex; align-items: center; gap: 7px; width: 100%; padding: 7px 10px; border-radius: var(--radius-sm); border: 1px dashed var(--border2); background: transparent; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--text2); text-align: left; transition: all 0.1s; }
+.blk-btn:hover { background: var(--surface2); border-style: solid; color: var(--text); }
 
-  .auth-logo {
-    font-family: 'DM Serif Display', serif;
-    font-size: 36px;
-    color: var(--text);
-    letter-spacing: -0.5px;
-    margin-bottom: 8px;
-  }
+/* MAIN */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
 
-  .auth-tagline {
-    font-size: 14px;
-    color: var(--text2);
-    margin-bottom: 36px;
-    font-weight: 300;
-  }
+/* ENVELOPE */
+.env-fields { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 20px; flex-shrink: 0; }
+.env-row { display: flex; align-items: center; gap: 12px; height: 40px; border-bottom: 1px solid var(--border); }
+.env-row:last-child { border-bottom: none; }
+.env-label { font-size: 11px; color: var(--text3); font-weight: 500; min-width: 78px; letter-spacing: 0.03em; text-transform: uppercase; }
+.env-input { flex: 1; border: none; outline: none; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 13.5px; color: var(--text); min-width: 0; }
+.env-input::placeholder { color: var(--text3); }
+.env-hint { font-size: 11px; color: var(--text3); font-style: italic; white-space: nowrap; }
 
-  .google-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    width: 100%;
-    padding: 13px 20px;
-    background: white;
-    border: 1px solid var(--border2);
-    border-radius: var(--radius);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 500;
-    color: var(--text);
-    cursor: pointer;
-    transition: background 0.15s, border-color 0.15s, transform 0.1s;
-  }
+/* SPLIT */
+.split { flex: 1; display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; }
 
-  .google-btn:hover { background: var(--surface2); border-color: var(--border2); }
-  .google-btn:active { transform: scale(0.99); }
+/* EDITOR PANE */
+.editor-pane { display: flex; flex-direction: column; border-right: 1px solid var(--border); overflow: hidden; }
+.pane-bar { height: 36px; display: flex; align-items: center; padding: 0 12px; gap: 6px; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.pane-title { font-size: 10.5px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text3); }
+.pane-actions { margin-left: auto; display: flex; gap: 2px; }
+.p-btn { padding: 3px 8px; border-radius: 4px; border: none; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 11.5px; color: var(--text2); cursor: pointer; }
+.p-btn:hover { background: var(--surface2); }
 
-  .google-icon {
-    width: 20px; height: 20px; flex-shrink: 0;
-  }
+/* FORMAT TOOLBAR */
+.fmt-bar { display: flex; align-items: center; gap: 2px; padding: 5px 10px; background: var(--surface); border-bottom: 1px solid var(--border); flex-wrap: wrap; flex-shrink: 0; }
+.f-btn { padding: 4px 7px; border-radius: 4px; border: none; background: transparent; cursor: pointer; font-size: 12px; color: var(--text2); font-family: 'DM Sans', sans-serif; line-height: 1; }
+.f-btn:hover { background: var(--surface2); color: var(--text); }
+.f-sep { width: 1px; height: 14px; background: var(--border); margin: 0 3px; flex-shrink: 0; }
+.raw-editor { flex: 1; border: none; outline: none; resize: none; padding: 16px; font-family: 'DM Mono', monospace; font-size: 12px; line-height: 1.65; color: var(--text); background: var(--bg); overflow-y: auto; tab-size: 2; }
 
-  /* ── App layout ── */
-  #app-screen { display: none; flex-direction: column; min-height: 100vh; }
+/* PREVIEW PANE */
+.preview-pane { display: flex; flex-direction: column; overflow: hidden; background: #e5e1db; }
+.preview-scroll { flex: 1; overflow-y: auto; display: flex; align-items: flex-start; justify-content: center; padding: 20px 16px; }
+.preview-inbox { width: 100%; max-width: 540px; transition: max-width 0.2s; }
+.inbox-chrome { background: #2a2a2a; border-radius: 10px 10px 0 0; padding: 10px 14px; display: flex; align-items: center; gap: 6px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.inbox-meta { margin-left: 10px; display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
+.inbox-subj { font-size: 11px; color: #ccc; font-family: 'DM Sans', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+.inbox-pre { font-size: 10px; color: #888; font-family: 'DM Sans', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.email-shell { background: white; border-radius: 0 0 10px 10px; overflow: hidden; box-shadow: 0 10px 50px rgba(0,0,0,0.22); }
+#preview-frame { width: 100%; border: none; display: block; }
 
-  header {
-    display: flex;
-    align-items: center;
-    padding: 0 28px;
-    height: 56px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    gap: 16px;
-    flex-shrink: 0;
-  }
+/* STATUS */
+.status-bar { height: 30px; background: var(--surface); border-top: 1px solid var(--border); display: flex; align-items: center; padding: 0 16px; gap: 12px; flex-shrink: 0; }
+.status-msg { font-size: 12px; color: var(--text3); }
+.status-msg.ok { color: var(--accent); }
+.status-msg.err { color: var(--danger); }
+.char-count { margin-left: auto; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); }
 
-  .header-logo {
-    font-family: 'DM Serif Display', serif;
-    font-size: 22px;
-    letter-spacing: -0.3px;
-    color: var(--text);
-  }
-
-  .header-divider { width: 1px; height: 20px; background: var(--border); }
-
-  .user-pill {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 4px 10px 4px 4px;
-    border-radius: 20px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-  }
-
-  .user-avatar {
-    width: 26px; height: 26px;
-    border-radius: 50%;
-    background: var(--accent);
-    color: white;
-    font-size: 11px;
-    font-weight: 500;
-    display: flex; align-items: center; justify-content: center;
-  }
-
-  .user-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-
-  .user-name { font-size: 13px; color: var(--text2); }
-
-  .sign-out-btn {
-    margin-left: auto;
-    font-size: 13px;
-    color: var(--text3);
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px 8px;
-    border-radius: var(--radius-sm);
-    font-family: 'DM Sans', sans-serif;
-  }
-  .sign-out-btn:hover { color: var(--text); background: var(--surface2); }
-
-  /* ── Main area ── */
-  .workspace {
-    display: grid;
-    grid-template-columns: 200px 1fr;
-    flex: 1;
-    overflow: hidden;
-  }
-
-  /* ── Sidebar ── */
-  .sidebar {
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    padding: 20px 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    overflow-y: auto;
-  }
-
-  .sidebar-section {
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--text3);
-    padding: 12px 10px 6px;
-  }
-
-  .sidebar-section:first-child { padding-top: 0; }
-
-  .tpl-btn {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    width: 100%;
-    padding: 8px 10px;
-    border-radius: var(--radius-sm);
-    border: 1px solid transparent;
-    background: transparent;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13.5px;
-    color: var(--text2);
-    text-align: left;
-    transition: all 0.1s;
-  }
-
-  .tpl-btn:hover { background: var(--surface2); color: var(--text); }
-
-  .tpl-btn.active {
-    background: var(--accent-light);
-    color: var(--accent-text);
-    border-color: rgba(45,90,61,0.18);
-    font-weight: 500;
-  }
-
-  .tpl-icon {
-    width: 22px; height: 22px;
-    border-radius: 5px;
-    background: var(--surface2);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px;
-    flex-shrink: 0;
-  }
-
-  .tpl-btn.active .tpl-icon { background: rgba(45,90,61,0.15); }
-
-  /* ── Composer ── */
-  .composer {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  /* Toolbar */
-  .toolbar {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    padding: 8px 20px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    flex-wrap: wrap;
-  }
-
-  .fmt-btn {
-    padding: 5px 8px;
-    border-radius: var(--radius-sm);
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    font-size: 13px;
-    color: var(--text2);
-    font-family: 'DM Sans', sans-serif;
-    transition: background 0.1s, color 0.1s;
-    min-width: 28px;
-    text-align: center;
-  }
-
-  .fmt-btn:hover { background: var(--surface2); color: var(--text); }
-  .fmt-btn b, .fmt-btn i, .fmt-btn u { pointer-events: none; }
-
-  .fmt-sep { width: 1px; height: 18px; background: var(--border); margin: 0 4px; flex-shrink: 0; }
-
-  .preview-btn {
-    margin-left: auto;
-    padding: 5px 12px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border2);
-    background: transparent;
-    font-size: 12px;
-    font-family: 'DM Sans', sans-serif;
-    color: var(--text2);
-    cursor: pointer;
-    transition: all 0.1s;
-  }
-
-  .preview-btn:hover { background: var(--surface2); }
-  .preview-btn.on { background: var(--accent-light); color: var(--accent-text); border-color: rgba(45,90,61,0.2); }
-
-  /* Fields */
-  .fields {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 0 20px;
-  }
-
-  .field-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    height: 44px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .field-row:last-child { border-bottom: none; }
-
-  .field-label {
-    font-size: 12px;
-    color: var(--text3);
-    min-width: 54px;
-    font-weight: 500;
-    letter-spacing: 0.02em;
-  }
-
-  .field-input {
-    flex: 1;
-    border: none;
-    outline: none;
-    background: transparent;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    color: var(--text);
-  }
-
-  .field-input::placeholder { color: var(--text3); }
-
-  /* Editor */
-  .editor-wrap {
-    flex: 1;
-    position: relative;
-    overflow: hidden;
-  }
-
-  #html-editor {
-    position: absolute;
-    inset: 0;
-    border: none;
-    outline: none;
-    resize: none;
-    padding: 20px 24px;
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    line-height: 1.7;
-    color: var(--text);
-    background: var(--bg);
-    tab-size: 2;
-  }
-
-  #preview-pane {
-    position: absolute;
-    inset: 0;
-    overflow-y: auto;
-    padding: 24px 28px;
-    background: white;
-    display: none;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    line-height: 1.7;
-    color: #1a1814;
-  }
-
-  #preview-pane h1 { font-family: 'DM Serif Display', serif; font-size: 26px; margin-bottom: 14px; }
-  #preview-pane h2 { font-size: 18px; font-weight: 500; margin: 18px 0 10px; }
-  #preview-pane p { margin-bottom: 12px; }
-  #preview-pane a { color: #2d5a3d; }
-  #preview-pane ul, #preview-pane ol { padding-left: 22px; margin-bottom: 12px; }
-  #preview-pane li { margin-bottom: 5px; }
-  #preview-pane hr { border: none; border-top: 1px solid #e0dcd6; margin: 18px 0; }
-  #preview-pane strong { font-weight: 500; }
-
-  /* Footer */
-  .footer {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 20px;
-    background: var(--surface);
-    border-top: 1px solid var(--border);
-    flex-shrink: 0;
-  }
-
-  .send-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 9px 22px;
-    border-radius: var(--radius);
-    border: none;
-    background: var(--accent);
-    color: white;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: opacity 0.15s, transform 0.1s;
-  }
-
-  .send-btn:hover { opacity: 0.88; }
-  .send-btn:active { transform: scale(0.98); }
-  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  .send-icon { font-size: 14px; }
-
-  .status {
-    font-size: 13px;
-    color: var(--text3);
-  }
-  .status.ok { color: var(--accent); }
-  .status.err { color: var(--danger); }
-
-  .char-count { margin-left: auto; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text3); }
-
-  /* Toast */
-  .toast {
-    position: fixed;
-    bottom: 28px;
-    left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: var(--text);
-    color: white;
-    padding: 12px 22px;
-    border-radius: 40px;
-    font-size: 14px;
-    font-weight: 400;
-    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
-    z-index: 100;
-    white-space: nowrap;
-  }
-  .toast.show { transform: translateX(-50%) translateY(0); }
-  .toast.success { background: var(--accent); }
-  .toast.error { background: var(--danger); }
+/* TOAST */
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(70px); background: var(--text); color: white; padding: 11px 22px; border-radius: 40px; font-size: 13.5px; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); z-index: 999; pointer-events: none; white-space: nowrap; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.success { background: var(--accent); }
+.toast.error { background: var(--danger); }
 </style>
 </head>
 <body>
 
-<!-- Auth Screen -->
+<!-- AUTH -->
 <div id="auth-screen">
   <div class="auth-card">
     <div class="auth-logo">Mail</div>
-    <p class="auth-tagline">Send beautiful HTML emails from your Gmail account.</p>
+    <p class="auth-sub">Beautiful HTML emails, sent from your Gmail.</p>
     <button class="google-btn" onclick="signIn()">
-      <svg class="google-icon" viewBox="0 0 48 48">
-        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-        <path fill="none" d="M0 0h48v48H0z"/>
-      </svg>
+      <svg class="g-icon" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
       Sign in with Google
     </button>
   </div>
 </div>
 
-<!-- App Screen -->
+<!-- APP -->
 <div id="app-screen">
   <header>
-    <span class="header-logo">Mail</span>
-    <div class="header-divider"></div>
-    <div class="user-pill">
-      <div class="user-avatar" id="user-avatar-wrap">
-        <span id="user-initials">?</span>
-      </div>
-      <span class="user-name" id="user-email-label">—</span>
+    <span class="h-logo">Mail</span>
+    <div class="h-div"></div>
+    <div class="user-chip">
+      <div class="u-avatar" id="u-avatar"><span id="u-initials">?</span></div>
+      <span class="u-name" id="u-email">—</span>
     </div>
-    <button class="sign-out-btn" onclick="signOut()">Sign out</button>
+    <div class="h-right">
+      <button class="h-btn" onclick="signOut()">Sign out</button>
+      <button class="send-btn" id="send-btn" onclick="sendEmail()">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M2 2l12 6-12 6V9.5l8-1.5-8-1.5V2z" fill="white"/></svg>
+        Send
+      </button>
+    </div>
   </header>
 
-  <div class="workspace">
+  <div class="body">
+    <!-- SIDEBAR -->
     <div class="sidebar">
-      <div class="sidebar-section">New email</div>
-      <button class="tpl-btn active" onclick="loadTemplate('scratch', this)">
-        <span class="tpl-icon">✦</span> Blank
-      </button>
-
-      <div class="sidebar-section">Templates</div>
-      <button class="tpl-btn" onclick="loadTemplate('followup', this)">
-        <span class="tpl-icon">↩</span> Follow-up
-      </button>
-      <button class="tpl-btn" onclick="loadTemplate('intro', this)">
-        <span class="tpl-icon">👋</span> Introduction
-      </button>
-      <button class="tpl-btn" onclick="loadTemplate('meeting', this)">
-        <span class="tpl-icon">📅</span> Meeting request
-      </button>
+      <div class="sb-sec">Templates</div>
+      <button class="tpl-btn active" onclick="loadTemplate('scratch',this)"><span class="t-icon">✦</span>Blank</button>
+      <button class="tpl-btn" onclick="loadTemplate('newsletter',this)"><span class="t-icon">📰</span>Newsletter</button>
+      <button class="tpl-btn" onclick="loadTemplate('followup',this)"><span class="t-icon">↩</span>Follow-up</button>
+      <button class="tpl-btn" onclick="loadTemplate('intro',this)"><span class="t-icon">👋</span>Introduction</button>
+      <button class="tpl-btn" onclick="loadTemplate('meeting',this)"><span class="t-icon">📅</span>Meeting request</button>
+      <div class="sb-rule"></div>
+      <div class="sb-sec">Insert block</div>
+      <div class="block-list">
+        <button class="blk-btn" onclick="insertBlock('header')">＋ Header / logo</button>
+        <button class="blk-btn" onclick="insertBlock('hero')">＋ Hero text</button>
+        <button class="blk-btn" onclick="insertBlock('text')">＋ Text paragraph</button>
+        <button class="blk-btn" onclick="insertBlock('cta')">＋ CTA button</button>
+        <button class="blk-btn" onclick="insertBlock('divider')">＋ Divider</button>
+        <button class="blk-btn" onclick="insertBlock('twoCol')">＋ Two columns</button>
+        <button class="blk-btn" onclick="insertBlock('image')">＋ Image</button>
+        <button class="blk-btn" onclick="insertBlock('footer')">＋ Footer</button>
+      </div>
     </div>
 
-    <div class="composer">
-      <div class="toolbar">
-        <span style="font-size:12px;color:var(--text3);margin-right:4px;">Format</span>
-        <button class="fmt-btn" title="Bold" onclick="fmt('bold')"><b>B</b></button>
-        <button class="fmt-btn" title="Italic" onclick="fmt('italic')"><i>I</i></button>
-        <button class="fmt-btn" title="Underline" onclick="fmt('underline')"><u>U</u></button>
-        <div class="fmt-sep"></div>
-        <button class="fmt-btn" onclick="insertTag('h2')">H2</button>
-        <button class="fmt-btn" onclick="insertTag('p')">¶</button>
-        <button class="fmt-btn" onclick="insertList()">List</button>
-        <button class="fmt-btn" onclick="insertHr()">—</button>
-        <div class="fmt-sep"></div>
-        <button class="fmt-btn" onclick="insertLink()">Link</button>
-        <button class="fmt-btn" onclick="insertBtn()">Button</button>
-        <div class="fmt-sep"></div>
-        <button class="preview-btn" id="preview-toggle" onclick="togglePreview()">Preview</button>
-      </div>
-
-      <div class="fields">
-        <div class="field-row">
-          <span class="field-label">To</span>
-          <input class="field-input" type="email" id="to-field" placeholder="recipient@example.com" />
+    <!-- MAIN -->
+    <div class="main">
+      <!-- ENVELOPE -->
+      <div class="env-fields">
+        <div class="env-row">
+          <span class="env-label">To</span>
+          <input class="env-input" type="email" id="to-field" placeholder="recipient@example.com" />
         </div>
-        <div class="field-row">
-          <span class="field-label">Subject</span>
-          <input class="field-input" type="text" id="subject-field" placeholder="Subject line" />
+        <div class="env-row">
+          <span class="env-label">Subject</span>
+          <input class="env-input" type="text" id="subject-field" placeholder="Subject line" oninput="updateMeta()" />
+        </div>
+        <div class="env-row">
+          <span class="env-label">Preview text</span>
+          <input class="env-input" type="text" id="preheader-field" placeholder="Short teaser shown in inbox before opening…" oninput="updateMeta()" />
+          <span class="env-hint">inbox snippet</span>
         </div>
       </div>
 
-      <div class="editor-wrap">
-        <textarea id="html-editor" placeholder="Write your HTML email here…" oninput="updateCount()"></textarea>
-        <div id="preview-pane"></div>
+      <!-- SPLIT -->
+      <div class="split">
+        <!-- LEFT: editor -->
+        <div class="editor-pane">
+          <div class="pane-bar">
+            <span class="pane-title">HTML source</span>
+            <div class="pane-actions">
+              <button class="p-btn" onclick="copyHTML()">Copy HTML</button>
+            </div>
+          </div>
+          <div class="fmt-bar">
+            <button class="f-btn" title="Bold" onclick="wrapTag('strong')"><b>B</b></button>
+            <button class="f-btn" title="Italic" onclick="wrapTag('em')"><i>I</i></button>
+            <button class="f-btn" title="Underline" onclick="wrapTag('u')"><u>U</u></button>
+            <div class="f-sep"></div>
+            <button class="f-btn" onclick="wrapTag('h2')">H2</button>
+            <button class="f-btn" onclick="wrapTag('h3')">H3</button>
+            <button class="f-btn" onclick="wrapTag('p')">P</button>
+            <div class="f-sep"></div>
+            <button class="f-btn" onclick="insertBlock('cta')">Button</button>
+            <button class="f-btn" onclick="insertBlock('divider')">—</button>
+            <button class="f-btn" onclick="promptLink()">Link</button>
+          </div>
+          <textarea class="raw-editor" id="raw-editor" spellcheck="false" oninput="onEdit()"></textarea>
+        </div>
+
+        <!-- RIGHT: preview -->
+        <div class="preview-pane">
+          <div class="pane-bar">
+            <span class="pane-title">Inbox preview</span>
+            <div class="pane-actions">
+              <button class="p-btn" onclick="setWidth(375)">Mobile</button>
+              <button class="p-btn" onclick="setWidth(540)">Desktop</button>
+            </div>
+          </div>
+          <div class="preview-scroll">
+            <div class="preview-inbox" id="preview-inbox">
+              <div class="inbox-chrome">
+                <div class="dot" style="background:#ff5f56"></div>
+                <div class="dot" style="background:#ffbd2e"></div>
+                <div class="dot" style="background:#27c93f"></div>
+                <div class="inbox-meta">
+                  <div class="inbox-subj" id="inbox-subj">No subject</div>
+                  <div class="inbox-pre" id="inbox-pre">Preview text will appear here</div>
+                </div>
+              </div>
+              <div class="email-shell">
+                <iframe id="preview-frame" scrolling="no" title="Email preview"></iframe>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="footer">
-        <button class="send-btn" id="send-btn" onclick="sendEmail()">
-          <span class="send-icon">&#9658;</span> Send
-        </button>
-        <span class="status" id="status-msg"></span>
-        <span class="char-count" id="char-count">0</span>
+      <div class="status-bar">
+        <span class="status-msg" id="status-msg"></span>
+        <span class="char-count" id="char-count">0 chars</span>
       </div>
     </div>
   </div>
@@ -521,306 +253,390 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- Google Identity Services -->
 <script src="https://accounts.google.com/gsi/client" async></script>
-
 <script>
 const CLIENT_ID = '429800240850-6lqgs6suut215rnn2qcc81544epk2okh.apps.googleusercontent.com';
-const SCOPES = 'https://www.googleapis.com/auth/gmail.send';
+const SCOPES = 'https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/oauth2/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile openid email profile';
+const ACCENT = '#2d5a3d';
 
-let tokenClient = null;
-let accessToken = null;
+let tokenClient, accessToken;
 
-// ── Auth ──────────────────────────────────────────────────────────
-
+// ── GOOGLE AUTH ────────────────────────────────────────────────
 window.onload = () => {
-  google.accounts.id.initialize({ client_id: CLIENT_ID });
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID,
-    scope: SCOPES,
-    callback: handleToken,
-  });
+  const s = document.querySelector('script[src*="gsi"]');
+  if (typeof google !== 'undefined') initGoogle();
+  else s.onload = initGoogle;
 };
 
-function signIn() {
-  tokenClient.requestAccessToken({ prompt: 'consent' });
+function initGoogle() {
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: 'https://www.googleapis.com/auth/gmail.send email profile openid',
+    callback: onToken,
+  });
 }
 
-function handleToken(resp) {
-  if (resp.error) { showToast('Sign in failed: ' + resp.error, 'error'); return; }
-  accessToken = resp.access_token;
-  fetchUserInfo();
-}
-
-async function fetchUserInfo() {
-  try {
-    const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-      headers: { Authorization: 'Bearer ' + accessToken }
-    });
-    const info = await res.json();
-
-    document.getElementById('user-email-label').textContent = info.email || '';
-    const initials = (info.name || info.email || '?').split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
-
-    const avatarWrap = document.getElementById('user-avatar-wrap');
-    if (info.picture) {
-      avatarWrap.innerHTML = `<img src="${info.picture}" alt="" />`;
-    } else {
-      document.getElementById('user-initials').textContent = initials;
-    }
-
-    document.getElementById('auth-screen').style.display = 'none';
-    document.getElementById('app-screen').style.display = 'flex';
-  } catch (e) {
-    showToast('Could not fetch user info.', 'error');
-  }
-}
+function signIn() { tokenClient.requestAccessToken({ prompt: 'consent' }); }
 
 function signOut() {
-  google.accounts.oauth2.revoke(accessToken, () => {});
+  if (accessToken) google.accounts.oauth2.revoke(accessToken, () => {});
   accessToken = null;
   document.getElementById('auth-screen').style.display = 'flex';
   document.getElementById('app-screen').style.display = 'none';
 }
 
-// ── Templates ─────────────────────────────────────────────────────
+async function onToken(resp) {
+  if (resp.error) { showToast('Sign-in failed: ' + resp.error, 'error'); return; }
+  accessToken = resp.access_token;
+  try {
+    const r = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: 'Bearer ' + accessToken }
+    });
+    const u = await r.json();
+    document.getElementById('u-email').textContent = u.email || '';
+    const initials = (u.name || u.email || '?').split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+    const av = document.getElementById('u-avatar');
+    av.innerHTML = u.picture ? `<img src="${u.picture}" alt="" />` : `<span>${initials}</span>`;
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display = 'flex';
+    loadTemplate('scratch');
+  } catch(e) {
+    showToast('Could not load profile.', 'error');
+  }
+}
 
-const templates = {
-  scratch: { subject: '', body: '' },
+// ── EMAIL HTML BUILDERS ────────────────────────────────────────
+function emailWrap(subject, preheader, innerRows) {
+  const ph = preheader
+    ? `<div style="display:none;max-height:0;overflow:hidden;font-size:1px;line-height:1px;color:transparent;mso-hide:all;">${preheader}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</div>`
+    : '';
+  return `<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="x-apple-disable-message-reformatting">
+<title>${subject}</title>
+<!--[if mso]>
+<noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
+<![endif]-->
+<style>
+body,table,td,a{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%}
+table,td{mso-table-lspace:0pt;mso-table-rspace:0pt}
+img{-ms-interpolation-mode:bicubic;border:0;height:auto;line-height:100%;outline:none;text-decoration:none}
+body{margin:0!important;padding:0!important;background-color:#f0ede8}
+</style>
+</head>
+<body style="margin:0;padding:0;background-color:#f0ede8;">
+${ph}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f0ede8;padding:28px 0;">
+<tr><td align="center" style="padding:0 16px;">
+<!--[if mso]><table role="presentation" width="560"><tr><td><![endif]-->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;margin:0 auto;">
+${innerRows}
+</table>
+<!--[if mso]></td></tr></table><![endif]-->
+</td></tr>
+</table>
+</body>
+</html>`;
+}
+
+const B = {
+  header: (brand = '[Your Brand]') =>
+    `<tr><td style="background:#1c1a17;padding:22px 32px;border-radius:10px 10px 0 0;mso-padding-alt:22px 32px;">
+  <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:22px;color:#faf8f5;letter-spacing:-0.3px;">${brand}</p>
+</td></tr>`,
+
+  hero: (headline = 'Your headline here', body = 'Supporting text — keep it short and punchy.') =>
+    `<tr><td style="background:#ffffff;padding:32px 32px 24px;mso-padding-alt:32px 32px 24px;">
+  <h1 style="margin:0 0 12px;font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:normal;color:#1c1a17;line-height:1.25;mso-line-height-rule:exactly;">${headline}</h1>
+  <p style="margin:0;font-family:Arial,sans-serif;font-size:15px;color:#6b6459;line-height:1.7;mso-line-height-rule:exactly;">${body}</p>
+</td></tr>`,
+
+  text: (html = '<p style="font-family:Arial,sans-serif;font-size:15px;color:#444444;line-height:1.7;margin:0;">Your paragraph text here.</p>') =>
+    `<tr><td style="background:#ffffff;padding:0 32px 24px;">${html}</td></tr>`,
+
+  cta: (label = 'Call to action', url = '#') =>
+    `<tr><td style="background:#ffffff;padding:0 32px 28px;">
+  <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${url}" style="height:44px;v-text-anchor:middle;width:180px;" arcsize="16%" stroke="f" fillcolor="${ACCENT}"><w:anchorlock/><center style="color:#ffffff;font-family:Arial,sans-serif;font-size:15px;font-weight:bold;">${label}</center></v:roundrect><![endif]-->
+  <!--[if !mso]><!--><table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="background:${ACCENT};border-radius:7px;mso-hide:all;">
+    <a href="${url}" target="_blank" style="display:inline-block;padding:12px 28px;font-family:Georgia,'Times New Roman',serif;font-size:15px;color:#ffffff;text-decoration:none;letter-spacing:0.01em;mso-hide:all;">${label}</a>
+  </td></tr></table><!--<![endif]-->
+</td></tr>`,
+
+  divider: () =>
+    `<tr><td style="background:#ffffff;padding:0 32px 24px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="border-top:1px solid #e8e4de;font-size:0;line-height:0;">&nbsp;</td></tr></table>
+</td></tr>`,
+
+  twoCol: () =>
+    `<tr><td style="background:#ffffff;padding:0 32px 24px;">
+  <!--[if mso]><table role="presentation" width="100%"><tr><td width="48%" valign="top"><![endif]-->
+  <div style="display:inline-block;vertical-align:top;width:48%;min-width:160px;">
+    <p style="font-family:Georgia,serif;font-size:16px;font-weight:normal;color:#1c1a17;margin:0 0 8px;">Column one</p>
+    <p style="font-family:Arial,sans-serif;font-size:14px;color:#6b6459;line-height:1.65;margin:0;">Your content here.</p>
+  </div>
+  <!--[if mso]></td><td width="4%"></td><td width="48%" valign="top"><![endif]-->
+  <div style="display:inline-block;vertical-align:top;width:48%;min-width:160px;">
+    <p style="font-family:Georgia,serif;font-size:16px;font-weight:normal;color:#1c1a17;margin:0 0 8px;">Column two</p>
+    <p style="font-family:Arial,sans-serif;font-size:14px;color:#6b6459;line-height:1.65;margin:0;">Your content here.</p>
+  </div>
+  <!--[if mso]></td></tr></table><![endif]-->
+</td></tr>`,
+
+  image: () =>
+    `<tr><td style="background:#ffffff;padding:0 32px 24px;">
+  <img src="https://placehold.co/496x240/f0ede8/9e9890?text=Your+Image" width="496" alt="" style="width:100%;max-width:496px;height:auto;display:block;border-radius:6px;" />
+</td></tr>`,
+
+  footer: () =>
+    `<tr><td style="background:#f5f2ee;padding:20px 32px;border-radius:0 0 10px 10px;">
+  <p style="margin:0 0 6px;font-family:Arial,sans-serif;font-size:12px;color:#a09890;line-height:1.6;">You received this because you're subscribed to <strong>[list name]</strong>.</p>
+  <p style="margin:0;font-family:Arial,sans-serif;font-size:12px;color:#a09890;line-height:1.6;">[Company Name] &middot; [Address] &middot; <a href="#" style="color:#6b6459;text-decoration:underline;">Unsubscribe</a></p>
+</td></tr>`,
+};
+
+// ── TEMPLATES ──────────────────────────────────────────────────
+const TEMPLATES = {
+  scratch: {
+    subject: '', preheader: '',
+    rows: () => B.header() + B.hero() + B.cta() + B.footer()
+  },
+  newsletter: {
+    subject: '[Your Newsletter] — Issue #1',
+    preheader: 'A quick look at what\'s new this week.',
+    rows: () =>
+      B.header('[Your Newsletter]') +
+      B.hero('What\'s new this week', 'A short intro to this issue. Keep it warm — readers open newsletters for the voice, not just the content.') +
+      B.divider() +
+      B.text('<h2 style="font-family:Georgia,serif;font-size:20px;font-weight:normal;color:#1c1a17;margin:0 0 10px;">Story one</h2><p style="font-family:Arial,sans-serif;font-size:15px;color:#444;line-height:1.7;margin:0 0 14px;">Your first update or story here. Keep paragraphs short — two to three sentences.</p>') +
+      B.cta('Read more →', '#') +
+      B.divider() +
+      B.text('<h2 style="font-family:Georgia,serif;font-size:20px;font-weight:normal;color:#1c1a17;margin:0 0 10px;">Story two</h2><p style="font-family:Arial,sans-serif;font-size:15px;color:#444;line-height:1.7;margin:0;">Another update. Keep the same casual-professional tone throughout.</p>') +
+      B.divider() +
+      B.footer()
+  },
   followup: {
     subject: 'Following up — [topic]',
-    body: `<p>Hi [Name],</p>
-
-<p>I wanted to follow up on my previous message regarding <strong>[topic]</strong>. I'll keep this brief.</p>
-
-<p>[Your follow-up message. Be specific about what you need.]</p>
-
-<p>Would you be able to connect this week? I'm flexible on timing.</p>
-
-<p>Best,<br />[Your name]</p>`
+    preheader: 'Just checking in on my last message.',
+    rows: () =>
+      B.header('[Your Name]') +
+      B.text('<p style="font-family:Arial,sans-serif;font-size:15px;color:#444;line-height:1.7;margin:0 0 14px;">Hi [Name],</p><p style="font-family:Arial,sans-serif;font-size:15px;color:#444;line-height:1.7;margin:0 0 14px;">I wanted to follow up on my previous message about <strong>[topic]</strong>. I\'ll keep this brief.</p><p style="font-family:Arial,sans-serif;font-size:15px;color:#444;line-height:1.7;margin:0 0 14px;">[Your one-sentence follow-up. Be specific about what you need.]</p><p style="font-family:Arial,sans-serif;font-size:15px;color:#444;line-height:1.7;margin:0;">Would you have 15 minutes this week?</p>') +
+      B.cta('Book a time', '#') +
+      B.divider() +
+      B.text('<p style="font-family:Arial,sans-serif;font-size:13px;color:#888;line-height:1.6;margin:0;">Best,<br /><strong>[Your name]</strong><br />[Title] &middot; [Company]</p>') +
+      B.footer()
   },
   intro: {
     subject: 'Introduction — [Your name] from [Company]',
-    body: `<p>Hi [Name],</p>
-
-<p>My name is <strong>[Your name]</strong>, and I'm [your role] at <strong>[Company]</strong>. I came across [how you found them] and wanted to reach out.</p>
-
-<p>[One clear sentence about the value or connection you're offering.]</p>
-
-<p>Would you be open to a quick 15-minute call?</p>
-
-<p>Looking forward to connecting,<br />[Your name]<br />[Title] · [Company]</p>`
+    preheader: 'Nice to meet you — here\'s why I\'m reaching out.',
+    rows: () =>
+      B.header('[Your Brand]') +
+      B.hero('Nice to meet you', 'Here\'s why I\'m reaching out.') +
+      B.text('<p style="font-family:Arial,sans-serif;font-size:15px;color:#444;line-height:1.7;margin:0 0 14px;">Hi [Name],</p><p style="font-family:Arial,sans-serif;font-size:15px;color:#444;line-height:1.7;margin:0 0 14px;">My name is <strong>[Your name]</strong> — I\'m [your role] at <strong>[Company]</strong>. I came across [how you found them] and wanted to connect.</p><p style="font-family:Arial,sans-serif;font-size:15px;color:#444;line-height:1.7;margin:0;">[One clear sentence about what you\'re offering or why this connection makes sense.]</p>') +
+      B.cta('Schedule a call', '#') +
+      B.divider() +
+      B.footer()
   },
   meeting: {
     subject: 'Meeting request — [topic]',
-    body: `<p>Hi [Name],</p>
-
-<p>I'd love to schedule time to discuss <strong>[topic]</strong> with you.</p>
-
-<p><strong>A few times that work for me:</strong></p>
-<ul>
-  <li>[Day, Date] at [Time] [Timezone]</li>
-  <li>[Day, Date] at [Time] [Timezone]</li>
-  <li>[Day, Date] at [Time] [Timezone]</li>
-</ul>
-
-<p>Should take around <strong>[duration]</strong>. Let me know if any of these work, or suggest a time that suits you.</p>
-
-<p>Thanks,<br />[Your name]</p>`
+    preheader: 'A few times that work — pick what suits you.',
+    rows: () =>
+      B.header('[Your Brand]') +
+      B.hero('Let\'s find a time', 'A few options that work for me.') +
+      B.text('<p style="font-family:Arial,sans-serif;font-size:15px;color:#444;line-height:1.7;margin:0 0 14px;">Hi [Name],</p><p style="font-family:Arial,sans-serif;font-size:15px;color:#444;line-height:1.7;margin:0 0 14px;">I\'d love to schedule time to discuss <strong>[topic]</strong>. Here are a few slots:</p><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 14px;"><tr><td style="padding:7px 14px;background:#f5f2ee;border-radius:6px;font-family:Arial,sans-serif;font-size:14px;color:#444;">[Day, Date] at [Time] [TZ]</td></tr><tr><td style="height:6px;"></td></tr><tr><td style="padding:7px 14px;background:#f5f2ee;border-radius:6px;font-family:Arial,sans-serif;font-size:14px;color:#444;">[Day, Date] at [Time] [TZ]</td></tr><tr><td style="height:6px;"></td></tr><tr><td style="padding:7px 14px;background:#f5f2ee;border-radius:6px;font-family:Arial,sans-serif;font-size:14px;color:#444;">[Day, Date] at [Time] [TZ]</td></tr></table><p style="font-family:Arial,sans-serif;font-size:15px;color:#444;line-height:1.7;margin:0;">Should take about <strong>[duration]</strong>. Or just reply with a better time.</p>') +
+      B.cta('View my calendar', '#') +
+      B.divider() +
+      B.footer()
   }
 };
 
 function loadTemplate(key, btn) {
-  const t = templates[key];
+  const t = TEMPLATES[key];
   document.getElementById('subject-field').value = t.subject;
-  document.getElementById('html-editor').value = t.body;
-  document.querySelectorAll('.tpl-btn').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
+  document.getElementById('preheader-field').value = t.preheader;
+  const html = emailWrap(t.subject, t.preheader, t.rows());
+  document.getElementById('raw-editor').value = html;
   updateCount();
-  if (isPreviewing) renderPreview();
+  updateMeta();
+  renderPreview();
+  document.querySelectorAll('.tpl-btn').forEach(b => b.classList.remove('active'));
+  (btn || document.querySelector('.tpl-btn')).classList.add('active');
 }
 
-// ── Editor ────────────────────────────────────────────────────────
-
-let isPreviewing = false;
-
-function togglePreview() {
-  isPreviewing = !isPreviewing;
-  const editor = document.getElementById('html-editor');
-  const pane = document.getElementById('preview-pane');
-  const btn = document.getElementById('preview-toggle');
-  if (isPreviewing) {
-    renderPreview();
-    editor.style.display = 'none';
-    pane.style.display = 'block';
-    btn.classList.add('on');
-    btn.textContent = 'Edit';
-  } else {
-    editor.style.display = 'block';
-    pane.style.display = 'none';
-    btn.classList.remove('on');
-    btn.textContent = 'Preview';
-  }
+// ── EDITOR ─────────────────────────────────────────────────────
+function onEdit() {
+  updateCount();
+  debounce(renderPreview, 350)();
 }
+
+const debounce = (fn, ms) => {
+  let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+};
 
 function renderPreview() {
-  document.getElementById('preview-pane').innerHTML = document.getElementById('html-editor').value;
+  const html = document.getElementById('raw-editor').value;
+  const iframe = document.getElementById('preview-frame');
+  try {
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+    doc.open(); doc.write(html); doc.close();
+    setTimeout(() => {
+      const h = doc.documentElement ? doc.documentElement.scrollHeight : 400;
+      iframe.style.height = Math.max(h, 200) + 'px';
+    }, 120);
+  } catch(e) {}
 }
 
-function fmt(cmd) {
-  const ta = document.getElementById('html-editor');
-  const s = ta.selectionStart, e = ta.selectionEnd;
-  const sel = ta.value.substring(s, e);
-  const tags = { bold: ['<strong>', '</strong>'], italic: ['<em>', '</em>'], underline: ['<u>', '</u>'] };
-  const [open, close] = tags[cmd];
-  ta.setRangeText(open + (sel || '') + close, s, e, 'end');
-  updateCount();
+function setWidth(w) {
+  document.getElementById('preview-inbox').style.maxWidth = w + 'px';
+  setTimeout(renderPreview, 60);
 }
 
-function insertTag(tag) {
-  const ta = document.getElementById('html-editor');
-  const pos = ta.selectionStart;
-  ta.setRangeText(`\n<${tag}></${tag}>\n`, pos, pos, 'end');
+function updateMeta() {
+  const subj = document.getElementById('subject-field').value || 'No subject';
+  const pre = document.getElementById('preheader-field').value || 'Preview text will appear here';
+  document.getElementById('inbox-subj').textContent = subj;
+  document.getElementById('inbox-pre').textContent = pre;
+  // Sync preheader into HTML
+  const ta = document.getElementById('raw-editor');
+  let html = ta.value;
+  // Remove old preheader
+  html = html.replace(/<div style="display:none;max-height:0[^<]*(?:<\/div>)/g, '');
+  const preheaderVal = document.getElementById('preheader-field').value;
+  if (preheaderVal) {
+    const ph = `<div style="display:none;max-height:0;overflow:hidden;font-size:1px;line-height:1px;color:transparent;mso-hide:all;">${preheaderVal}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</div>`;
+    html = html.replace(/(<body[^>]*>)(\s*)/, '$1\n' + ph + '\n');
+  }
+  ta.value = html;
   updateCount();
-}
-
-function insertList() {
-  const ta = document.getElementById('html-editor');
-  const pos = ta.selectionStart;
-  ta.setRangeText('\n<ul>\n  <li></li>\n  <li></li>\n</ul>\n', pos, pos, 'end');
-  updateCount();
-}
-
-function insertHr() {
-  const ta = document.getElementById('html-editor');
-  const pos = ta.selectionStart;
-  ta.setRangeText('\n<hr />\n', pos, pos, 'end');
-  updateCount();
-}
-
-function insertLink() {
-  const url = prompt('URL:');
-  if (!url) return;
-  const text = prompt('Link text:', url) || url;
-  const ta = document.getElementById('html-editor');
-  const pos = ta.selectionStart;
-  ta.setRangeText(`<a href="${url}">${text}</a>`, pos, pos, 'end');
-  updateCount();
-}
-
-function insertBtn() {
-  const url = prompt('Button URL:');
-  if (!url) return;
-  const label = prompt('Button label:', 'Click here') || 'Click here';
-  const ta = document.getElementById('html-editor');
-  const pos = ta.selectionStart;
-  const btnHtml = `<a href="${url}" style="display:inline-block;padding:10px 22px;background:#2d5a3d;color:white;text-decoration:none;border-radius:6px;font-weight:500;">${label}</a>`;
-  ta.setRangeText('\n' + btnHtml + '\n', pos, pos, 'end');
-  updateCount();
+  debounce(renderPreview, 350)();
 }
 
 function updateCount() {
-  const n = document.getElementById('html-editor').value.length;
+  const n = document.getElementById('raw-editor').value.length;
   document.getElementById('char-count').textContent = n.toLocaleString() + ' chars';
 }
 
-// ── Send ──────────────────────────────────────────────────────────
+function wrapTag(tag) {
+  const ta = document.getElementById('raw-editor');
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const sel = ta.value.substring(s, e);
+  ta.setRangeText(`<${tag}>${sel}</${tag}>`, s, e, 'end');
+  onEdit();
+}
 
+function promptLink() {
+  const url = prompt('URL:'); if (!url) return;
+  const label = prompt('Link text:', url) || url;
+  const ta = document.getElementById('raw-editor');
+  const pos = ta.selectionStart;
+  ta.setRangeText(`<a href="${url}" style="color:${ACCENT};text-decoration:underline;">${label}</a>`, pos, pos, 'end');
+  onEdit();
+}
+
+function insertBlock(type) {
+  const html = B[type] ? B[type]() : null;
+  if (!html) return;
+  const ta = document.getElementById('raw-editor');
+  const val = ta.value;
+  // Insert before the closing </table> of the inner table (before footer wrapper close)
+  const marker = '</table>\n</td></tr>\n</table>';
+  const idx = val.lastIndexOf(marker);
+  if (idx !== -1) {
+    ta.value = val.slice(0, idx) + html + '\n' + val.slice(idx);
+  } else {
+    const pos = ta.selectionStart;
+    ta.setRangeText('\n' + html + '\n', pos, pos, 'end');
+  }
+  onEdit();
+}
+
+function copyHTML() {
+  navigator.clipboard.writeText(document.getElementById('raw-editor').value)
+    .then(() => showToast('HTML copied!', 'success'))
+    .catch(() => showToast('Copy failed', 'error'));
+}
+
+// ── SEND ───────────────────────────────────────────────────────
 async function sendEmail() {
   if (!accessToken) { showToast('Please sign in first.', 'error'); return; }
-
   const to = document.getElementById('to-field').value.trim();
   const subject = document.getElementById('subject-field').value.trim();
-  const body = document.getElementById('html-editor').value.trim();
-
+  const htmlBody = document.getElementById('raw-editor').value.trim();
   if (!to) { setStatus('Add a recipient.', 'err'); return; }
-  if (!subject) { setStatus('Add a subject line.', 'err'); return; }
-  if (!body) { setStatus('Email body is empty.', 'err'); return; }
+  if (!subject) { setStatus('Add a subject.', 'err'); return; }
+  if (!htmlBody) { setStatus('Email body is empty.', 'err'); return; }
 
   const btn = document.getElementById('send-btn');
-  btn.disabled = true;
-  setStatus('Sending…');
+  btn.disabled = true; setStatus('Sending…');
 
   try {
-    const raw = buildMimeMessage(to, subject, body);
+    const raw = buildMime(to, subject, htmlBody);
     const encoded = btoa(unescape(encodeURIComponent(raw)))
       .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 
     const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
       method: 'POST',
-      headers: {
-        Authorization: 'Bearer ' + accessToken,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ raw: encoded }),
+      headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ raw: encoded })
     });
 
     if (res.ok) {
       setStatus('');
-      showToast('Email sent!', 'success');
-      // Clear fields
-      document.getElementById('to-field').value = '';
-      document.getElementById('subject-field').value = '';
-      document.getElementById('html-editor').value = '';
-      updateCount();
-      document.querySelectorAll('.tpl-btn').forEach(b => b.classList.remove('active'));
-      document.querySelector('.tpl-btn').classList.add('active');
+      showToast('Email sent! ✓', 'success');
     } else {
       const err = await res.json();
       if (err.error?.code === 401) {
-        // Token expired — re-prompt
-        accessToken = null;
         tokenClient.requestAccessToken({ prompt: '' });
-        setStatus('Re-authenticating…');
+        setStatus('Session expired — re-authenticating…');
       } else {
-        setStatus('Send failed: ' + (err.error?.message || 'Unknown error'), 'err');
+        setStatus('Error: ' + (err.error?.message || 'Unknown'), 'err');
       }
     }
-  } catch (e) {
-    setStatus('Network error. Check your connection.', 'err');
-  }
-
+  } catch(e) { setStatus('Network error.', 'err'); }
   btn.disabled = false;
 }
 
-function buildMimeMessage(to, subject, htmlBody) {
-  const boundary = 'boundary_' + Math.random().toString(36).slice(2);
+function buildMime(to, subject, htmlBody) {
+  const plain = htmlBody.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+  const b = 'b' + Date.now().toString(36);
+  const encSubj = `=?UTF-8?B?${btoa(unescape(encodeURIComponent(subject)))}?=`;
   return [
     'MIME-Version: 1.0',
     `To: ${to}`,
-    `Subject: ${subject}`,
-    `Content-Type: multipart/alternative; boundary="${boundary}"`,
+    `Subject: ${encSubj}`,
+    `Content-Type: multipart/alternative; boundary="${b}"`,
     '',
-    `--${boundary}`,
+    `--${b}`,
     'Content-Type: text/plain; charset=UTF-8',
     '',
-    htmlBody.replace(/<[^>]+>/g, ''),
+    plain,
     '',
-    `--${boundary}`,
+    `--${b}`,
     'Content-Type: text/html; charset=UTF-8',
     '',
-    `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>${htmlBody}</body></html>`,
+    htmlBody,
     '',
-    `--${boundary}--`,
+    `--${b}--`,
   ].join('\r\n');
 }
 
+// ── UTILS ──────────────────────────────────────────────────────
 function setStatus(msg, type) {
   const el = document.getElementById('status-msg');
   el.textContent = msg;
-  el.className = 'status' + (type ? ' ' + type : '');
+  el.className = 'status-msg' + (type ? ' ' + type : '');
 }
 
-let toastTimer;
+let toastT;
 function showToast(msg, type) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast' + (type ? ' ' + type : '');
-  clearTimeout(toastTimer);
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => t.classList.add('show'));
-  });
-  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+  t.textContent = msg; t.className = 'toast' + (type ? ' ' + type : '');
+  clearTimeout(toastT);
+  requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('show')));
+  toastT = setTimeout(() => t.classList.remove('show'), 3200);
 }
 </script>
 </body>
