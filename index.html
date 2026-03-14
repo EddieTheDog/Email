@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mail</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #f5f2ee;
+    --surface: #faf8f5;
+    --surface2: #f0ece6;
+    --border: #ddd8d0;
+    --border2: #ccc6bc;
+    --text: #1a1814;
+    --text2: #6b6560;
+    --text3: #9e9890;
+    --accent: #2d5a3d;
+    --accent-light: #e8f0eb;
+    --accent-text: #1e3d2a;
+    --danger: #8b2f2f;
+    --danger-bg: #f7eaea;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Auth screen ── */
+  #auth-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+    padding: 40px 20px;
+  }
+
+  .auth-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 48px 52px;
+    text-align: center;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.06);
+  }
+
+  .auth-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+    color: var(--text);
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+
+  .auth-tagline {
+    font-size: 14px;
+    color: var(--text2);
+    margin-bottom: 36px;
+    font-weight: 300;
+  }
+
+  .google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    padding: 13px 20px;
+    background: white;
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  }
+
+  .google-btn:hover { background: var(--surface2); border-color: var(--border2); }
+  .google-btn:active { transform: scale(0.99); }
+
+  .google-icon {
+    width: 20px; height: 20px; flex-shrink: 0;
+  }
+
+  /* ── App layout ── */
+  #app-screen { display: none; flex-direction: column; min-height: 100vh; }
+
+  header {
+    display: flex;
+    align-items: center;
+    padding: 0 28px;
+    height: 56px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    gap: 16px;
+    flex-shrink: 0;
+  }
+
+  .header-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    letter-spacing: -0.3px;
+    color: var(--text);
+  }
+
+  .header-divider { width: 1px; height: 20px; background: var(--border); }
+
+  .user-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px 4px 4px;
+    border-radius: 20px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+  }
+
+  .user-avatar {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    font-size: 11px;
+    font-weight: 500;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .user-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+
+  .user-name { font-size: 13px; color: var(--text2); }
+
+  .sign-out-btn {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--text3);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+  }
+  .sign-out-btn:hover { color: var(--text); background: var(--surface2); }
+
+  /* ── Main area ── */
+  .workspace {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 20px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow-y: auto;
+  }
+
+  .sidebar-section {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text3);
+    padding: 12px 10px 6px;
+  }
+
+  .sidebar-section:first-child { padding-top: 0; }
+
+  .tpl-btn {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    color: var(--text2);
+    text-align: left;
+    transition: all 0.1s;
+  }
+
+  .tpl-btn:hover { background: var(--surface2); color: var(--text); }
+
+  .tpl-btn.active {
+    background: var(--accent-light);
+    color: var(--accent-text);
+    border-color: rgba(45,90,61,0.18);
+    font-weight: 500;
+  }
+
+  .tpl-icon {
+    width: 22px; height: 22px;
+    border-radius: 5px;
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  .tpl-btn.active .tpl-icon { background: rgba(45,90,61,0.15); }
+
+  /* ── Composer ── */
+  .composer {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Toolbar */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .fmt-btn {
+    padding: 5px 8px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text2);
+    font-family: 'DM Sans', sans-serif;
+    transition: background 0.1s, color 0.1s;
+    min-width: 28px;
+    text-align: center;
+  }
+
+  .fmt-btn:hover { background: var(--surface2); color: var(--text); }
+  .fmt-btn b, .fmt-btn i, .fmt-btn u { pointer-events: none; }
+
+  .fmt-sep { width: 1px; height: 18px; background: var(--border); margin: 0 4px; flex-shrink: 0; }
+
+  .preview-btn {
+    margin-left: auto;
+    padding: 5px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border2);
+    background: transparent;
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.1s;
+  }
+
+  .preview-btn:hover { background: var(--surface2); }
+  .preview-btn.on { background: var(--accent-light); color: var(--accent-text); border-color: rgba(45,90,61,0.2); }
+
+  /* Fields */
+  .fields {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+  }
+
+  .field-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 44px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .field-row:last-child { border-bottom: none; }
+
+  .field-label {
+    font-size: 12px;
+    color: var(--text3);
+    min-width: 54px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+
+  .field-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  .field-input::placeholder { color: var(--text3); }
+
+  /* Editor */
+  .editor-wrap {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #html-editor {
+    position: absolute;
+    inset: 0;
+    border: none;
+    outline: none;
+    resize: none;
+    padding: 20px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text);
+    background: var(--bg);
+    tab-size: 2;
+  }
+
+  #preview-pane {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    padding: 24px 28px;
+    background: white;
+    display: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #1a1814;
+  }
+
+  #preview-pane h1 { font-family: 'DM Serif Display', serif; font-size: 26px; margin-bottom: 14px; }
+  #preview-pane h2 { font-size: 18px; font-weight: 500; margin: 18px 0 10px; }
+  #preview-pane p { margin-bottom: 12px; }
+  #preview-pane a { color: #2d5a3d; }
+  #preview-pane ul, #preview-pane ol { padding-left: 22px; margin-bottom: 12px; }
+  #preview-pane li { margin-bottom: 5px; }
+  #preview-pane hr { border: none; border-top: 1px solid #e0dcd6; margin: 18px 0; }
+  #preview-pane strong { font-weight: 500; }
+
+  /* Footer */
+  .footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .send-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 22px;
+    border-radius: var(--radius);
+    border: none;
+    background: var(--accent);
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+
+  .send-btn:hover { opacity: 0.88; }
+  .send-btn:active { transform: scale(0.98); }
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .send-icon { font-size: 14px; }
+
+  .status {
+    font-size: 13px;
+    color: var(--text3);
+  }
+  .status.ok { color: var(--accent); }
+  .status.err { color: var(--danger); }
+
+  .char-count { margin-left: auto; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text3); }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--text);
+    color: white;
+    padding: 12px 22px;
+    border-radius: 40px;
+    font-size: 14px;
+    font-weight: 400;
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    z-index: 100;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { background: var(--accent); }
+  .toast.error { background: var(--danger); }
+</style>
+</head>
+<body>
+
+<!-- Auth Screen -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">Mail</div>
+    <p class="auth-tagline">Send beautiful HTML emails from your Gmail account.</p>
+    <button class="google-btn" onclick="signIn()">
+      <svg class="google-icon" viewBox="0 0 48 48">
+        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        <path fill="none" d="M0 0h48v48H0z"/>
+      </svg>
+      Sign in with Google
+    </button>
+  </div>
+</div>
+
+<!-- App Screen -->
+<div id="app-screen">
+  <header>
+    <span class="header-logo">Mail</span>
+    <div class="header-divider"></div>
+    <div class="user-pill">
+      <div class="user-avatar" id="user-avatar-wrap">
+        <span id="user-initials">?</span>
+      </div>
+      <span class="user-name" id="user-email-label">—</span>
+    </div>
+    <button class="sign-out-btn" onclick="signOut()">Sign out</button>
+  </header>
+
+  <div class="workspace">
+    <div class="sidebar">
+      <div class="sidebar-section">New email</div>
+      <button class="tpl-btn active" onclick="loadTemplate('scratch', this)">
+        <span class="tpl-icon">✦</span> Blank
+      </button>
+
+      <div class="sidebar-section">Templates</div>
+      <button class="tpl-btn" onclick="loadTemplate('followup', this)">
+        <span class="tpl-icon">↩</span> Follow-up
+      </button>
+      <button class="tpl-btn" onclick="loadTemplate('intro', this)">
+        <span class="tpl-icon">👋</span> Introduction
+      </button>
+      <button class="tpl-btn" onclick="loadTemplate('meeting', this)">
+        <span class="tpl-icon">📅</span> Meeting request
+      </button>
+    </div>
+
+    <div class="composer">
+      <div class="toolbar">
+        <span style="font-size:12px;color:var(--text3);margin-right:4px;">Format</span>
+        <button class="fmt-btn" title="Bold" onclick="fmt('bold')"><b>B</b></button>
+        <button class="fmt-btn" title="Italic" onclick="fmt('italic')"><i>I</i></button>
+        <button class="fmt-btn" title="Underline" onclick="fmt('underline')"><u>U</u></button>
+        <div class="fmt-sep"></div>
+        <button class="fmt-btn" onclick="insertTag('h2')">H2</button>
+        <button class="fmt-btn" onclick="insertTag('p')">¶</button>
+        <button class="fmt-btn" onclick="insertList()">List</button>
+        <button class="fmt-btn" onclick="insertHr()">—</button>
+        <div class="fmt-sep"></div>
+        <button class="fmt-btn" onclick="insertLink()">Link</button>
+        <button class="fmt-btn" onclick="insertBtn()">Button</button>
+        <div class="fmt-sep"></div>
+        <button class="preview-btn" id="preview-toggle" onclick="togglePreview()">Preview</button>
+      </div>
+
+      <div class="fields">
+        <div class="field-row">
+          <span class="field-label">To</span>
+          <input class="field-input" type="email" id="to-field" placeholder="recipient@example.com" />
+        </div>
+        <div class="field-row">
+          <span class="field-label">Subject</span>
+          <input class="field-input" type="text" id="subject-field" placeholder="Subject line" />
+        </div>
+      </div>
+
+      <div class="editor-wrap">
+        <textarea id="html-editor" placeholder="Write your HTML email here…" oninput="updateCount()"></textarea>
+        <div id="preview-pane"></div>
+      </div>
+
+      <div class="footer">
+        <button class="send-btn" id="send-btn" onclick="sendEmail()">
+          <span class="send-icon">&#9658;</span> Send
+        </button>
+        <span class="status" id="status-msg"></span>
+        <span class="char-count" id="char-count">0</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async></script>
+
+<script>
+const CLIENT_ID = '429800240850-6lqgs6suut215rnn2qcc81544epk2okh.apps.googleusercontent.com';
+const SCOPES = 'https://www.googleapis.com/auth/gmail.send';
+
+let tokenClient = null;
+let accessToken = null;
+
+// ── Auth ──────────────────────────────────────────────────────────
+
+window.onload = () => {
+  google.accounts.id.initialize({ client_id: CLIENT_ID });
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: handleToken,
+  });
+};
+
+function signIn() {
+  tokenClient.requestAccessToken({ prompt: 'consent' });
+}
+
+function handleToken(resp) {
+  if (resp.error) { showToast('Sign in failed: ' + resp.error, 'error'); return; }
+  accessToken = resp.access_token;
+  fetchUserInfo();
+}
+
+async function fetchUserInfo() {
+  try {
+    const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: 'Bearer ' + accessToken }
+    });
+    const info = await res.json();
+
+    document.getElementById('user-email-label').textContent = info.email || '';
+    const initials = (info.name || info.email || '?').split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+
+    const avatarWrap = document.getElementById('user-avatar-wrap');
+    if (info.picture) {
+      avatarWrap.innerHTML = `<img src="${info.picture}" alt="" />`;
+    } else {
+      document.getElementById('user-initials').textContent = initials;
+    }
+
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display = 'flex';
+  } catch (e) {
+    showToast('Could not fetch user info.', 'error');
+  }
+}
+
+function signOut() {
+  google.accounts.oauth2.revoke(accessToken, () => {});
+  accessToken = null;
+  document.getElementById('auth-screen').style.display = 'flex';
+  document.getElementById('app-screen').style.display = 'none';
+}
+
+// ── Templates ─────────────────────────────────────────────────────
+
+const templates = {
+  scratch: { subject: '', body: '' },
+  followup: {
+    subject: 'Following up — [topic]',
+    body: `<p>Hi [Name],</p>
+
+<p>I wanted to follow up on my previous message regarding <strong>[topic]</strong>. I'll keep this brief.</p>
+
+<p>[Your follow-up message. Be specific about what you need.]</p>
+
+<p>Would you be able to connect this week? I'm flexible on timing.</p>
+
+<p>Best,<br />[Your name]</p>`
+  },
+  intro: {
+    subject: 'Introduction — [Your name] from [Company]',
+    body: `<p>Hi [Name],</p>
+
+<p>My name is <strong>[Your name]</strong>, and I'm [your role] at <strong>[Company]</strong>. I came across [how you found them] and wanted to reach out.</p>
+
+<p>[One clear sentence about the value or connection you're offering.]</p>
+
+<p>Would you be open to a quick 15-minute call?</p>
+
+<p>Looking forward to connecting,<br />[Your name]<br />[Title] · [Company]</p>`
+  },
+  meeting: {
+    subject: 'Meeting request — [topic]',
+    body: `<p>Hi [Name],</p>
+
+<p>I'd love to schedule time to discuss <strong>[topic]</strong> with you.</p>
+
+<p><strong>A few times that work for me:</strong></p>
+<ul>
+  <li>[Day, Date] at [Time] [Timezone]</li>
+  <li>[Day, Date] at [Time] [Timezone]</li>
+  <li>[Day, Date] at [Time] [Timezone]</li>
+</ul>
+
+<p>Should take around <strong>[duration]</strong>. Let me know if any of these work, or suggest a time that suits you.</p>
+
+<p>Thanks,<br />[Your name]</p>`
+  }
+};
+
+function loadTemplate(key, btn) {
+  const t = templates[key];
+  document.getElementById('subject-field').value = t.subject;
+  document.getElementById('html-editor').value = t.body;
+  document.querySelectorAll('.tpl-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  updateCount();
+  if (isPreviewing) renderPreview();
+}
+
+// ── Editor ────────────────────────────────────────────────────────
+
+let isPreviewing = false;
+
+function togglePreview() {
+  isPreviewing = !isPreviewing;
+  const editor = document.getElementById('html-editor');
+  const pane = document.getElementById('preview-pane');
+  const btn = document.getElementById('preview-toggle');
+  if (isPreviewing) {
+    renderPreview();
+    editor.style.display = 'none';
+    pane.style.display = 'block';
+    btn.classList.add('on');
+    btn.textContent = 'Edit';
+  } else {
+    editor.style.display = 'block';
+    pane.style.display = 'none';
+    btn.classList.remove('on');
+    btn.textContent = 'Preview';
+  }
+}
+
+function renderPreview() {
+  document.getElementById('preview-pane').innerHTML = document.getElementById('html-editor').value;
+}
+
+function fmt(cmd) {
+  const ta = document.getElementById('html-editor');
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const sel = ta.value.substring(s, e);
+  const tags = { bold: ['<strong>', '</strong>'], italic: ['<em>', '</em>'], underline: ['<u>', '</u>'] };
+  const [open, close] = tags[cmd];
+  ta.setRangeText(open + (sel || '') + close, s, e, 'end');
+  updateCount();
+}
+
+function insertTag(tag) {
+  const ta = document.getElementById('html-editor');
+  const pos = ta.selectionStart;
+  ta.setRangeText(`\n<${tag}></${tag}>\n`, pos, pos, 'end');
+  updateCount();
+}
+
+function insertList() {
+  const ta = document.getElementById('html-editor');
+  const pos = ta.selectionStart;
+  ta.setRangeText('\n<ul>\n  <li></li>\n  <li></li>\n</ul>\n', pos, pos, 'end');
+  updateCount();
+}
+
+function insertHr() {
+  const ta = document.getElementById('html-editor');
+  const pos = ta.selectionStart;
+  ta.setRangeText('\n<hr />\n', pos, pos, 'end');
+  updateCount();
+}
+
+function insertLink() {
+  const url = prompt('URL:');
+  if (!url) return;
+  const text = prompt('Link text:', url) || url;
+  const ta = document.getElementById('html-editor');
+  const pos = ta.selectionStart;
+  ta.setRangeText(`<a href="${url}">${text}</a>`, pos, pos, 'end');
+  updateCount();
+}
+
+function insertBtn() {
+  const url = prompt('Button URL:');
+  if (!url) return;
+  const label = prompt('Button label:', 'Click here') || 'Click here';
+  const ta = document.getElementById('html-editor');
+  const pos = ta.selectionStart;
+  const btnHtml = `<a href="${url}" style="display:inline-block;padding:10px 22px;background:#2d5a3d;color:white;text-decoration:none;border-radius:6px;font-weight:500;">${label}</a>`;
+  ta.setRangeText('\n' + btnHtml + '\n', pos, pos, 'end');
+  updateCount();
+}
+
+function updateCount() {
+  const n = document.getElementById('html-editor').value.length;
+  document.getElementById('char-count').textContent = n.toLocaleString() + ' chars';
+}
+
+// ── Send ──────────────────────────────────────────────────────────
+
+async function sendEmail() {
+  if (!accessToken) { showToast('Please sign in first.', 'error'); return; }
+
+  const to = document.getElementById('to-field').value.trim();
+  const subject = document.getElementById('subject-field').value.trim();
+  const body = document.getElementById('html-editor').value.trim();
+
+  if (!to) { setStatus('Add a recipient.', 'err'); return; }
+  if (!subject) { setStatus('Add a subject line.', 'err'); return; }
+  if (!body) { setStatus('Email body is empty.', 'err'); return; }
+
+  const btn = document.getElementById('send-btn');
+  btn.disabled = true;
+  setStatus('Sending…');
+
+  try {
+    const raw = buildMimeMessage(to, subject, body);
+    const encoded = btoa(unescape(encodeURIComponent(raw)))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+    const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+      method: 'POST',
+      headers: {
+        Authorization: 'Bearer ' + accessToken,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ raw: encoded }),
+    });
+
+    if (res.ok) {
+      setStatus('');
+      showToast('Email sent!', 'success');
+      // Clear fields
+      document.getElementById('to-field').value = '';
+      document.getElementById('subject-field').value = '';
+      document.getElementById('html-editor').value = '';
+      updateCount();
+      document.querySelectorAll('.tpl-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector('.tpl-btn').classList.add('active');
+    } else {
+      const err = await res.json();
+      if (err.error?.code === 401) {
+        // Token expired — re-prompt
+        accessToken = null;
+        tokenClient.requestAccessToken({ prompt: '' });
+        setStatus('Re-authenticating…');
+      } else {
+        setStatus('Send failed: ' + (err.error?.message || 'Unknown error'), 'err');
+      }
+    }
+  } catch (e) {
+    setStatus('Network error. Check your connection.', 'err');
+  }
+
+  btn.disabled = false;
+}
+
+function buildMimeMessage(to, subject, htmlBody) {
+  const boundary = 'boundary_' + Math.random().toString(36).slice(2);
+  return [
+    'MIME-Version: 1.0',
+    `To: ${to}`,
+    `Subject: ${subject}`,
+    `Content-Type: multipart/alternative; boundary="${boundary}"`,
+    '',
+    `--${boundary}`,
+    'Content-Type: text/plain; charset=UTF-8',
+    '',
+    htmlBody.replace(/<[^>]+>/g, ''),
+    '',
+    `--${boundary}`,
+    'Content-Type: text/html; charset=UTF-8',
+    '',
+    `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>${htmlBody}</body></html>`,
+    '',
+    `--${boundary}--`,
+  ].join('\r\n');
+}
+
+function setStatus(msg, type) {
+  const el = document.getElementById('status-msg');
+  el.textContent = msg;
+  el.className = 'status' + (type ? ' ' + type : '');
+}
+
+let toastTimer;
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (type ? ' ' + type : '');
+  clearTimeout(toastTimer);
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => t.classList.add('show'));
+  });
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+</script>
+</body>
+</html>
