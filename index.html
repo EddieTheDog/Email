@@ -794,6 +794,19 @@ let csvParsed = [];
 let editingProductId = null;
 let customPresets = []; // {id, name, icon, subject, preheader, html}
 let currentTab = 'compose';
+let lastOrderSchema = null; // Snapshot set by generateOrderEmail() — persists to Compose tab
+
+function buildOfferSchema(p, qty, currency){
+  return Object.assign(
+    {"@type":"Offer","price":p.price.toFixed(2),"priceCurrency":currency,
+     "eligibleQuantity":{"@type":"QuantitativeValue","value":String(qty)}},
+    {"itemOffered": Object.assign({"@type":"Product","name":p.name},
+      p.sku?{"sku":p.sku}:{},
+      p.image&&!p.image.startsWith('data:')?{"image":p.image}:{}, // only include real URLs, not base64
+      p.description?{"description":p.description}:{}
+    )}
+  );
+}
 
 const fmt = (n) => {
   const sym = { USD:'$', EUR:'€', GBP:'£', CAD:'CA$', AUD:'A$', JPY:'¥' }[settings.currency||'USD'] || '$';
@@ -1309,6 +1322,41 @@ function generateOrderEmail(){
   const address=document.getElementById('order-address').value||'[Shipping address]';
   const payment=document.getElementById('order-payment').value||'[Payment method]';
   const shipMethod=document.getElementById('order-ship-method').value||'Standard (5–7 business days)';
+  const currency=settings.currency||'USD';
+  const company=settings.company||'Your Company';
+  const website=settings.website||'https://yourcompany.com';
+
+  // ── Snapshot the order data for schema.org injection ──────────────────
+  // buildSchemaJsonLD() runs in Compose tab where cart may be cleared;
+  // we preserve the full structured order here so schema is always injected.
+  lastOrderSchema = {
+    "@context":"http://schema.org",
+    "@type":"Order",
+    "merchant":{"@type":"Organization","name":company,"url":website},
+    "orderNumber":orderNum,
+    "orderStatus":"http://schema.org/OrderProcessing",
+    "orderDate":new Date().toISOString(),
+    "priceCurrency":currency,
+    "price":total.toFixed(2),
+    "acceptedOffer": cart.length===1
+      ? buildOfferSchema(cart[0].product, cart[0].qty, currency)
+      : cart.map(({product:p,qty})=>buildOfferSchema(p,qty,currency)),
+    "url":website,
+    "potentialAction":{"@type":"ViewAction","url":website,"name":"View order"},
+    "customer":customer&&customer!=='[Customer]'?{"@type":"Person","name":customer}:undefined,
+    "paymentMethodId":payment&&payment!=='[Payment method]'?payment:undefined,
+    "priceSpecification":{"@type":"PriceSpecification","validFrom":new Date().toISOString()}
+  };
+  if(discountAmt>0){lastOrderSchema.discount=discountAmt.toFixed(2);lastOrderSchema.discountCurrency=currency;}
+  if(address&&address!=='[Shipping address]'){
+    const parts=address.split(',').map(s=>s.trim());
+    lastOrderSchema.billingAddress={"@type":"PostalAddress","streetAddress":parts[0]||address};
+    if(parts[1]) lastOrderSchema.billingAddress.addressLocality=parts[1];
+    if(parts[2]) lastOrderSchema.billingAddress.addressRegion=parts[2];
+    if(parts[3]) lastOrderSchema.billingAddress.postalCode=parts[3];
+  }
+  // Remove undefined values so JSON.stringify stays clean
+  lastOrderSchema=JSON.parse(JSON.stringify(lastOrderSchema));
 
   // Build items table HTML for editor
   const itemRows=cart.map(({product:p,qty})=>`<tr>
@@ -1345,10 +1393,13 @@ function generateOrderEmail(){
 <p><strong>💳 Payment:</strong> ${payment}</p>
 <p><strong>🚚 Shipping method:</strong> ${shipMethod}</p>
 <hr/>
-<p><a href="#" class="email-button" style="display:inline-block;background:${settings.color};color:white;padding:10px 24px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;">Track your order</a></p>
+<p><a href="${website}" class="email-button" style="display:inline-block;background:${settings.color};color:white;padding:10px 24px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;">Track your order</a></p>
 ${settings.support?`<p style="font-size:13px;color:#888;">Questions? Email us at <a href="mailto:${settings.support}">${settings.support}</a></p>`:''}`;
 
   openTab('compose');
+  // Set email type to transactional so correct headers + schema fire
+  const typeSelect=document.getElementById('email-type-select');
+  if(typeSelect) typeSelect.value='transactional';
   document.getElementById('subject-field').value=`Order confirmed — #${orderNum}`;
   document.getElementById('preheader-field').value=`Your order has been received. Here's your summary.`;
   document.getElementById('wysiwyg').innerHTML=wysiwyg;
@@ -1357,6 +1408,7 @@ ${settings.support?`<p style="font-size:13px;color:#888;">Questions? Email us at
   document.getElementById('tpl-order-confirm')?.classList.add('active');
   showToast('Order email generated! ✓','success');
 }
+
 
 /* ═══════════════════════════════════════════════════════════
    PRESETS
@@ -1680,7 +1732,14 @@ function buildSchemaJsonLD(){
   // Only inject schema for transactional/account emails
   if(!['transactional','account'].includes(emailType)) return '';
 
-  // ORDER schema - for order confirmation emails with cart items
+  const schemaTag=(obj)=>'<script type="application/ld+json">\n'+JSON.stringify(obj,null,2)+'\n<\/script>';
+
+  // ── 1. Use snapshot from Order Builder if available (most complete) ──
+  if(lastOrderSchema && (subjectLower.includes('order')||subjectLower.includes('confirm')||subjectLower.includes('receipt')||subjectLower.includes('invoice'))){
+    return schemaTag(lastOrderSchema);
+  }
+
+  // ── 2. Live cart data (order builder open, hasn't navigated away) ──
   if(cart && cart.length>0 && (subjectLower.includes('order')||subjectLower.includes('confirm')||subjectLower.includes('receipt')||subjectLower.includes('invoice'))){
     const subtotal=cart.reduce((s,{product:p,qty})=>s+p.price*qty,0);
     const discountPct=parseFloat(document.getElementById('order-discount')?.value)||0;
@@ -1693,36 +1752,21 @@ function buildSchemaJsonLD(){
     const customer=document.getElementById('order-customer')?.value||'';
     const address=document.getElementById('order-address')?.value||'';
     const payment=document.getElementById('order-payment')?.value||'';
-
-    const offers=cart.map(({product:p,qty})=>({
-      "@type":"Offer",
-      "itemOffered":Object.assign({"@type":"Product","name":p.name},
-        p.sku?{"sku":p.sku}:{},
-        p.image?{"image":p.image}:{},
-        p.description?{"description":p.description}:{}
-      ),
-      "price":p.price.toFixed(2),
-      "priceCurrency":currency,
-      "eligibleQuantity":{"@type":"QuantitativeValue","value":String(qty)}
-    }));
-
+    const offers=cart.map(({product:p,qty})=>buildOfferSchema(p,qty,currency));
     const schema={
-      "@context":"http://schema.org",
-      "@type":"Order",
+      "@context":"http://schema.org","@type":"Order",
       "merchant":{"@type":"Organization","name":company,"url":website},
-      "orderNumber":orderNum,
-      "orderStatus":"http://schema.org/OrderProcessing",
-      "orderDate":new Date().toISOString(),
-      "priceCurrency":currency,
+      "orderNumber":orderNum,"orderStatus":"http://schema.org/OrderProcessing",
+      "orderDate":new Date().toISOString(),"priceCurrency":currency,
       "price":total.toFixed(2),
       "acceptedOffer":offers.length===1?offers[0]:offers,
       "url":website,
-      "potentialAction":{"@type":"ViewAction","url":website,"name":"View order"}
+      "potentialAction":{"@type":"ViewAction","url":website,"name":"View order"},
+      "priceSpecification":{"@type":"PriceSpecification","validFrom":new Date().toISOString()}
     };
     if(customer) schema.customer={"@type":"Person","name":customer};
     if(payment) schema.paymentMethodId=payment;
     if(discountAmt>0){schema.discount=discountAmt.toFixed(2);schema.discountCurrency=currency;}
-    schema.priceSpecification={"@type":"PriceSpecification","validFrom":new Date().toISOString()};
     if(address){
       const parts=address.split(',').map(s=>s.trim());
       schema.billingAddress={"@type":"PostalAddress","streetAddress":parts[0]||address};
@@ -1730,28 +1774,20 @@ function buildSchemaJsonLD(){
       if(parts[2]) schema.billingAddress.addressRegion=parts[2];
       if(parts[3]) schema.billingAddress.postalCode=parts[3];
     }
-    return '<script type="application/ld+json">\n'+JSON.stringify(schema,null,2)+'\n<\/script>';
+    return schemaTag(schema);
   }
 
-  // ACCOUNT / password reset / verification
+  // ── 3. Account / password / verify emails ──
   if(subjectLower.includes('password')||subjectLower.includes('reset')||subjectLower.includes('verify')||subjectLower.includes('confirm your')){
-    const schema={
-      "@context":"http://schema.org",
-      "@type":"EmailMessage",
+    return schemaTag({"@context":"http://schema.org","@type":"EmailMessage",
       "about":{"@type":"Service","name":company,"url":website},
-      "sender":{"@type":"Organization","name":company,"url":website}
-    };
-    return '<script type="application/ld+json">\n'+JSON.stringify(schema,null,2)+'\n<\/script>';
+      "sender":{"@type":"Organization","name":company,"url":website}});
   }
 
-  // Fallback for any transactional email - basic Order placeholder
-  const schema={
-    "@context":"http://schema.org",
-    "@type":"EmailMessage",
+  // ── 4. Generic transactional fallback ──
+  return schemaTag({"@context":"http://schema.org","@type":"EmailMessage",
     "about":{"@type":"Organization","name":company,"url":website},
-    "sender":{"@type":"Organization","name":company,"url":website}
-  };
-  return '<script type="application/ld+json">\n'+JSON.stringify(schema,null,2)+'\n<\/script>';
+    "sender":{"@type":"Organization","name":company,"url":website}});
 }
 
 function buildEmailHTML(){
@@ -1770,7 +1806,11 @@ function buildEmailHTML(){
     ?`<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#ffffff;visibility:hidden;opacity:0;">${preheader} ${preheaderPadding}</div>`
     :`<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;">&nbsp;</div>`;
 
-  const socials=settings.social?settings.social.split(',').map(s=>s.trim()).filter(Boolean).map(s=>{const name=s.includes('twitter')||s.includes('x.com')?'X':s.includes('instagram')?'Instagram':s.includes('linkedin')?'LinkedIn':s.includes('facebook')?'Facebook':'Link';return`<a href="${s}" style="color:#a09890;font-family:Arial,sans-serif;font-size:12px;text-decoration:none;margin:0 5px;">${name}</a>`;}).join('<span style="color:#ccc"> · </span>'):'';
+  const socials=settings.social?settings.social.split(',').map(s=>s.trim()).filter(Boolean).map(s=>{
+    const sl=s.toLowerCase();
+    const name=sl.includes('youtube')?'YouTube':sl.includes('twitter')||sl.includes('x.com')?'X':sl.includes('instagram')?'Instagram':sl.includes('linkedin')?'LinkedIn':sl.includes('facebook')?'Facebook':sl.includes('tiktok')?'TikTok':sl.includes('pinterest')?'Pinterest':sl.includes('threads')?'Threads':'Website';
+    return`<a href="${s}" style="color:#a09890;font-family:Arial,sans-serif;font-size:12px;text-decoration:none;margin:0 5px;">${name}</a>`;
+  }).join('<span style="color:#ccc"> · </span>'):'';
 
   const footerUnsub=isTransactional
     ?`<p style="margin:6px 0 0;font-family:Arial,sans-serif;font-size:11px;color:#b0a898;text-align:center;line-height:1.7;">This is a transactional email regarding your account or order with ${settings.company||'us'}. <a href="${unsubUrl}" style="color:#a09890;text-decoration:underline;">Manage notifications</a></p>`
@@ -2185,11 +2225,16 @@ function buildMime(to,replyTo,subject,htmlBody){
   const supportEmail = settings.support||'noreply@yourcompany.com';
   const msgId = `<${Date.now()}.${Math.random().toString(36).slice(2)}@mailstudio>`;
   // Strip HTML tags and decode entities for plain text fallback
+  // Remove preheader (hidden div) first so it doesn't bleed into plain text
   const plain = htmlBody
+    .replace(/<div[^>]*display:\s*none[^>]*>[\s\S]*?<\/div>/gi,'')
     .replace(/<style[\s\S]*?<\/style>/gi,'')
     .replace(/<script[\s\S]*?<\/script>/gi,'')
     .replace(/<[^>]+>/g,'')
-    .replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#8217;/g,"'").replace(/&middot;/g,'·').replace(/&copy;/g,'©').replace(/&zwnj;/g,'')
+    .replace(/&nbsp;/g,' ').replace(/&zwnj;/g,'').replace(/&#8204;/g,'').replace(/\u200c/g,'')
+    .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"')
+    .replace(/&#8217;/g,"'").replace(/&middot;/g,'·').replace(/&copy;/g,'©')
+    .replace(/&[a-z]+;/g,'').replace(/&#\d+;/g,'')
     .replace(/\s+/g,' ').trim();
   const b = 'boundary_' + Date.now().toString(36);
   // Encode subject properly for non-ASCII characters
