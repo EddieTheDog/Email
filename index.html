@@ -1,565 +1,282 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Mail Studio</title>
-<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Mail Studio Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Figtree:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --bg: #f0ede8;
-  --surface: #faf9f6;
-  --surface2: #eeebe5;
-  --surface3: #e6e2db;
-  --border: #e0dbd2;
-  --border2: #ccc6bb;
-  --text: #1c1a17;
-  --text2: #6b6459;
-  --text3: #a09890;
-  --accent: #2d5a3d;
-  --accent2: #e4ede7;
-  --accent-text: #1a3d28;
-  --danger: #8b2f2f;
-  --danger2: #fdf0f0;
-  --gold: #b08d57;
-  --radius: 10px;
-  --radius-sm: 6px;
-  --shadow: 0 2px 16px rgba(0,0,0,0.07);
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0ede8;--surface:#faf9f6;--surface2:#eeebe5;--surface3:#e4e0d9;
+  --border:#e0dbd2;--border2:#ccc6bb;
+  --text:#1c1a17;--text2:#6b6459;--text3:#a09890;
+  --accent:#2d5a3d;--accent2:#e4ede7;--accent-text:#1a3d28;
+  --danger:#8b2f2f;--danger2:#fdf0f0;
+  --gold:#b08d57;--gold2:#fdf6e8;
+  --info:#1a4d8f;--info2:#e8f0fb;
+  --radius:10px;--radius-sm:6px;--radius-xs:4px;
+  --shadow:0 2px 16px rgba(0,0,0,0.07);
+  --shadow-lg:0 8px 40px rgba(0,0,0,0.12);
 }
+body{font-family:'Figtree',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden;-webkit-font-smoothing:antialiased}
 
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  -webkit-font-smoothing: antialiased;
-}
+/* ── AUTH ─── */
+#auth-screen{flex:1;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 60% 40%,#e8f0e9 0%,var(--bg) 65%)}
+.auth-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:52px 56px;text-align:center;width:420px;box-shadow:var(--shadow-lg)}
+.auth-logo{font-family:'Lora',serif;font-size:38px;letter-spacing:-1px;margin-bottom:6px}
+.auth-logo em{color:var(--accent);font-style:normal}
+.auth-tagline{font-size:13px;color:var(--text2);margin-bottom:32px;line-height:1.6;font-weight:300}
+.google-btn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:13px 20px;background:white;border:1.5px solid var(--border2);border-radius:var(--radius);font-family:'Figtree',sans-serif;font-size:15px;font-weight:500;color:var(--text);cursor:pointer;transition:all .15s;margin-bottom:12px}
+.google-btn:hover{background:var(--surface2);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.07)}
+.g-icon{width:20px;height:20px;flex-shrink:0}
+.auth-note{font-size:11.5px;color:var(--text3)}
 
-/* ── AUTH ─────────────────────────────── */
-#auth-screen {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg);
-}
-.auth-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 52px 56px;
-  text-align: center;
-  width: 420px;
-  box-shadow: 0 8px 48px rgba(0,0,0,0.09);
-}
-.auth-logo {
-  font-family: 'Lora', serif;
-  font-size: 40px;
-  letter-spacing: -0.5px;
-  margin-bottom: 4px;
-  color: var(--text);
-}
-.auth-logo span { color: var(--accent); }
-.auth-sub {
-  font-size: 14px;
-  color: var(--text2);
-  margin-bottom: 36px;
-  font-weight: 300;
-  line-height: 1.5;
-}
-.google-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  width: 100%;
-  padding: 13px 20px;
-  background: white;
-  border: 1.5px solid var(--border2);
-  border-radius: var(--radius);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--text);
-  cursor: pointer;
-  transition: all 0.15s;
-  margin-bottom: 12px;
-}
-.google-btn:hover { background: var(--surface2); border-color: var(--border2); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
-.google-btn:active { transform: scale(0.99); }
-.g-icon { width: 20px; height: 20px; flex-shrink: 0; }
-.auth-note { font-size: 12px; color: var(--text3); line-height: 1.5; }
+/* ── APP ─── */
+#app-screen{display:none;flex-direction:column;height:100vh;overflow:hidden}
 
-/* ── APP ──────────────────────────────── */
-#app-screen { display: none; flex-direction: column; height: 100vh; overflow: hidden; }
+/* ── HEADER ─── */
+header{height:52px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:10px;flex-shrink:0;z-index:50}
+.h-logo{font-family:'Lora',serif;font-size:20px;letter-spacing:-.5px;white-space:nowrap}
+.h-logo em{color:var(--accent);font-style:normal}
+.h-div{width:1px;height:18px;background:var(--border);flex-shrink:0}
+.user-chip{display:flex;align-items:center;gap:7px;padding:3px 10px 3px 4px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;min-width:0}
+.u-avatar{width:24px;height:24px;border-radius:50%;background:var(--accent);color:white;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.u-avatar img{width:100%;height:100%;object-fit:cover}
+.u-name{font-size:12px;color:var(--text2);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.h-right{margin-left:auto;display:flex;align-items:center;gap:5px}
+.h-btn{font-size:12.5px;color:var(--text2);background:none;border:1px solid transparent;cursor:pointer;padding:5px 10px;border-radius:var(--radius-sm);font-family:'Figtree',sans-serif;transition:all .12s;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.h-btn:hover{color:var(--text);background:var(--surface2);border-color:var(--border)}
+.h-btn svg{flex-shrink:0}
+.send-btn{padding:7px 18px;background:var(--accent);color:white;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;font-family:'Figtree',sans-serif;display:flex;align-items:center;gap:6px;transition:all .15s;letter-spacing:.01em}
+.send-btn:hover{opacity:.88;transform:translateY(-1px);box-shadow:0 4px 14px rgba(45,90,61,.3)}
+.send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
 
-header {
-  height: 54px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  padding: 0 18px;
-  gap: 12px;
-  flex-shrink: 0;
-  z-index: 10;
-}
-.h-logo { font-family: 'Lora', serif; font-size: 22px; letter-spacing: -0.3px; color: var(--text); }
-.h-logo span { color: var(--accent); }
-.h-div { width: 1px; height: 18px; background: var(--border); }
-.user-chip {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 3px 10px 3px 4px;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-}
-.u-avatar {
-  width: 26px; height: 26px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: white;
-  font-size: 10px; font-weight: 500;
-  display: flex; align-items: center; justify-content: center;
-  overflow: hidden; flex-shrink: 0;
-}
-.u-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.u-name { font-size: 12.5px; color: var(--text2); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.h-right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
-.h-btn {
-  font-size: 13px; color: var(--text2);
-  background: none; border: 1px solid transparent;
-  cursor: pointer; padding: 6px 12px;
-  border-radius: var(--radius-sm);
-  font-family: 'DM Sans', sans-serif;
-  transition: all 0.12s;
-  display: flex; align-items: center; gap: 6px;
-}
-.h-btn:hover { color: var(--text); background: var(--surface2); border-color: var(--border); }
-.send-btn {
-  padding: 8px 20px;
-  background: var(--accent);
-  color: white;
-  border: none;
-  border-radius: var(--radius-sm);
-  font-size: 13.5px; font-weight: 500;
-  cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
-  display: flex; align-items: center; gap: 7px;
-  transition: all 0.15s;
-  letter-spacing: 0.01em;
-}
-.send-btn:hover { opacity: 0.88; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(45,90,61,0.3); }
-.send-btn:active { transform: scale(0.98); }
-.send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+/* ── TABS ─── */
+.app-tabs{display:flex;align-items:center;gap:0;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;padding:0 16px}
+.app-tab{padding:10px 16px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;border-bottom:2.5px solid transparent;transition:all .12s;background:none;border-left:none;border-right:none;border-top:none;font-family:'Figtree',sans-serif;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.app-tab:hover{color:var(--text)}
+.app-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
 
-/* ── BODY LAYOUT ──────────────────────── */
-.body { display: flex; flex: 1; overflow: hidden; }
+/* ── BODY ─── */
+.body{display:flex;flex:1;overflow:hidden}
 
-/* ── SIDEBAR ──────────────────────────── */
-.sidebar {
-  width: 220px;
-  background: var(--surface);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  flex-shrink: 0;
-  padding-bottom: 20px;
-}
-.sb-sec {
-  font-size: 10px; font-weight: 500;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--text3);
-  padding: 16px 16px 6px;
-}
-.tpl-btn {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  width: 100%;
-  padding: 9px 12px;
-  border: 1px solid transparent;
-  background: transparent;
-  cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px; color: var(--text2);
-  text-align: left;
-  transition: all 0.1s;
-  border-radius: 0;
-}
-.tpl-btn:hover { background: var(--surface2); color: var(--text); }
-.tpl-btn.active { background: var(--accent2); color: var(--accent-text); border-color: rgba(45,90,61,0.12); font-weight: 500; }
-.t-icon {
-  width: 26px; height: 26px;
-  border-radius: 6px;
-  background: var(--surface2);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; flex-shrink: 0;
-}
-.tpl-btn.active .t-icon { background: rgba(45,90,61,0.14); }
-.sb-group-label {
-  font-size: 10px; font-weight: 500;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--text3);
-  padding: 4px 16px 3px;
-  margin-top: 4px;
-  opacity: 0.7;
-}
-.sb-rule { height: 1px; background: var(--border); margin: 8px 14px; }
+/* ── SIDEBAR ─── */
+.sidebar{width:210px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;padding-bottom:16px}
+.sb-sec{font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);padding:14px 14px 5px}
+.tpl-btn{display:flex;align-items:center;gap:9px;width:100%;padding:8px 12px;border:1px solid transparent;background:transparent;cursor:pointer;font-family:'Figtree',sans-serif;font-size:13px;color:var(--text2);text-align:left;transition:all .1s}
+.tpl-btn:hover{background:var(--surface2);color:var(--text)}
+.tpl-btn.active{background:var(--accent2);color:var(--accent-text);border-color:rgba(45,90,61,.12);font-weight:500}
+.t-icon{width:26px;height:26px;border-radius:6px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.tpl-btn.active .t-icon{background:rgba(45,90,61,.14)}
+.sb-rule{height:1px;background:var(--border);margin:8px 12px}
+.sb-new-btn{margin:8px 12px;padding:8px 12px;border:1.5px dashed var(--border2);border-radius:var(--radius-sm);background:transparent;cursor:pointer;font-size:12.5px;color:var(--text2);font-family:'Figtree',sans-serif;text-align:center;transition:all .12s}
+.sb-new-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent2)}
 
-/* ── MAIN ─────────────────────────────── */
-.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+/* ── MAIN ─── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
 
-/* ── ENVELOPE ─────────────────────────── */
-.env-fields {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 0 20px;
-  flex-shrink: 0;
-}
-.env-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-height: 38px;
-  border-bottom: 1px solid var(--border);
-}
-.env-row:last-child { border-bottom: none; }
-.env-label {
-  font-size: 10.5px; color: var(--text3);
-  font-weight: 500;
-  min-width: 88px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-.env-input {
-  flex: 1;
-  border: none; outline: none;
-  background: transparent;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13.5px; color: var(--text);
-  min-width: 0; padding: 8px 0;
-}
-.env-input::placeholder { color: var(--text3); }
-.env-hint { font-size: 11px; color: var(--text3); font-style: italic; white-space: nowrap; }
+/* ── ENVELOPE ─── */
+.env-fields{background:var(--surface);border-bottom:1px solid var(--border);padding:0 18px;flex-shrink:0}
+.env-row{display:flex;align-items:center;gap:12px;min-height:36px;border-bottom:1px solid var(--border)}
+.env-row:last-child{border-bottom:none}
+.env-label{font-size:10px;color:var(--text3);font-weight:600;min-width:82px;letter-spacing:.05em;text-transform:uppercase}
+.env-input{flex:1;border:none;outline:none;background:transparent;font-family:'Figtree',sans-serif;font-size:13.5px;color:var(--text);min-width:0;padding:6px 0}
+.env-input::placeholder{color:var(--text3)}
 
-/* ── SPLIT ────────────────────────────── */
-.split { flex: 1; display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; }
+/* ── SPLIT ─── */
+.split{flex:1;display:grid;grid-template-columns:1fr 1fr;overflow:hidden}
 
-/* ── EDITOR PANE ──────────────────────── */
-.editor-pane { display: flex; flex-direction: column; border-right: 1px solid var(--border); overflow: hidden; }
+/* ── EDITOR PANE ─── */
+.editor-pane{display:flex;flex-direction:column;border-right:1px solid var(--border);overflow:hidden}
+.pane-bar{height:36px;display:flex;align-items:center;padding:0 12px;gap:6px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+.pane-title{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text3)}
+.pane-actions{margin-left:auto;display:flex;gap:2px}
+.p-btn{padding:4px 10px;border-radius:4px;border:1px solid transparent;background:transparent;font-family:'Figtree',sans-serif;font-size:11.5px;color:var(--text2);cursor:pointer;transition:all .1s}
+.p-btn:hover{background:var(--surface2);border-color:var(--border)}
 
-.pane-bar {
-  height: 38px;
-  display: flex; align-items: center;
-  padding: 0 12px; gap: 6px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
-.pane-title { font-size: 10.5px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text3); }
-.pane-actions { margin-left: auto; display: flex; gap: 2px; }
-.p-btn {
-  padding: 4px 10px;
-  border-radius: 5px;
-  border: 1px solid transparent;
-  background: transparent;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 11.5px; color: var(--text2);
-  cursor: pointer; transition: all 0.1s;
-}
-.p-btn:hover { background: var(--surface2); border-color: var(--border); }
+/* ── FORMAT BAR ─── */
+.fmt-bar{display:flex;align-items:center;gap:1px;padding:4px 8px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap;flex-shrink:0}
+.f-btn{padding:4px 7px;border-radius:4px;border:none;background:transparent;cursor:pointer;font-size:12px;color:var(--text2);font-family:'Figtree',sans-serif;line-height:1;transition:all .1s;display:flex;align-items:center;gap:3px}
+.f-btn:hover{background:var(--surface2);color:var(--text)}
+.f-sep{width:1px;height:14px;background:var(--border);margin:0 2px;flex-shrink:0}
 
-/* ── RICH TEXT FORMAT TOOLBAR ─────────── */
-.fmt-bar {
-  display: flex;
-  align-items: center;
-  gap: 1px;
-  padding: 5px 10px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  flex-wrap: wrap;
-  flex-shrink: 0;
-}
-.f-btn {
-  padding: 5px 8px;
-  border-radius: 5px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  font-size: 12px; color: var(--text2);
-  font-family: 'DM Sans', sans-serif;
-  line-height: 1;
-  transition: all 0.1s;
-  display: flex; align-items: center; gap: 3px;
-}
-.f-btn:hover { background: var(--surface2); color: var(--text); }
-.f-btn.active { background: var(--accent2); color: var(--accent-text); }
-.f-sep { width: 1px; height: 16px; background: var(--border); margin: 0 3px; flex-shrink: 0; }
+/* ── WYSIWYG ─── */
+.wysiwyg-editor{flex:1;border:none;outline:none;padding:20px 22px;font-family:'Figtree',sans-serif;font-size:14px;line-height:1.7;color:var(--text);background:var(--surface);overflow-y:auto;cursor:text}
+.wysiwyg-editor:focus{outline:none}
+.wysiwyg-editor h1{font-family:'Lora',serif;font-size:26px;font-weight:500;margin:0 0 14px;line-height:1.25}
+.wysiwyg-editor h2{font-family:'Lora',serif;font-size:20px;font-weight:500;margin:18px 0 10px}
+.wysiwyg-editor h3{font-family:'Lora',serif;font-size:16px;font-weight:500;margin:14px 0 8px}
+.wysiwyg-editor p{margin:0 0 10px}
+.wysiwyg-editor a{color:var(--accent);text-decoration:underline}
+.wysiwyg-editor ul,.wysiwyg-editor ol{padding-left:22px;margin:0 0 10px}
+.wysiwyg-editor li{margin-bottom:4px}
+.wysiwyg-editor hr{border:none;border-top:1.5px solid var(--border2);margin:14px 0}
+.wysiwyg-editor blockquote{border-left:3px solid var(--accent);padding:8px 16px;margin:10px 0;color:var(--text2);background:var(--surface2);border-radius:0 6px 6px 0}
+.wysiwyg-editor .email-button{display:inline-block;background:var(--accent);color:white!important;padding:10px 24px;border-radius:6px;text-decoration:none!important;font-weight:600;font-size:14px;margin:6px 0;cursor:pointer}
+.wysiwyg-editor .info-box{background:var(--info2);border-left:3px solid var(--info);padding:12px 16px;border-radius:0 6px 6px 0;margin:10px 0;font-size:13px;color:#1a3a6b}
+.wysiwyg-editor .success-box{background:var(--accent2);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 6px 6px 0;margin:10px 0;font-size:13px;color:var(--accent-text)}
+.wysiwyg-editor .warning-box{background:var(--gold2);border-left:3px solid var(--gold);padding:12px 16px;border-radius:0 6px 6px 0;margin:10px 0;font-size:13px;color:#6b4a1a}
 
-/* ── WYSIWYG EDITOR ───────────────────── */
-.wysiwyg-editor {
-  flex: 1;
-  border: none; outline: none;
-  padding: 20px 24px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
-  line-height: 1.7;
-  color: var(--text);
-  background: var(--surface);
-  overflow-y: auto;
-  cursor: text;
-}
-.wysiwyg-editor:focus { outline: none; }
-.wysiwyg-editor h1 { font-family: 'Lora', serif; font-size: 26px; font-weight: 500; margin: 0 0 14px; color: var(--text); line-height: 1.25; }
-.wysiwyg-editor h2 { font-family: 'Lora', serif; font-size: 20px; font-weight: 500; margin: 18px 0 10px; color: var(--text); }
-.wysiwyg-editor h3 { font-family: 'Lora', serif; font-size: 16px; font-weight: 500; margin: 14px 0 8px; color: var(--text); }
-.wysiwyg-editor p { margin: 0 0 12px; }
-.wysiwyg-editor p:last-child { margin-bottom: 0; }
-.wysiwyg-editor a { color: var(--accent); text-decoration: underline; }
-.wysiwyg-editor ul, .wysiwyg-editor ol { padding-left: 22px; margin: 0 0 12px; }
-.wysiwyg-editor li { margin-bottom: 4px; }
-.wysiwyg-editor blockquote { border-left: 3px solid var(--accent); padding: 8px 16px; margin: 12px 0; color: var(--text2); background: var(--surface2); border-radius: 0 6px 6px 0; }
-.wysiwyg-editor hr { border: none; border-top: 1.5px solid var(--border2); margin: 16px 0; }
-.wysiwyg-editor .email-button {
-  display: inline-block;
-  background: var(--accent);
-  color: white !important;
-  padding: 10px 24px;
-  border-radius: 6px;
-  text-decoration: none !important;
-  font-weight: 500;
-  font-size: 14px;
-  margin: 8px 0;
-  cursor: pointer;
-}
-.wysiwyg-editor img { max-width: 100%; height: auto; border-radius: 6px; margin: 8px 0; }
-.wysiwyg-editor .section-banner {
-  background: var(--surface2);
-  border-radius: 8px;
-  padding: 14px 18px;
-  margin: 10px 0;
-  border: 1px solid var(--border);
-  font-size: 13px;
-  color: var(--text2);
-}
-.wysiwyg-editor .order-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 12px 0;
-  font-size: 13px;
-}
-.wysiwyg-editor .order-table th {
-  background: var(--surface2);
-  padding: 8px 12px;
-  text-align: left;
-  border-bottom: 1.5px solid var(--border2);
-  font-weight: 500;
-  color: var(--text2);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-.wysiwyg-editor .order-table td {
-  padding: 9px 12px;
-  border-bottom: 1px solid var(--border);
-  color: var(--text);
-}
-.wysiwyg-editor .order-total {
-  text-align: right;
-  padding: 10px 12px;
-  font-weight: 600;
-  font-size: 14px;
-}
+/* ── PREVIEW ─── */
+.preview-pane{display:flex;flex-direction:column;overflow:hidden;background:#e5e1db}
+.preview-scroll{flex:1;overflow-y:auto;display:flex;align-items:flex-start;justify-content:center;padding:18px 14px}
+.preview-inbox{width:100%;max-width:560px;transition:max-width .2s}
+.inbox-chrome{background:#2a2a2a;border-radius:10px 10px 0 0;padding:10px 14px;display:flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:50%}
+.inbox-meta{margin-left:10px;display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.inbox-subj{font-size:11px;color:#ccc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;font-family:'Figtree',sans-serif}
+.inbox-pre{font-size:10px;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Figtree',sans-serif}
+.email-shell{background:white;border-radius:0 0 10px 10px;overflow:hidden;box-shadow:0 10px 50px rgba(0,0,0,.22)}
+#preview-frame{width:100%;border:none;display:block}
 
-/* ── PREVIEW PANE ─────────────────────── */
-.preview-pane { display: flex; flex-direction: column; overflow: hidden; background: #e5e1db; }
-.preview-scroll {
-  flex: 1;
-  overflow-y: auto;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 20px 16px;
-}
-.preview-inbox { width: 100%; max-width: 560px; transition: max-width 0.2s; }
-.inbox-chrome {
-  background: #2a2a2a;
-  border-radius: 10px 10px 0 0;
-  padding: 10px 14px;
-  display: flex; align-items: center; gap: 6px;
-}
-.dot { width: 10px; height: 10px; border-radius: 50%; }
-.inbox-meta { margin-left: 10px; display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
-.inbox-subj { font-size: 11px; color: #ccc; font-family: 'DM Sans', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
-.inbox-pre { font-size: 10px; color: #888; font-family: 'DM Sans', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.email-shell { background: white; border-radius: 0 0 10px 10px; overflow: hidden; box-shadow: 0 10px 50px rgba(0,0,0,0.22); }
-#preview-frame { width: 100%; border: none; display: block; }
+/* ── STATUS BAR ─── */
+.status-bar{height:30px;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;padding:0 14px;gap:12px;flex-shrink:0}
+.status-msg{font-size:12px;color:var(--text3)}
+.status-msg.ok{color:var(--accent)}
+.status-msg.err{color:var(--danger)}
+.char-count{margin-left:auto;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)}
 
-/* ── STATUS BAR ───────────────────────── */
-.status-bar {
-  height: 30px;
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  display: flex; align-items: center;
-  padding: 0 16px; gap: 12px;
-  flex-shrink: 0;
-}
-.status-msg { font-size: 12px; color: var(--text3); }
-.status-msg.ok { color: var(--accent); }
-.status-msg.err { color: var(--danger); }
-.char-count { margin-left: auto; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); }
+/* ── CATALOG VIEW ─── */
+.catalog-view{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.catalog-toolbar{padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.catalog-search{flex:1;padding:7px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Figtree',sans-serif;font-size:13.5px;background:var(--bg);outline:none;transition:border-color .15s;color:var(--text)}
+.catalog-search:focus{border-color:var(--accent)}
+.btn-primary{padding:7px 16px;background:var(--accent);color:white;border:none;border-radius:var(--radius-sm);font-family:'Figtree',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .12s;display:flex;align-items:center;gap:6px}
+.btn-primary:hover{opacity:.87}
+.btn-secondary{padding:7px 14px;background:transparent;color:var(--text2);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Figtree',sans-serif;font-size:13px;cursor:pointer;transition:all .12s;display:flex;align-items:center;gap:6px}
+.btn-secondary:hover{background:var(--surface2);color:var(--text)}
+.catalog-grid{flex:1;overflow-y:auto;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;align-content:start}
+.product-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:0;overflow:hidden;transition:all .15s;cursor:pointer;position:relative}
+.product-card:hover{border-color:var(--accent);box-shadow:var(--shadow)}
+.product-card.selected{border-color:var(--accent);background:var(--accent2)}
+.prod-img{width:100%;height:110px;object-fit:cover;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0}
+.prod-img img{width:100%;height:100%;object-fit:cover}
+.prod-body{padding:10px 12px}
+.prod-name{font-size:13.5px;font-weight:500;color:var(--text);margin-bottom:3px;line-height:1.3}
+.prod-sku{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:6px}
+.prod-price{font-size:15px;font-weight:600;color:var(--accent)}
+.prod-stock{font-size:11px;color:var(--text2);margin-top:3px}
+.prod-actions{display:flex;gap:5px;margin-top:8px}
+.prod-add-btn{flex:1;padding:6px;background:var(--accent);color:white;border:none;border-radius:var(--radius-xs);font-family:'Figtree',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:opacity .12s}
+.prod-add-btn:hover{opacity:.85}
+.prod-edit-btn{padding:6px 8px;background:transparent;border:1.5px solid var(--border);border-radius:var(--radius-xs);font-size:11px;cursor:pointer;color:var(--text2);transition:all .12s}
+.prod-edit-btn:hover{background:var(--surface2);border-color:var(--border2)}
+.prod-badge{position:absolute;top:8px;right:8px;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.03em}
+.badge-instock{background:#e4ede7;color:var(--accent-text)}
+.badge-lowstock{background:var(--gold2);color:#7a5b1a}
+.badge-outofstock{background:var(--danger2);color:var(--danger)}
+.empty-catalog{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--text3);padding:40px}
+.empty-catalog svg{opacity:.4}
+.empty-catalog p{font-size:14px;line-height:1.5;text-align:center;max-width:280px}
 
-/* ── MODAL ────────────────────────────── */
-.modal-overlay {
-  position: fixed; inset: 0;
-  background: rgba(28,26,23,0.4);
-  backdrop-filter: blur(4px);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 100;
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.2s;
-}
-.modal-overlay.show { opacity: 1; pointer-events: all; }
-.modal {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 32px 36px;
-  width: 440px;
-  max-width: 90vw;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-  transform: translateY(12px);
-  transition: transform 0.2s;
-}
-.modal-overlay.show .modal { transform: translateY(0); }
-.modal-title {
-  font-family: 'Lora', serif;
-  font-size: 22px;
-  font-weight: 500;
-  margin-bottom: 6px;
-  color: var(--text);
-}
-.modal-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
-.modal-field { margin-bottom: 16px; }
-.modal-field label { display: block; font-size: 11px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text2); margin-bottom: 6px; }
-.modal-field input, .modal-field textarea {
-  width: 100%;
-  padding: 10px 14px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px; color: var(--text);
-  background: var(--bg);
-  outline: none;
-  transition: border-color 0.15s;
-}
-.modal-field input:focus, .modal-field textarea:focus { border-color: var(--accent); }
-.modal-field input[type="color"] {
-  height: 42px; padding: 4px 8px;
-  cursor: pointer;
-}
-.modal-btns { display: flex; gap: 8px; justify-content: flex-end; margin-top: 24px; }
-.modal-cancel {
-  padding: 9px 18px;
-  border-radius: var(--radius-sm);
-  border: 1.5px solid var(--border);
-  background: transparent;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13.5px; color: var(--text2);
-  cursor: pointer; transition: all 0.12s;
-}
-.modal-cancel:hover { background: var(--surface2); }
-.modal-save {
-  padding: 9px 22px;
-  border-radius: var(--radius-sm);
-  border: none;
-  background: var(--accent);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13.5px; color: white; font-weight: 500;
-  cursor: pointer; transition: all 0.12s;
-}
-.modal-save:hover { opacity: 0.87; }
+/* ── ORDER BUILDER ─── */
+.order-builder{flex:1;display:flex;overflow:hidden}
+.order-products{width:300px;flex-shrink:0;border-right:1px solid var(--border);overflow-y:auto;padding:12px}
+.order-cart{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.cart-header{padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.cart-title{font-size:13px;font-weight:600;color:var(--text)}
+.cart-items{flex:1;overflow-y:auto;padding:12px 16px}
+.cart-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.cart-item:last-child{border-bottom:none}
+.ci-info{flex:1;min-width:0}
+.ci-name{font-size:13.5px;font-weight:500;color:var(--text);margin-bottom:2px}
+.ci-sku{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace}
+.ci-controls{display:flex;align-items:center;gap:6px;margin-top:6px}
+.qty-btn{width:24px;height:24px;border-radius:4px;border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;font-size:14px;color:var(--text2);display:flex;align-items:center;justify-content:center;transition:all .1s}
+.qty-btn:hover{border-color:var(--accent);color:var(--accent)}
+.qty-display{font-size:13px;font-weight:500;color:var(--text);min-width:20px;text-align:center;font-family:'DM Mono',monospace}
+.ci-price{font-size:14px;font-weight:600;color:var(--text);white-space:nowrap}
+.ci-remove{color:var(--text3);cursor:pointer;font-size:16px;padding:2px 4px;border-radius:3px;transition:all .1s}
+.ci-remove:hover{color:var(--danger);background:var(--danger2)}
+.cart-totals{border-top:2px solid var(--border2);padding:14px 16px;background:var(--surface);flex-shrink:0}
+.total-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:13.5px}
+.total-row.grand{font-size:16px;font-weight:700;color:var(--text);border-top:1.5px solid var(--border);margin-top:8px;padding-top:12px}
+.total-label{color:var(--text2)}
+.total-value{color:var(--text);font-family:'DM Mono',monospace}
+.total-value.discount{color:#c0392b}
+.cart-settings{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.setting-field{display:flex;flex-direction:column;gap:4px;flex:1;min-width:100px}
+.setting-field label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)}
+.setting-input{padding:6px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Figtree',sans-serif;font-size:13px;background:var(--bg);outline:none;color:var(--text);transition:border-color .12s}
+.setting-input:focus{border-color:var(--accent)}
+.cart-actions{padding:12px 16px;background:var(--surface);border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0}
 
-/* ── TOAST ────────────────────────────── */
-.toast {
-  position: fixed;
-  bottom: 24px; left: 50%;
-  transform: translateX(-50%) translateY(70px);
-  background: var(--text);
-  color: white;
-  padding: 11px 22px;
-  border-radius: 40px;
-  font-size: 13.5px;
-  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
-  z-index: 999;
-  pointer-events: none;
-  white-space: nowrap;
-}
-.toast.show { transform: translateX(-50%) translateY(0); }
-.toast.success { background: var(--accent); }
-.toast.error { background: var(--danger); }
+/* ── MINI PRODUCT LIST IN ORDER PANEL ─── */
+.mini-prod-card{display:flex;align-items:center;gap:8px;padding:8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);margin-bottom:6px;background:var(--surface);cursor:pointer;transition:all .12s}
+.mini-prod-card:hover{border-color:var(--accent);background:var(--accent2)}
+.mini-prod-img{width:36px;height:36px;border-radius:4px;background:var(--surface2);object-fit:cover;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;overflow:hidden}
+.mini-prod-img img{width:100%;height:100%;object-fit:cover}
+.mini-prod-info{flex:1;min-width:0}
+.mini-prod-name{font-size:12.5px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini-prod-price{font-size:12px;color:var(--accent);font-weight:600}
 
-/* ── COLOR SWATCH ─────────────────────── */
-.color-row { display: flex; gap: 8px; align-items: center; }
-.color-swatch {
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  border: 2px solid transparent;
-  cursor: pointer;
-  transition: transform 0.1s, border-color 0.1s;
-}
-.color-swatch:hover { transform: scale(1.15); }
-.color-swatch.selected { border-color: var(--text); }
+/* ── MODAL ─── */
+.modal-overlay{position:fixed;inset:0;background:rgba(28,26,23,.45);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:100;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.show{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:30px 34px;width:480px;max-width:92vw;max-height:88vh;overflow-y:auto;box-shadow:var(--shadow-lg);transform:translateY(10px);transition:transform .2s}
+.modal-overlay.show .modal{transform:translateY(0)}
+.modal-wide{width:640px}
+.modal-title{font-family:'Lora',serif;font-size:22px;font-weight:500;margin-bottom:4px}
+.modal-sub{font-size:13px;color:var(--text2);margin-bottom:22px;line-height:1.5}
+.modal-field{margin-bottom:14px}
+.modal-field label{display:block;font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text2);margin-bottom:5px}
+.modal-field input,.modal-field select,.modal-field textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Figtree',sans-serif;font-size:13.5px;color:var(--text);background:var(--bg);outline:none;transition:border-color .15s}
+.modal-field input:focus,.modal-field select:focus,.modal-field textarea:focus{border-color:var(--accent)}
+.modal-field textarea{resize:vertical;min-height:80px;line-height:1.5}
+.modal-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:22px}
+.modal-cancel{padding:8px 18px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:transparent;font-family:'Figtree',sans-serif;font-size:13px;color:var(--text2);cursor:pointer;transition:all .12s}
+.modal-cancel:hover{background:var(--surface2)}
+.modal-save{padding:8px 22px;border-radius:var(--radius-sm);border:none;background:var(--accent);font-family:'Figtree',sans-serif;font-size:13px;color:white;font-weight:600;cursor:pointer;transition:all .12s}
+.modal-save:hover{opacity:.87}
+.modal-danger{background:var(--danger)}
 
-/* ── LINK PROMPT ──────────────────────── */
-#link-prompt {
-  position: fixed;
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  padding: 14px 16px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-  z-index: 200;
-  display: none;
-  gap: 8px;
-  flex-direction: column;
-  width: 280px;
-}
-#link-prompt.show { display: flex; }
-#link-prompt input {
-  padding: 8px 12px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px; color: var(--text);
-  background: var(--bg);
-  outline: none;
-}
-#link-prompt input:focus { border-color: var(--accent); }
-.lp-btns { display: flex; gap: 6px; }
-.lp-btn {
-  flex: 1; padding: 7px;
-  border-radius: var(--radius-sm);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 12.5px; font-weight: 500;
-  cursor: pointer;
-  border: 1.5px solid var(--border);
-  background: transparent; color: var(--text2);
-  transition: all 0.1s;
-}
-.lp-btn.primary { background: var(--accent); color: white; border-color: var(--accent); }
-.lp-btn:hover { background: var(--surface2); }
-.lp-btn.primary:hover { opacity: 0.87; background: var(--accent); }
+/* ── TABS WITHIN MODAL ─── */
+.modal-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px}
+.modal-tab{padding:8px 16px;font-size:13px;cursor:pointer;border-bottom:2px solid transparent;background:none;border-left:none;border-right:none;border-top:none;font-family:'Figtree',sans-serif;color:var(--text2);transition:all .1s}
+.modal-tab:hover{color:var(--text)}
+.modal-tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:500}
+
+/* ── COLOR SWATCHES ─── */
+.color-row{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.color-swatch{width:26px;height:26px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform .1s,border-color .1s}
+.color-swatch:hover{transform:scale(1.15)}
+.color-swatch.selected{border-color:var(--text)}
+
+/* ── TOAST ─── */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--text);color:white;padding:10px 22px;border-radius:40px;font-size:13.5px;transition:transform .3s cubic-bezier(.34,1.56,.64,1);z-index:999;pointer-events:none;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.success{background:var(--accent)}
+.toast.error{background:var(--danger)}
+.toast.info{background:var(--info)}
+
+/* ── LINK PROMPT ─── */
+#link-prompt{position:fixed;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;box-shadow:var(--shadow-lg);z-index:200;display:none;gap:7px;flex-direction:column;width:260px}
+#link-prompt.show{display:flex}
+#link-prompt input{padding:7px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Figtree',sans-serif;font-size:13px;color:var(--text);background:var(--bg);outline:none}
+#link-prompt input:focus{border-color:var(--accent)}
+.lp-btns{display:flex;gap:6px}
+.lp-btn{flex:1;padding:6px;border-radius:var(--radius-sm);font-family:'Figtree',sans-serif;font-size:12.5px;font-weight:500;cursor:pointer;border:1.5px solid var(--border);background:transparent;color:var(--text2);transition:all .1s}
+.lp-btn.primary{background:var(--accent);color:white;border-color:var(--accent)}
+.lp-btn:hover{background:var(--surface2)}
+.lp-btn.primary:hover{opacity:.87;background:var(--accent)}
+
+/* ── CSV UPLOAD ─── */
+.upload-zone{border:2px dashed var(--border2);border-radius:var(--radius);padding:24px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg)}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--accent);background:var(--accent2)}
+.upload-zone p{font-size:13px;color:var(--text2);margin-top:8px}
+.upload-zone small{font-size:11px;color:var(--text3);display:block;margin-top:4px}
+
+/* ── PRESET EDITOR ─── */
+.preset-list{display:flex;flex-direction:column;gap:6px}
+.preset-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface)}
+.preset-item .pi-name{flex:1;font-size:13px;font-weight:500;color:var(--text)}
+.preset-item .pi-icon{font-size:16px;width:28px;text-align:center}
+.pi-actions{display:flex;gap:4px}
+.pi-btn{padding:4px 8px;border-radius:4px;border:1px solid var(--border);background:transparent;font-size:11px;color:var(--text2);cursor:pointer;font-family:'Figtree',sans-serif;transition:all .1s}
+.pi-btn:hover{background:var(--surface2)}
+.pi-btn.danger:hover{background:var(--danger2);color:var(--danger);border-color:var(--danger)}
 </style>
 </head>
 <body>
@@ -567,29 +284,33 @@ header {
 <!-- AUTH -->
 <div id="auth-screen">
   <div class="auth-card">
-    <div class="auth-logo">Mail<span>.</span></div>
-    <p class="auth-sub">Beautiful transactional &amp; marketing emails,<br>composed and sent from your Gmail.</p>
+    <div class="auth-logo">Mail<em>Studio</em></div>
+    <p class="auth-tagline">Industry-grade transactional &amp; marketing emails.<br>Products, orders, calculations — all in one place.</p>
     <button class="google-btn" onclick="signIn()">
       <svg class="g-icon" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
       Sign in with Google
     </button>
-    <p class="auth-note">Your sign-in is remembered for next time.</p>
+    <p class="auth-note">Session saved automatically — no repeated sign-ins.</p>
   </div>
 </div>
 
 <!-- APP -->
 <div id="app-screen">
   <header>
-    <span class="h-logo">Mail<span>.</span></span>
+    <span class="h-logo">Mail<em>Studio</em></span>
     <div class="h-div"></div>
     <div class="user-chip">
       <div class="u-avatar" id="u-avatar"><span id="u-initials">?</span></div>
       <span class="u-name" id="u-email">—</span>
     </div>
     <div class="h-right">
+      <button class="h-btn" onclick="openTab('catalog')">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="1" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.4"/><rect x="1" y="9" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="9" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.4"/></svg>
+        Products
+      </button>
       <button class="h-btn" onclick="openSettings()">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 10a2 2 0 100-4 2 2 0 000 4z" stroke="currentColor" stroke-width="1.4"/><path d="M13.2 8c0-.28-.02-.56-.07-.83l1.74-1.36a.5.5 0 00.12-.64l-1.65-2.86a.5.5 0 00-.61-.22l-2.06.83a6.2 6.2 0 00-1.43-.83L8.96 1.1A.5.5 0 008.47.7h-3.3a.5.5 0 00-.49.4l-.28 2a6.2 6.2 0 00-1.43.83L.9 3.1a.5.5 0 00-.61.22L-.35 6.17a.5.5 0 00.12.64L1.51 8.17c-.05.27-.07.55-.07.83s.02.56.07.83l-1.74 1.36a.5.5 0 00-.12.64l1.65 2.86c.12.22.38.3.61.22l2.06-.83c.44.32.92.59 1.43.83l.28 2c.07.24.29.4.54.4h3.3c.25 0 .47-.16.54-.4l.28-2c.51-.24.99-.51 1.43-.83l2.06.83c.23.08.49 0 .61-.22l1.65-2.86a.5.5 0 00-.12-.64L13.13 8.83c.05-.27.07-.55.07-.83z" stroke="currentColor" stroke-width="1.4"/></svg>
-        Company
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M8 1v1M8 14v1M1 8h1M14 8h1M2.93 2.93l.7.7M12.37 12.37l.7.7M2.93 13.07l.7-.7M12.37 3.63l.7-.7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        Settings
       </button>
       <button class="h-btn" onclick="signOut()">Sign out</button>
       <button class="send-btn" id="send-btn" onclick="sendEmail()">
@@ -599,72 +320,76 @@ header {
     </div>
   </header>
 
-  <div class="body">
-    <!-- SIDEBAR -->
-    <div class="sidebar">
-      <div class="sb-sec">Templates</div>
-      <button class="tpl-btn active" onclick="loadTemplate('scratch',this)"><span class="t-icon">✦</span> Blank</button>
-      <button class="tpl-btn" onclick="loadTemplate('newsletter',this)"><span class="t-icon">📰</span> Newsletter</button>
-      <button class="tpl-btn" onclick="loadTemplate('announcement',this)"><span class="t-icon">📣</span> Announcement</button>
-      <button class="tpl-btn" onclick="loadTemplate('followup',this)"><span class="t-icon">↩</span> Follow-up</button>
-      <button class="tpl-btn" onclick="loadTemplate('intro',this)"><span class="t-icon">👋</span> Introduction</button>
-      <button class="tpl-btn" onclick="loadTemplate('meeting',this)"><span class="t-icon">📅</span> Meeting request</button>
+  <!-- TABS -->
+  <div class="app-tabs">
+    <button class="app-tab active" id="tab-compose" onclick="openTab('compose')">✉ Compose</button>
+    <button class="app-tab" id="tab-order" onclick="openTab('order')">🧾 Order Builder</button>
+    <button class="app-tab" id="tab-catalog" onclick="openTab('catalog')">📦 Product Catalog</button>
+    <button class="app-tab" id="tab-presets" onclick="openTab('presets')">⚙ Template Presets</button>
+  </div>
 
+  <div class="body">
+    <!-- SIDEBAR (compose only) -->
+    <div class="sidebar" id="sidebar">
+      <div class="sb-sec">Quick templates</div>
+      <button class="tpl-btn active" onclick="loadTemplate('scratch',this)"><span class="t-icon">✦</span>Blank</button>
+      <button class="tpl-btn" onclick="loadTemplate('newsletter',this)"><span class="t-icon">📰</span>Newsletter</button>
+      <button class="tpl-btn" onclick="loadTemplate('announcement',this)"><span class="t-icon">📣</span>Announcement</button>
+      <button class="tpl-btn" onclick="loadTemplate('followup',this)"><span class="t-icon">↩</span>Follow-up</button>
+      <button class="tpl-btn" onclick="loadTemplate('intro',this)"><span class="t-icon">👋</span>Introduction</button>
+      <button class="tpl-btn" onclick="loadTemplate('meeting',this)"><span class="t-icon">📅</span>Meeting</button>
       <div class="sb-rule"></div>
       <div class="sb-sec">Transactional</div>
-
-      <button class="tpl-btn" onclick="loadTemplate('order_confirm',this)"><span class="t-icon">🧾</span> Order confirmed</button>
-      <button class="tpl-btn" onclick="loadTemplate('order_shipped',this)"><span class="t-icon">📦</span> Order shipped</button>
-      <button class="tpl-btn" onclick="loadTemplate('order_delivered',this)"><span class="t-icon">✅</span> Order delivered</button>
-      <button class="tpl-btn" onclick="loadTemplate('order_refund',this)"><span class="t-icon">↩</span> Refund issued</button>
-
+      <button class="tpl-btn" id="tpl-order-confirm" onclick="loadTemplate('order_confirm',this)"><span class="t-icon">🧾</span>Order confirmed</button>
+      <button class="tpl-btn" onclick="loadTemplate('order_shipped',this)"><span class="t-icon">📦</span>Order shipped</button>
+      <button class="tpl-btn" onclick="loadTemplate('order_delivered',this)"><span class="t-icon">✅</span>Order delivered</button>
+      <button class="tpl-btn" onclick="loadTemplate('order_refund',this)"><span class="t-icon">↩</span>Refund issued</button>
       <div class="sb-rule"></div>
       <div class="sb-sec">Account</div>
-
-      <button class="tpl-btn" onclick="loadTemplate('welcome',this)"><span class="t-icon">🎉</span> Welcome</button>
-      <button class="tpl-btn" onclick="loadTemplate('password_reset',this)"><span class="t-icon">🔑</span> Password reset</button>
-      <button class="tpl-btn" onclick="loadTemplate('verify_email',this)"><span class="t-icon">✉️</span> Verify email</button>
-      <button class="tpl-btn" onclick="loadTemplate('subscription',this)"><span class="t-icon">⭐</span> Subscription upgrade</button>
+      <button class="tpl-btn" onclick="loadTemplate('welcome',this)"><span class="t-icon">🎉</span>Welcome</button>
+      <button class="tpl-btn" onclick="loadTemplate('password_reset',this)"><span class="t-icon">🔑</span>Password reset</button>
+      <button class="tpl-btn" onclick="loadTemplate('verify_email',this)"><span class="t-icon">✉</span>Verify email</button>
+      <button class="tpl-btn" onclick="loadTemplate('subscription',this)"><span class="t-icon">⭐</span>Subscription</button>
+      <button class="tpl-btn" onclick="loadTemplate('invoice',this)"><span class="t-icon">🧾</span>Invoice</button>
+      <div class="sb-rule"></div>
+      <div class="sb-sec">Custom</div>
+      <div id="custom-tpl-list"></div>
+      <button class="sb-new-btn" onclick="openSavePresetModal()">＋ Save current as preset</button>
     </div>
 
-    <!-- MAIN -->
-    <div class="main">
-      <!-- ENVELOPE -->
+    <!-- COMPOSE TAB -->
+    <div class="main" id="view-compose">
       <div class="env-fields">
         <div class="env-row">
           <span class="env-label">To</span>
-          <input class="env-input" type="email" id="to-field" placeholder="recipient@example.com" />
+          <input class="env-input" type="email" id="to-field" placeholder="recipient@example.com"/>
         </div>
         <div class="env-row">
           <span class="env-label">Reply-To</span>
-          <input class="env-input" type="email" id="replyto-field" placeholder="replies@yourcompany.com (optional)" />
+          <input class="env-input" type="email" id="replyto-field" placeholder="replies@yourcompany.com (optional)"/>
         </div>
         <div class="env-row">
           <span class="env-label">Subject</span>
-          <input class="env-input" type="text" id="subject-field" placeholder="Subject line" oninput="updateMeta()" />
+          <input class="env-input" type="text" id="subject-field" placeholder="Subject line" oninput="updateMeta()"/>
         </div>
         <div class="env-row">
           <span class="env-label">Preview text</span>
-          <input class="env-input" type="text" id="preheader-field" placeholder="Short teaser shown in inbox before opening…" oninput="updateMeta()" />
-          <span class="env-hint">inbox snippet</span>
+          <input class="env-input" type="text" id="preheader-field" placeholder="Short teaser shown in inbox before opening…" oninput="updateMeta()"/>
         </div>
       </div>
-
-      <!-- SPLIT -->
       <div class="split">
-        <!-- LEFT: editor -->
         <div class="editor-pane">
           <div class="pane-bar">
-            <span class="pane-title">Edit email</span>
+            <span class="pane-title">Compose</span>
             <div class="pane-actions">
               <button class="p-btn" onclick="showHtmlModal()">View HTML</button>
               <button class="p-btn" onclick="copyHTML()">Copy HTML</button>
             </div>
           </div>
           <div class="fmt-bar">
-            <button class="f-btn" title="Bold" onclick="cmd('bold')"><b>B</b></button>
-            <button class="f-btn" title="Italic" onclick="cmd('italic')"><i>I</i></button>
-            <button class="f-btn" title="Underline" onclick="cmd('underline')"><u>U</u></button>
+            <button class="f-btn" onclick="cmd('bold')"><b>B</b></button>
+            <button class="f-btn" onclick="cmd('italic')"><i>I</i></button>
+            <button class="f-btn" onclick="cmd('underline')"><u>U</u></button>
             <div class="f-sep"></div>
             <button class="f-btn" onclick="setBlock('h1')">H1</button>
             <button class="f-btn" onclick="setBlock('h2')">H2</button>
@@ -676,16 +401,16 @@ header {
             <button class="f-btn" onclick="insertCTA()">＋ Button</button>
             <button class="f-btn" onclick="insertDivider()">—</button>
             <button class="f-btn" onclick="showLinkPrompt()">🔗 Link</button>
+            <button class="f-btn" onclick="insertInfoBox('info')">ℹ</button>
+            <button class="f-btn" onclick="insertInfoBox('success')">✓</button>
             <div class="f-sep"></div>
-            <button class="f-btn" onclick="cmd('removeFormat')">✕ Clear</button>
+            <button class="f-btn" onclick="cmd('removeFormat')">✕</button>
           </div>
           <div class="wysiwyg-editor" id="wysiwyg" contenteditable="true" oninput="onEdit()" onkeydown="handleKey(event)"></div>
         </div>
-
-        <!-- RIGHT: preview -->
         <div class="preview-pane">
           <div class="pane-bar">
-            <span class="pane-title">Inbox preview</span>
+            <span class="pane-title">Inbox Preview</span>
             <div class="pane-actions">
               <button class="p-btn" onclick="setWidth(380)">Mobile</button>
               <button class="p-btn" onclick="setWidth(560)">Desktop</button>
@@ -709,10 +434,120 @@ header {
           </div>
         </div>
       </div>
-
       <div class="status-bar">
         <span class="status-msg" id="status-msg"></span>
         <span class="char-count" id="char-count">0 words</span>
+      </div>
+    </div>
+
+    <!-- ORDER BUILDER TAB -->
+    <div class="main" id="view-order" style="display:none">
+      <div style="padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0">
+        <span style="font-size:13px;font-weight:600">Order Builder</span>
+        <span style="font-size:12px;color:var(--text2)">Build an order from your catalog, then generate an email automatically.</span>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <button class="btn-secondary" onclick="clearCart()">Clear order</button>
+          <button class="btn-primary" onclick="generateOrderEmail()">📧 Generate email</button>
+        </div>
+      </div>
+      <div class="order-builder">
+        <div class="order-products">
+          <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:8px">Click to add to order</div>
+          <div id="order-product-list"></div>
+        </div>
+        <div class="order-cart">
+          <div class="cart-header">
+            <span class="cart-title">📋 Order items</span>
+            <span style="font-size:12px;color:var(--text2)" id="cart-count">0 items</span>
+          </div>
+          <div class="cart-items" id="cart-items">
+            <div style="color:var(--text3);font-size:13px;text-align:center;padding:30px 0">Add products from the left panel</div>
+          </div>
+          <div class="cart-totals">
+            <div class="cart-settings">
+              <div class="setting-field">
+                <label>Customer name</label>
+                <input class="setting-input" id="order-customer" placeholder="Jane Smith" oninput="updateCartTotals()"/>
+              </div>
+              <div class="setting-field">
+                <label>Order # </label>
+                <input class="setting-input" id="order-number" placeholder="ORD-1001" value="ORD-1001"/>
+              </div>
+              <div class="setting-field">
+                <label>Discount %</label>
+                <input class="setting-input" id="order-discount" type="number" min="0" max="100" placeholder="0" oninput="updateCartTotals()"/>
+              </div>
+              <div class="setting-field">
+                <label>Tax %</label>
+                <input class="setting-input" id="order-tax" type="number" min="0" max="30" placeholder="0" oninput="updateCartTotals()"/>
+              </div>
+              <div class="setting-field">
+                <label>Shipping ($)</label>
+                <input class="setting-input" id="order-shipping" type="number" min="0" placeholder="0.00" oninput="updateCartTotals()"/>
+              </div>
+              <div class="setting-field">
+                <label>Ship method</label>
+                <input class="setting-input" id="order-ship-method" placeholder="Standard (5-7 days)"/>
+              </div>
+            </div>
+            <div style="margin-top:14px">
+              <div class="total-row"><span class="total-label">Subtotal</span><span class="total-value" id="t-subtotal">$0.00</span></div>
+              <div class="total-row" id="t-discount-row" style="display:none"><span class="total-label">Discount</span><span class="total-value discount" id="t-discount">-$0.00</span></div>
+              <div class="total-row"><span class="total-label">Shipping</span><span class="total-value" id="t-shipping">$0.00</span></div>
+              <div class="total-row"><span class="total-label">Tax</span><span class="total-value" id="t-tax">$0.00</span></div>
+              <div class="total-row grand"><span class="total-label">Total</span><span class="total-value" id="t-total">$0.00</span></div>
+            </div>
+            <div style="margin-top:10px">
+              <div class="setting-field" style="margin-bottom:6px">
+                <label>Shipping address</label>
+                <input class="setting-input" id="order-address" placeholder="123 Main St, City, State 12345"/>
+              </div>
+              <div class="setting-field">
+                <label>Payment method</label>
+                <input class="setting-input" id="order-payment" placeholder="Visa ending in 4242"/>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CATALOG TAB -->
+    <div class="main" id="view-catalog" style="display:none">
+      <div class="catalog-toolbar">
+        <input class="catalog-search" type="text" placeholder="Search products…" oninput="filterCatalog(this.value)"/>
+        <button class="btn-secondary" onclick="openImportModal()">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 1v9M5 7l3 3 3-3M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Import CSV
+        </button>
+        <button class="btn-secondary" onclick="exportCatalogCSV()">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 15V6M5 9l3 3 3-3M2 4V2a1 1 0 011-1h10a1 1 0 011 1v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Export
+        </button>
+        <button class="btn-primary" onclick="openProductModal()">
+          + Add product
+        </button>
+      </div>
+      <div class="catalog-grid" id="catalog-grid">
+        <div class="empty-catalog">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect x="4" y="8" width="40" height="32" rx="3" stroke="currentColor" stroke-width="2"/><path d="M16 24h16M24 16v16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <p>No products yet. Add your first product or import a CSV file.</p>
+          <button class="btn-primary" onclick="openProductModal()">Add first product</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRESETS TAB -->
+    <div class="main" id="view-presets" style="display:none;padding:20px;overflow-y:auto">
+      <div style="max-width:640px">
+        <div style="font-family:'Lora',serif;font-size:24px;font-weight:500;margin-bottom:6px">Template Presets</div>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:24px;line-height:1.6">Save, edit, and manage custom email templates. Built-in templates can be customized and saved as your own presets.</p>
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:10px">Your saved presets</div>
+        <div class="preset-list" id="preset-list">
+          <div style="color:var(--text3);font-size:13px;padding:16px 0">No custom presets yet. Compose an email and save it as a preset using the sidebar.</div>
+        </div>
+        <div style="margin-top:28px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:10px">Built-in templates (click to edit &amp; customize)</div>
+        <div class="preset-list" id="builtin-preset-list"></div>
       </div>
     </div>
   </div>
@@ -722,34 +557,49 @@ header {
 <div class="modal-overlay" id="settings-modal">
   <div class="modal">
     <div class="modal-title">Company settings</div>
-    <p class="modal-sub">These are used in all email templates.</p>
-    <div class="modal-field">
-      <label>Company name</label>
-      <input type="text" id="s-company" placeholder="Acme Inc." />
+    <p class="modal-sub">Used across all email templates.</p>
+    <div class="modal-tabs">
+      <button class="modal-tab active" onclick="switchSettingsTab('brand',this)">Brand</button>
+      <button class="modal-tab" onclick="switchSettingsTab('contact',this)">Contact</button>
+      <button class="modal-tab" onclick="switchSettingsTab('defaults',this)">Defaults</button>
     </div>
-    <div class="modal-field">
-      <label>Tagline (optional)</label>
-      <input type="text" id="s-tagline" placeholder="e.g. Quality goods since 2010" />
-    </div>
-    <div class="modal-field">
-      <label>Support email</label>
-      <input type="email" id="s-support" placeholder="support@yourcompany.com" />
-    </div>
-    <div class="modal-field">
-      <label>Physical address</label>
-      <input type="text" id="s-address" placeholder="123 Main St, City, State 12345" />
-    </div>
-    <div class="modal-field">
-      <label>Brand color</label>
-      <div class="color-row">
-        <div class="color-swatch selected" style="background:#2d5a3d" data-color="#2d5a3d" onclick="pickSwatch(this)"></div>
-        <div class="color-swatch" style="background:#1a4d8f" data-color="#1a4d8f" onclick="pickSwatch(this)"></div>
-        <div class="color-swatch" style="background:#8b2f2f" data-color="#8b2f2f" onclick="pickSwatch(this)"></div>
-        <div class="color-swatch" style="background:#7b4f2e" data-color="#7b4f2e" onclick="pickSwatch(this)"></div>
-        <div class="color-swatch" style="background:#5a3a7a" data-color="#5a3a7a" onclick="pickSwatch(this)"></div>
-        <div class="color-swatch" style="background:#1c1a17" data-color="#1c1a17" onclick="pickSwatch(this)"></div>
-        <input type="color" id="s-color-picker" value="#2d5a3d" title="Custom color" style="width:28px;height:28px;border-radius:50%;border:2px solid var(--border);padding:0;cursor:pointer;" oninput="customColor(this.value)" />
+    <div id="settings-tab-brand">
+      <div class="modal-field"><label>Company name</label><input type="text" id="s-company" placeholder="Acme Inc."/></div>
+      <div class="modal-field"><label>Tagline</label><input type="text" id="s-tagline" placeholder="Quality goods since 2010"/></div>
+      <div class="modal-field"><label>Brand color</label>
+        <div class="color-row" style="margin-bottom:6px">
+          <div class="color-swatch selected" style="background:#2d5a3d" data-color="#2d5a3d" onclick="pickSwatch(this)"></div>
+          <div class="color-swatch" style="background:#1a4d8f" data-color="#1a4d8f" onclick="pickSwatch(this)"></div>
+          <div class="color-swatch" style="background:#8b2f2f" data-color="#8b2f2f" onclick="pickSwatch(this)"></div>
+          <div class="color-swatch" style="background:#7b4f2e" data-color="#7b4f2e" onclick="pickSwatch(this)"></div>
+          <div class="color-swatch" style="background:#5a3a7a" data-color="#5a3a7a" onclick="pickSwatch(this)"></div>
+          <div class="color-swatch" style="background:#1c1a17" data-color="#1c1a17" onclick="pickSwatch(this)"></div>
+          <div class="color-swatch" style="background:#b08d57" data-color="#b08d57" onclick="pickSwatch(this)"></div>
+          <input type="color" id="s-color-picker" value="#2d5a3d" style="width:26px;height:26px;border-radius:50%;border:2px solid var(--border);padding:0;cursor:pointer" oninput="customColor(this.value)"/>
+        </div>
       </div>
+      <div class="modal-field"><label>Website URL</label><input type="url" id="s-website" placeholder="https://yourcompany.com"/></div>
+    </div>
+    <div id="settings-tab-contact" style="display:none">
+      <div class="modal-field"><label>Support email</label><input type="email" id="s-support" placeholder="support@yourcompany.com"/></div>
+      <div class="modal-field"><label>Phone number</label><input type="tel" id="s-phone" placeholder="+1 (555) 000-0000"/></div>
+      <div class="modal-field"><label>Physical address</label><input type="text" id="s-address" placeholder="123 Main St, City, State 12345"/></div>
+      <div class="modal-field"><label>Social links (comma separated)</label><input type="text" id="s-social" placeholder="https://twitter.com/co, https://instagram.com/co"/></div>
+    </div>
+    <div id="settings-tab-defaults" style="display:none">
+      <div class="modal-field"><label>Default tax rate (%)</label><input type="number" id="s-tax" placeholder="8.5" min="0" max="30"/></div>
+      <div class="modal-field"><label>Default shipping cost ($)</label><input type="number" id="s-shipping-cost" placeholder="9.99" min="0"/></div>
+      <div class="modal-field"><label>Currency</label>
+        <select id="s-currency">
+          <option value="USD">USD — US Dollar</option>
+          <option value="EUR">EUR — Euro</option>
+          <option value="GBP">GBP — British Pound</option>
+          <option value="CAD">CAD — Canadian Dollar</option>
+          <option value="AUD">AUD — Australian Dollar</option>
+          <option value="JPY">JPY — Japanese Yen</option>
+        </select>
+      </div>
+      <div class="modal-field"><label>Unsubscribe link URL</label><input type="url" id="s-unsub" placeholder="https://yourcompany.com/unsubscribe"/></div>
     </div>
     <div class="modal-btns">
       <button class="modal-cancel" onclick="closeSettings()">Cancel</button>
@@ -758,26 +608,91 @@ header {
   </div>
 </div>
 
+<!-- PRODUCT MODAL -->
+<div class="modal-overlay" id="product-modal">
+  <div class="modal modal-wide">
+    <div class="modal-title" id="product-modal-title">Add product</div>
+    <p class="modal-sub">Products are saved locally and used in order emails.</p>
+    <div class="modal-row">
+      <div class="modal-field"><label>Product name *</label><input type="text" id="p-name" placeholder="Blue Denim Jacket"/></div>
+      <div class="modal-field"><label>SKU</label><input type="text" id="p-sku" placeholder="SKU-001"/></div>
+    </div>
+    <div class="modal-row">
+      <div class="modal-field"><label>Price *</label><input type="number" id="p-price" placeholder="49.99" min="0" step="0.01"/></div>
+      <div class="modal-field"><label>Compare-at price</label><input type="number" id="p-compare" placeholder="69.99" min="0" step="0.01"/></div>
+    </div>
+    <div class="modal-row">
+      <div class="modal-field"><label>Stock quantity</label><input type="number" id="p-stock" placeholder="100" min="0"/></div>
+      <div class="modal-field"><label>Category</label><input type="text" id="p-category" placeholder="Apparel"/></div>
+    </div>
+    <div class="modal-field"><label>Description</label><textarea id="p-desc" placeholder="Brief product description…"></textarea></div>
+    <div class="modal-field"><label>Image URL (optional)</label><input type="url" id="p-image" placeholder="https://…" oninput="previewProductImage()"/></div>
+    <div id="p-image-preview" style="display:none;margin-top:6px"><img id="p-img-el" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid var(--border)"/></div>
+    <div class="modal-field"><label>Emoji icon (if no image)</label><input type="text" id="p-emoji" placeholder="📦" maxlength="2"/></div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeProductModal()">Cancel</button>
+      <button class="modal-save" onclick="saveProduct()">Save product</button>
+    </div>
+  </div>
+</div>
+
+<!-- IMPORT CSV MODAL -->
+<div class="modal-overlay" id="import-modal">
+  <div class="modal modal-wide">
+    <div class="modal-title">Import products from CSV</div>
+    <p class="modal-sub">Upload a CSV file with your product catalog.</p>
+    <div class="upload-zone" id="csv-drop-zone" onclick="document.getElementById('csv-file-input').click()" ondragover="csvDragOver(event)" ondrop="csvDrop(event)">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M16 4v16M10 14l6 6 6-6M6 22v4a2 2 0 002 2h16a2 2 0 002-2v-4" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <p>Click to upload or drag &amp; drop a CSV file</p>
+      <small>Required columns: name, price — Optional: sku, stock, category, description, image, emoji, compare_price</small>
+    </div>
+    <input type="file" id="csv-file-input" accept=".csv" style="display:none" onchange="handleCSVUpload(this.files[0])"/>
+    <div id="csv-preview" style="display:none;margin-top:16px">
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px">Preview (first 5 rows)</div>
+      <div id="csv-preview-table" style="font-size:12px;overflow-x:auto"></div>
+      <div style="font-size:12px;color:var(--text2);margin-top:8px" id="csv-row-count"></div>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeImportModal()">Cancel</button>
+      <button class="modal-save" id="csv-import-btn" onclick="importCSV()" style="display:none">Import products</button>
+    </div>
+  </div>
+</div>
+
 <!-- HTML MODAL -->
 <div class="modal-overlay" id="html-modal">
-  <div class="modal" style="width:600px;max-width:92vw;">
+  <div class="modal modal-wide">
     <div class="modal-title">HTML source</div>
-    <p class="modal-sub">Read-only — generated from your content above.</p>
-    <textarea id="html-view" readonly style="width:100%;height:300px;resize:vertical;font-family:'DM Mono',monospace;font-size:11.5px;color:var(--text2);background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px;outline:none;line-height:1.5;"></textarea>
+    <p class="modal-sub">Generated email-safe HTML. Copy and use anywhere.</p>
+    <textarea id="html-view" readonly style="width:100%;height:320px;resize:vertical;font-family:'DM Mono',monospace;font-size:11.5px;color:var(--text2);background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px;outline:none;line-height:1.5"></textarea>
     <div class="modal-btns">
-      <button class="modal-cancel" onclick="document.getElementById('html-modal').classList.remove('show')">Close</button>
-      <button class="modal-save" onclick="copyFromModal()">Copy HTML</button>
+      <button class="modal-cancel" onclick="closeModal('html-modal')">Close</button>
+      <button class="modal-save" onclick="copyFromHtmlModal()">Copy HTML</button>
+    </div>
+  </div>
+</div>
+
+<!-- SAVE PRESET MODAL -->
+<div class="modal-overlay" id="save-preset-modal">
+  <div class="modal">
+    <div class="modal-title">Save as preset</div>
+    <p class="modal-sub">Save your current email as a reusable template.</p>
+    <div class="modal-field"><label>Preset name</label><input type="text" id="preset-name" placeholder="My Custom Template"/></div>
+    <div class="modal-field"><label>Icon (emoji)</label><input type="text" id="preset-icon" placeholder="✉" maxlength="2"/></div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal('save-preset-modal')">Cancel</button>
+      <button class="modal-save" onclick="savePreset()">Save preset</button>
     </div>
   </div>
 </div>
 
 <!-- LINK PROMPT -->
 <div id="link-prompt">
-  <input type="text" id="lp-url" placeholder="https://..." onkeydown="if(event.key==='Enter')applyLink()" />
-  <input type="text" id="lp-text" placeholder="Link text (optional)" onkeydown="if(event.key==='Enter')applyLink()" />
+  <input type="text" id="lp-url" placeholder="https://…" onkeydown="if(event.key==='Enter')applyLink()"/>
+  <input type="text" id="lp-text" placeholder="Link text (optional)" onkeydown="if(event.key==='Enter')applyLink()"/>
   <div class="lp-btns">
     <button class="lp-btn" onclick="hideLinkPrompt()">Cancel</button>
-    <button class="lp-btn primary" onclick="applyLink()">Insert link</button>
+    <button class="lp-btn primary" onclick="applyLink()">Insert</button>
   </div>
 </div>
 
@@ -785,682 +700,993 @@ header {
 
 <script src="https://accounts.google.com/gsi/client" async></script>
 <script>
+/* ═══════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════ */
 const CLIENT_ID = '429800240850-6lqgs6suut215rnn2qcc81544epk2okh.apps.googleusercontent.com';
-let tokenClient, accessToken, tokenExpiry;
-let savedRange = null;
+let tokenClient, accessToken;
 
-// ── SETTINGS ────────────────────────────────────────────────────
 let settings = {
-  company: 'Your Company',
-  tagline: '',
-  support: '',
-  address: '',
-  color: '#2d5a3d'
+  company:'Your Company', tagline:'', support:'', phone:'', address:'', social:'',
+  website:'', color:'#2d5a3d', taxRate:0, shippingCost:0, currency:'USD', unsub:''
 };
 
-function loadSettingsFromStorage() {
-  try {
-    const s = localStorage.getItem('mailstudio_settings');
-    if (s) settings = { ...settings, ...JSON.parse(s) };
-  } catch(e) {}
+let catalog = []; // array of product objects
+let cart = [];    // {product, qty}
+let csvParsed = [];
+let editingProductId = null;
+let customPresets = []; // {id, name, icon, subject, preheader, html}
+let currentTab = 'compose';
+
+const fmt = (n) => {
+  const sym = { USD:'$', EUR:'€', GBP:'£', CAD:'CA$', AUD:'A$', JPY:'¥' }[settings.currency||'USD'] || '$';
+  return sym + Number(n).toFixed(settings.currency==='JPY'?0:2);
+};
+
+/* ═══════════════════════════════════════════════════════════
+   PERSISTENCE
+═══════════════════════════════════════════════════════════ */
+function loadStorage(){
+  try{
+    const s=localStorage.getItem('ms_settings'); if(s)settings={...settings,...JSON.parse(s)};
+    const c=localStorage.getItem('ms_catalog'); if(c)catalog=JSON.parse(c);
+    const p=localStorage.getItem('ms_presets'); if(p)customPresets=JSON.parse(p);
+  }catch(e){}
+}
+function saveToStorage(){
+  try{
+    localStorage.setItem('ms_settings',JSON.stringify(settings));
+    localStorage.setItem('ms_catalog',JSON.stringify(catalog));
+    localStorage.setItem('ms_presets',JSON.stringify(customPresets));
+  }catch(e){}
 }
 
-function saveSettings() {
-  settings.company = document.getElementById('s-company').value.trim() || 'Your Company';
-  settings.tagline = document.getElementById('s-tagline').value.trim();
-  settings.support = document.getElementById('s-support').value.trim();
-  settings.address = document.getElementById('s-address').value.trim();
-  try { localStorage.setItem('mailstudio_settings', JSON.stringify(settings)); } catch(e) {}
-  closeSettings();
-  debounce(renderPreview, 100)();
-  showToast('Settings saved ✓', 'success');
-}
-
-function openSettings() {
-  document.getElementById('s-company').value = settings.company;
-  document.getElementById('s-tagline').value = settings.tagline;
-  document.getElementById('s-support').value = settings.support;
-  document.getElementById('s-address').value = settings.address;
-  document.getElementById('s-color-picker').value = settings.color;
-  document.querySelectorAll('.color-swatch').forEach(s => {
-    s.classList.toggle('selected', s.dataset.color === settings.color);
-  });
-  document.getElementById('settings-modal').classList.add('show');
-}
-
-function closeSettings() {
-  document.getElementById('settings-modal').classList.remove('show');
-}
-
-function pickSwatch(el) {
-  document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
-  el.classList.add('selected');
-  settings.color = el.dataset.color;
-  document.getElementById('s-color-picker').value = settings.color;
-}
-
-function customColor(val) {
-  document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
-  settings.color = val;
-}
-
-// ── GOOGLE AUTH ──────────────────────────────────────────────────
-window.onload = () => {
-  loadSettingsFromStorage();
-  const script = document.querySelector('script[src*="gsi"]');
-  const tryInit = () => {
-    if (typeof google !== 'undefined') initGoogle();
-    else script.onload = initGoogle;
-  };
-  tryInit();
+/* ═══════════════════════════════════════════════════════════
+   AUTH
+═══════════════════════════════════════════════════════════ */
+window.onload=()=>{
+  loadStorage();
+  const sc=document.querySelector('script[src*="gsi"]');
+  if(typeof google!=='undefined')initGoogle(); else sc.onload=initGoogle;
   tryAutoSignIn();
+  renderBuiltinPresets();
 };
 
-function tryAutoSignIn() {
-  try {
-    const stored = localStorage.getItem('mailstudio_session');
-    if (!stored) return;
-    const sess = JSON.parse(stored);
-    if (sess.expiry && Date.now() < sess.expiry) {
-      accessToken = sess.token;
-      renderUserFromStorage(sess);
-    } else {
-      localStorage.removeItem('mailstudio_session');
-    }
-  } catch(e) {}
+function tryAutoSignIn(){
+  try{
+    const s=localStorage.getItem('ms_session');
+    if(!s)return;
+    const sess=JSON.parse(s);
+    if(sess.expiry&&Date.now()<sess.expiry){
+      accessToken=sess.token;
+      showApp(sess);
+    }else localStorage.removeItem('ms_session');
+  }catch(e){}
 }
 
-function renderUserFromStorage(sess) {
-  document.getElementById('u-email').textContent = sess.email || '';
-  const av = document.getElementById('u-avatar');
-  if (sess.picture) {
-    av.innerHTML = `<img src="${sess.picture}" alt="" />`;
-  } else {
-    const initials = (sess.name || sess.email || '?').split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
-    av.innerHTML = `<span>${initials}</span>`;
-  }
-  document.getElementById('auth-screen').style.display = 'none';
-  document.getElementById('app-screen').style.display = 'flex';
+function showApp(sess){
+  document.getElementById('u-email').textContent=sess.email||'';
+  const av=document.getElementById('u-avatar');
+  av.innerHTML=sess.picture?`<img src="${sess.picture}" alt=""/>`:
+    `<span>${(sess.name||sess.email||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()}</span>`;
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app-screen').style.display='flex';
   loadTemplate('scratch');
+  renderCatalog();
+  renderCustomPresets();
 }
 
-function initGoogle() {
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID,
-    scope: 'https://www.googleapis.com/auth/gmail.send email profile openid',
-    callback: onToken,
+function initGoogle(){
+  tokenClient=google.accounts.oauth2.initTokenClient({
+    client_id:CLIENT_ID,
+    scope:'https://www.googleapis.com/auth/gmail.send email profile openid',
+    callback:onToken
   });
-  // If we already have a token from storage, show app
-  if (accessToken) return;
-  // Otherwise check if we stored user info but token expired — prompt silently
-  try {
-    const stored = localStorage.getItem('mailstudio_session');
-    if (stored) {
-      const sess = JSON.parse(stored);
-      if (sess.email) {
-        // Try silent re-auth
-        tokenClient.requestAccessToken({ prompt: '' });
-      }
-    }
-  } catch(e) {}
+  try{
+    const s=localStorage.getItem('ms_session');
+    if(s){const sess=JSON.parse(s);if(sess.email)tokenClient.requestAccessToken({prompt:''});}
+  }catch(e){}
 }
 
-function signIn() { tokenClient.requestAccessToken({ prompt: 'consent' }); }
-
-function signOut() {
-  if (accessToken) google.accounts.oauth2.revoke(accessToken, () => {});
-  accessToken = null;
-  localStorage.removeItem('mailstudio_session');
-  document.getElementById('auth-screen').style.display = 'flex';
-  document.getElementById('app-screen').style.display = 'none';
+function signIn(){tokenClient.requestAccessToken({prompt:'consent'});}
+function signOut(){
+  if(accessToken)google.accounts.oauth2.revoke(accessToken,()=>{});
+  accessToken=null;localStorage.removeItem('ms_session');
+  document.getElementById('auth-screen').style.display='flex';
+  document.getElementById('app-screen').style.display='none';
 }
 
-async function onToken(resp) {
-  if (resp.error) {
-    // Silent auth failed — show sign in
-    if (resp.error === 'user_logged_out' || resp.error === 'access_denied') {
-      document.getElementById('auth-screen').style.display = 'flex';
-      document.getElementById('app-screen').style.display = 'none';
+async function onToken(resp){
+  if(resp.error){
+    if(['user_logged_out','access_denied'].includes(resp.error)){
+      document.getElementById('auth-screen').style.display='flex';
+      document.getElementById('app-screen').style.display='none';
     }
     return;
   }
-  accessToken = resp.access_token;
-  try {
-    const r = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-      headers: { Authorization: 'Bearer ' + accessToken }
-    });
-    const u = await r.json();
-    const initials = (u.name || u.email || '?').split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
-    const av = document.getElementById('u-avatar');
-    av.innerHTML = u.picture ? `<img src="${u.picture}" alt="" />` : `<span>${initials}</span>`;
-    document.getElementById('u-email').textContent = u.email || '';
+  accessToken=resp.access_token;
+  try{
+    const r=await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+accessToken}});
+    const u=await r.json();
+    const sess={token:accessToken,expiry:Date.now()+55*60*1000,email:u.email,name:u.name,picture:u.picture};
+    try{localStorage.setItem('ms_session',JSON.stringify(sess));}catch(e){}
+    showApp(sess);
+  }catch(e){showToast('Could not load profile.','error');}
+}
 
-    // Persist session (token is ~1h, store expiry)
-    const sess = {
-      token: accessToken,
-      expiry: Date.now() + 55 * 60 * 1000,
-      email: u.email,
-      name: u.name,
-      picture: u.picture
-    };
-    try { localStorage.setItem('mailstudio_session', JSON.stringify(sess)); } catch(e) {}
+/* ═══════════════════════════════════════════════════════════
+   TABS
+═══════════════════════════════════════════════════════════ */
+function openTab(tab){
+  currentTab=tab;
+  ['compose','order','catalog','presets'].forEach(t=>{
+    document.getElementById('view-'+t).style.display=t===tab?'flex':'none';
+    document.getElementById('tab-'+t).classList.toggle('active',t===tab);
+  });
+  document.getElementById('sidebar').style.display=tab==='compose'?'flex':'none';
+  if(tab==='order')renderOrderProducts();
+  if(tab==='catalog')renderCatalog();
+  if(tab==='presets'){renderCustomPresets();renderBuiltinPresets();}
+}
 
-    document.getElementById('auth-screen').style.display = 'none';
-    document.getElementById('app-screen').style.display = 'flex';
-    if (!document.getElementById('wysiwyg').innerHTML.trim()) loadTemplate('scratch');
-  } catch(e) {
-    showToast('Could not load profile.', 'error');
+/* ═══════════════════════════════════════════════════════════
+   SETTINGS
+═══════════════════════════════════════════════════════════ */
+function openSettings(){
+  document.getElementById('s-company').value=settings.company||'';
+  document.getElementById('s-tagline').value=settings.tagline||'';
+  document.getElementById('s-support').value=settings.support||'';
+  document.getElementById('s-phone').value=settings.phone||'';
+  document.getElementById('s-address').value=settings.address||'';
+  document.getElementById('s-social').value=settings.social||'';
+  document.getElementById('s-website').value=settings.website||'';
+  document.getElementById('s-color-picker').value=settings.color||'#2d5a3d';
+  document.getElementById('s-tax').value=settings.taxRate||'';
+  document.getElementById('s-shipping-cost').value=settings.shippingCost||'';
+  document.getElementById('s-currency').value=settings.currency||'USD';
+  document.getElementById('s-unsub').value=settings.unsub||'';
+  document.querySelectorAll('.color-swatch').forEach(s=>s.classList.toggle('selected',s.dataset.color===settings.color));
+  document.getElementById('settings-modal').classList.add('show');
+}
+function closeSettings(){document.getElementById('settings-modal').classList.remove('show');}
+function saveSettings(){
+  settings.company=document.getElementById('s-company').value.trim()||'Your Company';
+  settings.tagline=document.getElementById('s-tagline').value.trim();
+  settings.support=document.getElementById('s-support').value.trim();
+  settings.phone=document.getElementById('s-phone').value.trim();
+  settings.address=document.getElementById('s-address').value.trim();
+  settings.social=document.getElementById('s-social').value.trim();
+  settings.website=document.getElementById('s-website').value.trim();
+  settings.taxRate=parseFloat(document.getElementById('s-tax').value)||0;
+  settings.shippingCost=parseFloat(document.getElementById('s-shipping-cost').value)||0;
+  settings.currency=document.getElementById('s-currency').value;
+  settings.unsub=document.getElementById('s-unsub').value.trim();
+  saveToStorage();
+  closeSettings();
+  debounce(renderPreview,100)();
+  if(settings.taxRate){document.getElementById('order-tax').value=settings.taxRate;}
+  if(settings.shippingCost){document.getElementById('order-shipping').value=settings.shippingCost;}
+  showToast('Settings saved ✓','success');
+}
+function switchSettingsTab(tab,btn){
+  ['brand','contact','defaults'].forEach(t=>{
+    document.getElementById('settings-tab-'+t).style.display=t===tab?'block':'none';
+  });
+  document.querySelectorAll('#settings-modal .modal-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function pickSwatch(el){
+  document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('selected'));
+  el.classList.add('selected');settings.color=el.dataset.color;
+  document.getElementById('s-color-picker').value=settings.color;
+}
+function customColor(val){
+  document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('selected'));
+  settings.color=val;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PRODUCT CATALOG
+═══════════════════════════════════════════════════════════ */
+function renderCatalog(filter=''){
+  const grid=document.getElementById('catalog-grid');
+  const products=filter?catalog.filter(p=>p.name.toLowerCase().includes(filter.toLowerCase())||((p.sku||'').toLowerCase().includes(filter.toLowerCase()))||(p.category||'').toLowerCase().includes(filter.toLowerCase())):catalog;
+  if(!products.length){
+    grid.innerHTML=`<div class="empty-catalog"><svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect x="4" y="8" width="40" height="32" rx="3" stroke="currentColor" stroke-width="2"/><path d="M16 24h16M24 16v16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p>${filter?'No products match your search.':'No products yet. Add your first product or import a CSV file.'}</p>${!filter?`<button class="btn-primary" onclick="openProductModal()">Add first product</button>`:''}</div>`;
+    return;
   }
+  grid.innerHTML=products.map(p=>{
+    const stock=parseInt(p.stock)||0;
+    const badge=p.stock===undefined?'':(stock===0?'<span class="prod-badge badge-outofstock">Out of stock</span>':stock<10?'<span class="prod-badge badge-lowstock">Low stock</span>':'<span class="prod-badge badge-instock">In stock</span>');
+    const img=p.image?`<div class="prod-img"><img src="${p.image}" alt="" onerror="this.parentElement.innerHTML='${p.emoji||'📦'}'" /></div>`:`<div class="prod-img" style="font-size:36px">${p.emoji||'📦'}</div>`;
+    const compare=p.comparePrice&&parseFloat(p.comparePrice)>parseFloat(p.price)?`<s style="font-size:11px;color:var(--text3)">${fmt(p.comparePrice)}</s> `:'';
+    return `<div class="product-card" data-id="${p.id}">
+      ${img}${badge}
+      <div class="prod-body">
+        <div class="prod-name">${p.name}</div>
+        ${p.sku?`<div class="prod-sku">${p.sku}</div>`:''}
+        <div class="prod-price">${compare}${fmt(p.price)}</div>
+        ${p.stock!==undefined?`<div class="prod-stock">${stock} in stock</div>`:''}
+        <div class="prod-actions">
+          <button class="prod-add-btn" onclick="event.stopPropagation();addToCart('${p.id}')">+ Add to order</button>
+          <button class="prod-edit-btn" onclick="event.stopPropagation();openProductModal('${p.id}')">Edit</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
 }
+function filterCatalog(val){renderCatalog(val);}
 
-// ── WYSIWYG EDITOR ───────────────────────────────────────────────
-function cmd(command, value) {
-  document.getElementById('wysiwyg').focus();
-  document.execCommand(command, false, value || null);
-  onEdit();
-}
-
-function setBlock(tag) {
-  document.getElementById('wysiwyg').focus();
-  document.execCommand('formatBlock', false, tag);
-  onEdit();
-}
-
-function handleKey(e) {
-  if (e.key === 'Tab') {
-    e.preventDefault();
-    document.execCommand('insertText', false, '    ');
+function openProductModal(id){
+  editingProductId=id||null;
+  const modal=document.getElementById('product-modal');
+  document.getElementById('product-modal-title').textContent=id?'Edit product':'Add product';
+  if(id){
+    const p=catalog.find(x=>x.id===id);
+    if(p){
+      document.getElementById('p-name').value=p.name||'';
+      document.getElementById('p-sku').value=p.sku||'';
+      document.getElementById('p-price').value=p.price||'';
+      document.getElementById('p-compare').value=p.comparePrice||'';
+      document.getElementById('p-stock').value=p.stock!=undefined?p.stock:'';
+      document.getElementById('p-category').value=p.category||'';
+      document.getElementById('p-desc').value=p.description||'';
+      document.getElementById('p-image').value=p.image||'';
+      document.getElementById('p-emoji').value=p.emoji||'';
+      previewProductImage();
+    }
+  }else{
+    ['p-name','p-sku','p-price','p-compare','p-stock','p-category','p-desc','p-image','p-emoji'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('p-image-preview').style.display='none';
   }
+  modal.classList.add('show');
+}
+function closeProductModal(){document.getElementById('product-modal').classList.remove('show');}
+function previewProductImage(){
+  const url=document.getElementById('p-image').value.trim();
+  const preview=document.getElementById('p-image-preview');
+  const img=document.getElementById('p-img-el');
+  if(url){preview.style.display='block';img.src=url;}else preview.style.display='none';
+}
+function saveProduct(){
+  const name=document.getElementById('p-name').value.trim();
+  const price=document.getElementById('p-price').value;
+  if(!name||!price){showToast('Name and price are required','error');return;}
+  const product={
+    id:editingProductId||'prod_'+Date.now(),
+    name,sku:document.getElementById('p-sku').value.trim(),
+    price:parseFloat(price),
+    comparePrice:document.getElementById('p-compare').value?parseFloat(document.getElementById('p-compare').value):undefined,
+    stock:document.getElementById('p-stock').value!==''?parseInt(document.getElementById('p-stock').value):undefined,
+    category:document.getElementById('p-category').value.trim(),
+    description:document.getElementById('p-desc').value.trim(),
+    image:document.getElementById('p-image').value.trim(),
+    emoji:document.getElementById('p-emoji').value.trim()||'📦',
+  };
+  if(editingProductId){const i=catalog.findIndex(p=>p.id===editingProductId);if(i!==-1)catalog[i]=product;}
+  else catalog.push(product);
+  saveToStorage();closeProductModal();renderCatalog();
+  if(currentTab==='order')renderOrderProducts();
+  showToast(editingProductId?'Product updated ✓':'Product added ✓','success');
+}
+function deleteProduct(id){
+  catalog=catalog.filter(p=>p.id!==id);saveToStorage();renderCatalog();
 }
 
-function insertCTA() {
-  const label = prompt('Button label:', 'Shop now') || 'Shop now';
-  const url = prompt('Button URL:', 'https://') || '#';
+/* ═══════════════════════════════════════════════════════════
+   CSV IMPORT/EXPORT
+═══════════════════════════════════════════════════════════ */
+function openImportModal(){document.getElementById('import-modal').classList.add('show');}
+function closeImportModal(){document.getElementById('import-modal').classList.remove('show');csvParsed=[];}
+function csvDragOver(e){e.preventDefault();document.getElementById('csv-drop-zone').classList.add('dragover');}
+function csvDrop(e){e.preventDefault();document.getElementById('csv-drop-zone').classList.remove('dragover');const f=e.dataTransfer.files[0];if(f)handleCSVUpload(f);}
+
+function handleCSVUpload(file){
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const text=e.target.result;
+    csvParsed=parseCSV(text);
+    showCSVPreview(csvParsed);
+  };
+  reader.readAsText(file);
+}
+
+function parseCSV(text){
+  const lines=text.trim().split('\n');
+  if(lines.length<2)return[];
+  const headers=lines[0].split(',').map(h=>h.trim().toLowerCase().replace(/['"]/g,''));
+  return lines.slice(1).filter(l=>l.trim()).map(line=>{
+    const vals=line.split(',').map(v=>v.trim().replace(/^"|"$/g,''));
+    const obj={};
+    headers.forEach((h,i)=>{obj[h]=vals[i]||'';});
+    return obj;
+  });
+}
+
+function showCSVPreview(data){
+  if(!data.length)return;
+  const preview=document.getElementById('csv-preview');
+  const table=document.getElementById('csv-preview-table');
+  const keys=Object.keys(data[0]);
+  const rows=data.slice(0,5);
+  table.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:11.5px"><thead><tr>${keys.map(k=>`<th style="text-align:left;padding:4px 8px;border-bottom:1.5px solid var(--border);color:var(--text2);font-weight:600">${k}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${keys.map(k=>`<td style="padding:4px 8px;border-bottom:1px solid var(--border);color:var(--text)">${r[k]}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  document.getElementById('csv-row-count').textContent=`${data.length} product${data.length!==1?'s':''} found`;
+  preview.style.display='block';
+  document.getElementById('csv-import-btn').style.display='inline-flex';
+}
+
+function importCSV(){
+  if(!csvParsed.length)return;
+  const namemap={name:'name',product_name:'name',title:'name',price:'price',cost:'price',sku:'sku',stock:'stock',quantity:'stock',category:'category',description:'description',desc:'description',image:'image',image_url:'image',emoji:'emoji',compare_price:'comparePrice',compare_at_price:'comparePrice'};
+  let added=0;
+  csvParsed.forEach(row=>{
+    const p={id:'prod_'+Date.now()+'_'+Math.random().toString(36).slice(2),emoji:'📦'};
+    Object.entries(row).forEach(([k,v])=>{const mk=namemap[k.toLowerCase()];if(mk)p[mk]=v;});
+    if(!p.name||!p.price)return;
+    p.price=parseFloat(p.price)||0;
+    if(p.stock)p.stock=parseInt(p.stock)||undefined;
+    if(p.comparePrice)p.comparePrice=parseFloat(p.comparePrice)||undefined;
+    catalog.push(p);added++;
+  });
+  saveToStorage();closeImportModal();renderCatalog();
+  showToast(`${added} product${added!==1?'s':''} imported ✓`,'success');
+}
+
+function exportCatalogCSV(){
+  if(!catalog.length){showToast('No products to export','error');return;}
+  const headers=['name','sku','price','compare_price','stock','category','description','image','emoji'];
+  const rows=catalog.map(p=>[p.name,p.sku||'',p.price,p.comparePrice||'',p.stock!=undefined?p.stock:'',p.category||'',p.description||'',p.image||'',p.emoji||''].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','));
+  const csv=[headers.join(','),...rows].join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='catalog.csv';a.click();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ORDER BUILDER
+═══════════════════════════════════════════════════════════ */
+function renderOrderProducts(){
+  const list=document.getElementById('order-product-list');
+  if(!catalog.length){list.innerHTML=`<div style="color:var(--text3);font-size:13px">No products in catalog yet.<br><br><button class="btn-primary" onclick="openTab('catalog')">Go to catalog</button></div>`;return;}
+  list.innerHTML=catalog.map(p=>`
+    <div class="mini-prod-card" onclick="addToCart('${p.id}')">
+      <div class="mini-prod-img">${p.image?`<img src="${p.image}" alt="" onerror="this.parentElement.innerHTML='${p.emoji||'📦'}'"/>`:(p.emoji||'📦')}</div>
+      <div class="mini-prod-info">
+        <div class="mini-prod-name">${p.name}</div>
+        <div class="mini-prod-price">${fmt(p.price)}</div>
+      </div>
+    </div>`).join('');
+}
+
+function addToCart(productId){
+  const p=catalog.find(x=>x.id===productId);if(!p)return;
+  const existing=cart.find(c=>c.product.id===productId);
+  if(existing)existing.qty++;
+  else cart.push({product:p,qty:1});
+  renderCart();updateCartTotals();
+  showToast(`${p.name} added`,'success');
+}
+
+function changeQty(productId,delta){
+  const item=cart.find(c=>c.product.id===productId);if(!item)return;
+  item.qty+=delta;
+  if(item.qty<=0)cart=cart.filter(c=>c.product.id!==productId);
+  renderCart();updateCartTotals();
+}
+
+function removeFromCart(productId){
+  cart=cart.filter(c=>c.product.id!==productId);
+  renderCart();updateCartTotals();
+}
+
+function clearCart(){cart=[];renderCart();updateCartTotals();}
+
+function renderCart(){
+  const el=document.getElementById('cart-items');
+  document.getElementById('cart-count').textContent=`${cart.length} item${cart!==1?'s':''}`;
+  if(!cart.length){el.innerHTML=`<div style="color:var(--text3);font-size:13px;text-align:center;padding:30px 0">Add products from the left panel</div>`;return;}
+  el.innerHTML=cart.map(({product:p,qty})=>`
+    <div class="cart-item">
+      <div class="ci-info">
+        <div class="ci-name">${p.name}</div>
+        ${p.sku?`<div class="ci-sku">${p.sku}</div>`:''}
+        <div class="ci-controls">
+          <button class="qty-btn" onclick="changeQty('${p.id}',-1)">−</button>
+          <span class="qty-display">${qty}</span>
+          <button class="qty-btn" onclick="changeQty('${p.id}',1)">+</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <span class="ci-price">${fmt(p.price*qty)}</span>
+        <span class="ci-remove" onclick="removeFromCart('${p.id}')">✕</span>
+      </div>
+    </div>`).join('');
+}
+
+function updateCartTotals(){
+  const subtotal=cart.reduce((s,{product:p,qty})=>s+p.price*qty,0);
+  const discountPct=parseFloat(document.getElementById('order-discount').value)||0;
+  const taxPct=parseFloat(document.getElementById('order-tax').value)||0;
+  const shippingCost=parseFloat(document.getElementById('order-shipping').value)||0;
+  const discountAmt=subtotal*(discountPct/100);
+  const taxableAmt=subtotal-discountAmt;
+  const taxAmt=taxableAmt*(taxPct/100);
+  const total=taxableAmt+taxAmt+shippingCost;
+  document.getElementById('t-subtotal').textContent=fmt(subtotal);
+  document.getElementById('t-discount').textContent='-'+fmt(discountAmt);
+  document.getElementById('t-discount-row').style.display=discountPct>0?'flex':'none';
+  document.getElementById('t-shipping').textContent=fmt(shippingCost);
+  document.getElementById('t-tax').textContent=fmt(taxAmt);
+  document.getElementById('t-total').textContent=fmt(total);
+}
+
+function generateOrderEmail(){
+  if(!cart.length){showToast('Add products to the order first','error');return;}
+  const customer=document.getElementById('order-customer').value||'[Customer]';
+  const orderNum=document.getElementById('order-number').value||'ORD-???';
+  const subtotal=cart.reduce((s,{product:p,qty})=>s+p.price*qty,0);
+  const discountPct=parseFloat(document.getElementById('order-discount').value)||0;
+  const taxPct=parseFloat(document.getElementById('order-tax').value)||0;
+  const shippingCost=parseFloat(document.getElementById('order-shipping').value)||0;
+  const discountAmt=subtotal*(discountPct/100);
+  const taxableAmt=subtotal-discountAmt;
+  const taxAmt=taxableAmt*(taxPct/100);
+  const total=taxableAmt+taxAmt+shippingCost;
+  const address=document.getElementById('order-address').value||'[Shipping address]';
+  const payment=document.getElementById('order-payment').value||'[Payment method]';
+  const shipMethod=document.getElementById('order-ship-method').value||'Standard (5–7 business days)';
+
+  // Build items table HTML for editor
+  const itemRows=cart.map(({product:p,qty})=>`<tr>
+    <td style="padding:10px 14px;border-bottom:1px solid #eee;">${p.name}${p.sku?`<br/><span style="font-size:11px;color:#999;font-family:monospace">${p.sku}</span>`:''}</td>
+    <td style="padding:10px 14px;border-bottom:1px solid #eee;text-align:center;">${qty}</td>
+    <td style="padding:10px 14px;border-bottom:1px solid #eee;text-align:right;">${fmt(p.price)}</td>
+    <td style="padding:10px 14px;border-bottom:1px solid #eee;text-align:right;font-weight:600;">${fmt(p.price*qty)}</td>
+  </tr>`).join('');
+
+  const discountRow=discountPct>0?`<tr><td colspan="3" style="padding:6px 14px;text-align:right;color:#888;">Discount (${discountPct}%)</td><td style="padding:6px 14px;text-align:right;color:#c0392b;">-${fmt(discountAmt)}</td></tr>`:'';
+
+  const wysiwyg=`<h1>Order confirmed ✓</h1>
+<p>Hi ${customer},</p>
+<p>Thank you for your order! We've received it and will begin processing right away. Here's your order summary:</p>
+<p><strong>Order #${orderNum}</strong></p>
+<table style="width:100%;border-collapse:collapse;margin:12px 0;font-size:14px;">
+<thead><tr style="background:#f5f2ee;">
+  <th style="padding:10px 14px;text-align:left;border-bottom:2px solid #ddd;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#666;">Item</th>
+  <th style="padding:10px 14px;text-align:center;border-bottom:2px solid #ddd;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#666;">Qty</th>
+  <th style="padding:10px 14px;text-align:right;border-bottom:2px solid #ddd;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#666;">Unit price</th>
+  <th style="padding:10px 14px;text-align:right;border-bottom:2px solid #ddd;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#666;">Subtotal</th>
+</tr></thead>
+<tbody>${itemRows}</tbody>
+<tfoot>
+  <tr><td colspan="3" style="padding:8px 14px;text-align:right;color:#888;border-top:1px solid #eee;">Subtotal</td><td style="padding:8px 14px;text-align:right;border-top:1px solid #eee;">${fmt(subtotal)}</td></tr>
+  ${discountRow}
+  <tr><td colspan="3" style="padding:6px 14px;text-align:right;color:#888;">Shipping (${shipMethod})</td><td style="padding:6px 14px;text-align:right;">${fmt(shippingCost)}</td></tr>
+  ${taxPct>0?`<tr><td colspan="3" style="padding:6px 14px;text-align:right;color:#888;">Tax (${taxPct}%)</td><td style="padding:6px 14px;text-align:right;">${fmt(taxAmt)}</td></tr>`:''}
+  <tr style="background:#f9f7f4;"><td colspan="3" style="padding:12px 14px;text-align:right;font-weight:700;font-size:15px;">Total</td><td style="padding:12px 14px;text-align:right;font-weight:700;font-size:15px;">${fmt(total)}</td></tr>
+</tfoot>
+</table>
+<hr/>
+<p><strong>📦 Shipping to:</strong><br/>${address}</p>
+<p><strong>💳 Payment:</strong> ${payment}</p>
+<p><strong>🚚 Shipping method:</strong> ${shipMethod}</p>
+<hr/>
+<p><a href="#" class="email-button" style="display:inline-block;background:${settings.color};color:white;padding:10px 24px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;">Track your order</a></p>
+${settings.support?`<p style="font-size:13px;color:#888;">Questions? Email us at <a href="mailto:${settings.support}">${settings.support}</a></p>`:''}`;
+
+  openTab('compose');
+  document.getElementById('subject-field').value=`Order confirmed — #${orderNum}`;
+  document.getElementById('preheader-field').value=`Your order has been received. Here's your summary.`;
+  document.getElementById('wysiwyg').innerHTML=wysiwyg;
+  updateMeta();onEdit();
+  document.querySelectorAll('.tpl-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tpl-order-confirm')?.classList.add('active');
+  showToast('Order email generated! ✓','success');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PRESETS
+═══════════════════════════════════════════════════════════ */
+function openSavePresetModal(){
+  document.getElementById('preset-name').value='';
+  document.getElementById('preset-icon').value='';
+  document.getElementById('save-preset-modal').classList.add('show');
+}
+function savePreset(){
+  const name=document.getElementById('preset-name').value.trim();
+  if(!name){showToast('Enter a name for the preset','error');return;}
+  const preset={
+    id:'preset_'+Date.now(),
+    name,
+    icon:document.getElementById('preset-icon').value.trim()||'✉',
+    subject:document.getElementById('subject-field').value,
+    preheader:document.getElementById('preheader-field').value,
+    html:document.getElementById('wysiwyg').innerHTML
+  };
+  customPresets.push(preset);
+  saveToStorage();
+  closeModal('save-preset-modal');
+  renderCustomPresets();
+  showToast('Preset saved ✓','success');
+}
+function renderCustomPresets(){
+  const list=document.getElementById('custom-tpl-list');
+  if(!customPresets.length){list.innerHTML='';return;}
+  list.innerHTML=customPresets.map(p=>`
+    <button class="tpl-btn" onclick="loadCustomPreset('${p.id}',this)">
+      <span class="t-icon">${p.icon}</span>${p.name}
+    </button>`).join('');
+  // Also update presets tab
+  renderPresetsTab();
+}
+function renderPresetsTab(){
+  const list=document.getElementById('preset-list');
+  if(!customPresets.length){list.innerHTML=`<div style="color:var(--text3);font-size:13px;padding:16px 0">No custom presets yet. Compose an email and save it as a preset using the sidebar.</div>`;return;}
+  list.innerHTML=customPresets.map(p=>`
+    <div class="preset-item">
+      <span class="pi-icon">${p.icon}</span>
+      <span class="pi-name">${p.name}</span>
+      <div class="pi-actions">
+        <button class="pi-btn" onclick="loadCustomPreset('${p.id}')">Use</button>
+        <button class="pi-btn danger" onclick="deletePreset('${p.id}')">Delete</button>
+      </div>
+    </div>`).join('');
+}
+function loadCustomPreset(id,btn){
+  const p=customPresets.find(x=>x.id===id);if(!p)return;
+  document.getElementById('subject-field').value=p.subject||'';
+  document.getElementById('preheader-field').value=p.preheader||'';
+  document.getElementById('wysiwyg').innerHTML=p.html||'';
+  updateMeta();onEdit();
+  openTab('compose');
+  document.querySelectorAll('.tpl-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+}
+function deletePreset(id){
+  customPresets=customPresets.filter(p=>p.id!==id);
+  saveToStorage();renderCustomPresets();renderPresetsTab();
+  showToast('Preset deleted','info');
+}
+function renderBuiltinPresets(){
+  const list=document.getElementById('builtin-preset-list');
+  if(!list)return;
+  const builtins=[
+    {key:'scratch',name:'Blank',icon:'✦'},
+    {key:'newsletter',name:'Newsletter',icon:'📰'},
+    {key:'announcement',name:'Announcement',icon:'📣'},
+    {key:'followup',name:'Follow-up',icon:'↩'},
+    {key:'order_confirm',name:'Order confirmed',icon:'🧾'},
+    {key:'order_shipped',name:'Order shipped',icon:'📦'},
+    {key:'order_delivered',name:'Order delivered',icon:'✅'},
+    {key:'order_refund',name:'Refund issued',icon:'↩'},
+    {key:'welcome',name:'Welcome',icon:'🎉'},
+    {key:'password_reset',name:'Password reset',icon:'🔑'},
+    {key:'invoice',name:'Invoice',icon:'🧾'},
+    {key:'subscription',name:'Subscription upgrade',icon:'⭐'},
+  ];
+  list.innerHTML=builtins.map(b=>`
+    <div class="preset-item">
+      <span class="pi-icon">${b.icon}</span>
+      <span class="pi-name">${b.name}</span>
+      <div class="pi-actions">
+        <button class="pi-btn" onclick="loadTemplate('${b.key}');openTab('compose')">Use in composer</button>
+      </div>
+    </div>`).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   WYSIWYG
+═══════════════════════════════════════════════════════════ */
+function cmd(command,value){document.getElementById('wysiwyg').focus();document.execCommand(command,false,value||null);onEdit();}
+function setBlock(tag){document.getElementById('wysiwyg').focus();document.execCommand('formatBlock',false,tag);onEdit();}
+function handleKey(e){if(e.key==='Tab'){e.preventDefault();document.execCommand('insertText',false,'    ');}}
+
+function insertCTA(){
+  const label=prompt('Button label:','Shop now')||'Shop now';
+  const url=prompt('Button URL:','https://')||'#';
   document.getElementById('wysiwyg').focus();
-  document.execCommand('insertHTML', false,
-    `<p><a href="${url}" class="email-button" style="display:inline-block;background:${settings.color};color:white;padding:11px 26px;border-radius:7px;text-decoration:none;font-weight:500;font-size:14px;">${label}</a></p>`
-  );
+  document.execCommand('insertHTML',false,`<p><a href="${url}" class="email-button" style="display:inline-block;background:${settings.color};color:white;padding:11px 26px;border-radius:7px;text-decoration:none;font-weight:600;font-size:14px;">${label}</a></p>`);
+  onEdit();
+}
+function insertDivider(){document.getElementById('wysiwyg').focus();document.execCommand('insertHTML',false,'<hr/>');onEdit();}
+function insertInfoBox(type){
+  const placeholders={info:'ℹ️ Add your info here.',success:'✓ Success message here.',warning:'⚠️ Important notice here.'};
+  document.getElementById('wysiwyg').focus();
+  document.execCommand('insertHTML',false,`<div class="${type}-box">${placeholders[type]||'Message here.'}</div>`);
   onEdit();
 }
 
-function insertDivider() {
-  document.getElementById('wysiwyg').focus();
-  document.execCommand('insertHTML', false, '<hr/>');
-  onEdit();
+let savedSel=null;
+function showLinkPrompt(){
+  const sel=window.getSelection();
+  if(sel&&sel.rangeCount>0){savedSel=sel.getRangeAt(0).cloneRange();document.getElementById('lp-text').value=sel.toString();}
+  const btn=document.querySelector('.f-btn[onclick="showLinkPrompt()"]');
+  const rect=btn.getBoundingClientRect();
+  const lp=document.getElementById('link-prompt');
+  lp.style.left=rect.left+'px';lp.style.top=(rect.bottom+6)+'px';
+  lp.classList.add('show');document.getElementById('lp-url').focus();
 }
-
-let savedSel = null;
-function showLinkPrompt() {
-  const sel = window.getSelection();
-  if (sel && sel.rangeCount > 0) {
-    savedSel = sel.getRangeAt(0).cloneRange();
-    document.getElementById('lp-text').value = sel.toString();
-  }
-  const btn = document.querySelector('.f-btn[onclick="showLinkPrompt()"]');
-  const rect = btn.getBoundingClientRect();
-  const lp = document.getElementById('link-prompt');
-  lp.style.left = rect.left + 'px';
-  lp.style.top = (rect.bottom + 6) + 'px';
-  lp.classList.add('show');
-  document.getElementById('lp-url').focus();
-}
-
-function hideLinkPrompt() {
+function hideLinkPrompt(){
   document.getElementById('link-prompt').classList.remove('show');
-  document.getElementById('lp-url').value = '';
-  document.getElementById('lp-text').value = '';
+  document.getElementById('lp-url').value='';document.getElementById('lp-text').value='';
 }
-
-function applyLink() {
-  const url = document.getElementById('lp-url').value.trim();
-  const text = document.getElementById('lp-text').value.trim();
-  if (!url) { hideLinkPrompt(); return; }
-  const editor = document.getElementById('wysiwyg');
-  editor.focus();
-  if (savedSel) {
-    const sel = window.getSelection();
-    sel.removeAllRanges();
-    sel.addRange(savedSel);
-  }
-  const linkText = text || url;
-  document.execCommand('insertHTML', false,
-    `<a href="${url}" style="color:${settings.color};text-decoration:underline;">${linkText}</a>`
-  );
-  hideLinkPrompt();
-  onEdit();
+function applyLink(){
+  const url=document.getElementById('lp-url').value.trim();
+  const text=document.getElementById('lp-text').value.trim();
+  if(!url){hideLinkPrompt();return;}
+  document.getElementById('wysiwyg').focus();
+  if(savedSel){const s=window.getSelection();s.removeAllRanges();s.addRange(savedSel);}
+  document.execCommand('insertHTML',false,`<a href="${url}" style="color:${settings.color};text-decoration:underline;">${text||url}</a>`);
+  hideLinkPrompt();onEdit();
 }
-
-document.addEventListener('click', (e) => {
-  const lp = document.getElementById('link-prompt');
-  if (lp.classList.contains('show') && !lp.contains(e.target)) hideLinkPrompt();
+document.addEventListener('click',(e)=>{
+  const lp=document.getElementById('link-prompt');
+  if(lp.classList.contains('show')&&!lp.contains(e.target))hideLinkPrompt();
 });
 
-// ── TEMPLATE ENGINE ─────────────────────────────────────────────
-function co() { return settings.company || 'Your Company'; }
-function col() { return settings.color || '#2d5a3d'; }
-function supportTxt() { return settings.support ? `Questions? <a href="mailto:${settings.support}" style="color:${col()};">${settings.support}</a>` : 'Questions? Reply to this email.'; }
-function addrTxt() { return settings.address || '[Company Address]'; }
+/* ═══════════════════════════════════════════════════════════
+   TEMPLATES
+═══════════════════════════════════════════════════════════ */
+const co=()=>settings.company||'Your Company';
+const col=()=>settings.color||'#2d5a3d';
+const btnHtml=(label,url='#')=>`<p><a href="${url}" class="email-button" style="display:inline-block;background:${col()};color:white;padding:11px 26px;border-radius:7px;text-decoration:none;font-weight:600;font-size:14px;">${label}</a></p>`;
+const supportLine=()=>settings.support?`<p style="font-size:13px;color:#888">Questions? Email us at <a href="mailto:${settings.support}">${settings.support}</a>${settings.phone?' or call '+settings.phone:''}</p>`:'';
 
-const TEMPLATES = {
-  scratch: {
-    subject: '',
-    preheader: '',
-    html: () => `<h1>Your headline here</h1><p>Write your email here. Use the toolbar above to format text, add buttons, links, and dividers.</p>`
+const TEMPLATES={
+  scratch:{subject:'',preheader:'',html:()=>`<h1>Your headline here</h1><p>Write your email here. Use the toolbar to format text, add buttons, links, and dividers.</p>`},
+  newsletter:{
+    subject:()=>`${co()} — ${new Date().toLocaleString('default',{month:'long',year:'numeric'})}`,
+    preheader:"Here's what's new this month.",
+    html:()=>`<h1>What's new at ${co()}</h1><p>Welcome to our latest update. Here's a quick look at what's been happening.</p><hr/><h2>Story one</h2><p>Your first story or update here. Keep it short — two to three sentences per story tends to work best in newsletters.</p>${btnHtml('Read more →')}<hr/><h2>Story two</h2><p>Another update. Keep the same tone throughout.</p>`
   },
-  newsletter: {
-    subject: () => `${co()} Newsletter — ${new Date().toLocaleString('default',{month:'long',year:'numeric'})}`,
-    preheader: "Here's what's new this month.",
-    html: () => `<h1>What's new at ${co()}</h1><p>Welcome to our latest update. Here's a quick look at what we've been up to.</p><hr/><h2>Story one</h2><p>Your first story or update here. Keep it short — two to three sentences per story tends to work best in newsletters.</p><p><a href="#" class="email-button" style="display:inline-block;background:${col()};color:white;padding:11px 26px;border-radius:7px;text-decoration:none;font-weight:500;font-size:14px;">Read more →</a></p><hr/><h2>Story two</h2><p>Another update. Keep the same tone throughout — warm and concise.</p>`
+  announcement:{
+    subject:()=>`Big news from ${co()}`,
+    preheader:'We have something exciting to share.',
+    html:()=>`<h1>Exciting news</h1><p>We're thrilled to announce something new from ${co()}.</p><p>[Describe your announcement here. What's new? Why does it matter?]</p>${btnHtml('Learn more')}<hr/><p style="color:#888;font-size:13px">As always, thank you for your support.</p>`
   },
-  announcement: {
-    subject: () => `Big news from ${co()}`,
-    preheader: "We have something exciting to share.",
-    html: () => `<h1>Exciting news</h1><p>We're thrilled to announce something new from ${co()}.</p><p>[Describe your announcement here. What's new? Why does it matter to your reader?]</p><p><a href="#" class="email-button" style="display:inline-block;background:${col()};color:white;padding:11px 26px;border-radius:7px;text-decoration:none;font-weight:500;font-size:14px;">Learn more</a></p><hr/><p style="color:#888;font-size:13px;">As always, we're grateful for your support.</p>`
+  followup:{
+    subject:'Following up — [topic]',preheader:'Just a quick note.',
+    html:()=>`<p>Hi [Name],</p><p>I wanted to follow up on my previous message about <strong>[topic]</strong>.</p><p>[Your one-sentence follow-up.]</p><p>Would you have 15 minutes this week?</p>${btnHtml('Book a time')}<hr/><p style="font-size:13px;color:#888">Best,<br/><strong>[Your name]</strong><br/>[Title] · ${co()}</p>`
   },
-  followup: {
-    subject: 'Following up — [topic]',
-    preheader: 'Just a quick note on my last message.',
-    html: () => `<p>Hi [Name],</p><p>I wanted to follow up on my previous message about <strong>[topic]</strong>. I'll keep this short.</p><p>[Your one-sentence follow-up. Be specific about what you need.]</p><p>Would you have 15 minutes this week?</p><p><a href="#" class="email-button" style="display:inline-block;background:${col()};color:white;padding:11px 26px;border-radius:7px;text-decoration:none;font-weight:500;font-size:14px;">Book a time</a></p><hr/><p style="font-size:13px;color:#888;">Best,<br/><strong>[Your name]</strong><br/>[Title] · ${co()}</p>`
+  intro:{
+    subject:()=>`Introduction — from ${co()}`,preheader:"Nice to meet you.",
+    html:()=>`<h1>Nice to meet you</h1><p>Hi [Name],</p><p>My name is <strong>[Your name]</strong> — I'm [your role] at <strong>${co()}</strong>. I came across [how you found them] and wanted to connect.</p><p>[One clear sentence about what you're offering.]</p>${btnHtml('Schedule a call')}`
   },
-  intro: {
-    subject: () => `Introduction — from ${co()}`,
-    preheader: "Nice to meet you — here's why I'm reaching out.",
-    html: () => `<h1>Nice to meet you</h1><p>Hi [Name],</p><p>My name is <strong>[Your name]</strong> — I'm [your role] at <strong>${co()}</strong>. I came across [how you found them] and wanted to connect.</p><p>[One clear sentence about what you're offering or why this connection makes sense.]</p><p><a href="#" class="email-button" style="display:inline-block;background:${col()};color:white;padding:11px 26px;border-radius:7px;text-decoration:none;font-weight:500;font-size:14px;">Schedule a call</a></p>`
+  meeting:{
+    subject:'Meeting request — [topic]',preheader:'A few times that work for me.',
+    html:()=>`<h1>Let's find a time</h1><p>Hi [Name],</p><p>I'd love to schedule time to discuss <strong>[topic]</strong>. Here are a few slots:</p><ul><li>[Day, Date] at [Time] [TZ]</li><li>[Day, Date] at [Time] [TZ]</li><li>[Day, Date] at [Time] [TZ]</li></ul><p>Should take about <strong>[duration]</strong>.</p>${btnHtml('View my calendar')}`
   },
-  meeting: {
-    subject: 'Meeting request — [topic]',
-    preheader: "A few times that work — pick what suits you.",
-    html: () => `<h1>Let's find a time</h1><p>Hi [Name],</p><p>I'd love to schedule time to discuss <strong>[topic]</strong>. Here are a few slots that work:</p><ul><li>[Day, Date] at [Time] [TZ]</li><li>[Day, Date] at [Time] [TZ]</li><li>[Day, Date] at [Time] [TZ]</li></ul><p>Should take about <strong>[duration]</strong>. Or just reply with a better time.</p><p><a href="#" class="email-button" style="display:inline-block;background:${col()};color:white;padding:11px 26px;border-radius:7px;text-decoration:none;font-weight:500;font-size:14px;">View my calendar</a></p>`
-  },
-
-  // ── TRANSACTIONAL ──────────────────────────────────────
-  order_confirm: {
-    subject: 'Order confirmed — #[ORDER-ID]',
-    preheader: "We've got your order and we're on it.",
-    html: () => `<h1>Order confirmed ✓</h1><p>Hi [Customer name],</p><p>Thank you for your order! We've received it and will begin processing shortly. Here's your summary:</p>
-<table class="order-table"><thead><tr><th>Item</th><th>Qty</th><th>Price</th></tr></thead><tbody>
-<tr><td>[Product name]</td><td>1</td><td>$[XX.XX]</td></tr>
-<tr><td>[Product name]</td><td>2</td><td>$[XX.XX]</td></tr>
-</tbody></table>
-<p style="text-align:right;font-weight:600;font-size:15px;padding:8px 12px 0;">Total: $[XX.XX]</p>
+  order_confirm:{
+    subject:'Your order is confirmed — #[ORDER-ID]',preheader:"We've got your order and we're on it.",
+    html:()=>`<h1>Order confirmed ✓</h1><p>Hi [Customer name],</p><p>Thank you for your order! We've received it and will begin processing shortly. Here's your summary:</p>
+<p><strong>Order #[ORDER-ID]</strong></p>
+<table style="width:100%;border-collapse:collapse;margin:12px 0;font-size:14px;"><thead><tr style="background:#f5f2ee;"><th style="padding:10px 14px;text-align:left;border-bottom:2px solid #ddd;font-size:11px;text-transform:uppercase;color:#666;">Item</th><th style="padding:10px 14px;text-align:center;border-bottom:2px solid #ddd;font-size:11px;text-transform:uppercase;color:#666;">Qty</th><th style="padding:10px 14px;text-align:right;border-bottom:2px solid #ddd;font-size:11px;text-transform:uppercase;color:#666;">Price</th></tr></thead>
+<tbody>
+<tr><td style="padding:10px 14px;border-bottom:1px solid #eee;">[Product name]</td><td style="padding:10px 14px;text-align:center;border-bottom:1px solid #eee;">1</td><td style="padding:10px 14px;text-align:right;border-bottom:1px solid #eee;">$[XX.XX]</td></tr>
+<tr><td style="padding:10px 14px;border-bottom:1px solid #eee;">[Product name]</td><td style="padding:10px 14px;text-align:center;border-bottom:1px solid #eee;">2</td><td style="padding:10px 14px;text-align:right;border-bottom:1px solid #eee;">$[XX.XX]</td></tr>
+</tbody>
+<tfoot>
+<tr><td colspan="2" style="padding:8px 14px;text-align:right;color:#888;">Subtotal</td><td style="padding:8px 14px;text-align:right;">$[XX.XX]</td></tr>
+<tr><td colspan="2" style="padding:6px 14px;text-align:right;color:#888;">Shipping</td><td style="padding:6px 14px;text-align:right;">$[X.XX]</td></tr>
+<tr><td colspan="2" style="padding:6px 14px;text-align:right;color:#888;">Tax</td><td style="padding:6px 14px;text-align:right;">$[X.XX]</td></tr>
+<tr style="background:#f9f7f4;"><td colspan="2" style="padding:12px 14px;text-align:right;font-weight:700;font-size:15px;">Total</td><td style="padding:12px 14px;text-align:right;font-weight:700;font-size:15px;">$[XX.XX]</td></tr>
+</tfoot></table>
 <hr/>
-<p><strong>Shipping to:</strong><br/>[Customer address]</p>
-<p>Estimated delivery: <strong>[X–X business days]</strong></p>
-<p><a href="#" class="email-button" style="display:inline-block;background:${col()};color:white;padding:11px 26px;border-radius:7px;text-decoration:none;font-weight:500;font-size:14px;">Track your order</a></p>
-<hr/><p style="font-size:13px;color:#888;">${supportTxt()}</p>`
+<p><strong>📦 Shipping to:</strong><br/>[Customer address]</p>
+<p><strong>💳 Payment:</strong> [Payment method]</p>
+<p><strong>🚚 Shipping method:</strong> [Standard / Express]</p>
+${btnHtml('Track your order')}
+${supportLine()}`
   },
-  order_shipped: {
-    subject: 'Your order has shipped! 📦 #[ORDER-ID]',
-    preheader: "It's on its way — here's your tracking info.",
-    html: () => `<h1>It's on its way! 📦</h1><p>Hi [Customer name],</p><p>Great news — your order has shipped and is headed your way.</p>
-<div class="section-banner">
-  <strong>Tracking number:</strong> [TRACKING-NUMBER]<br/>
-  <strong>Carrier:</strong> [UPS / FedEx / USPS / DHL]<br/>
-  <strong>Estimated delivery:</strong> [Date range]
-</div>
-<p><a href="#" class="email-button" style="display:inline-block;background:${col()};color:white;padding:11px 26px;border-radius:7px;text-decoration:none;font-weight:500;font-size:14px;">Track your package</a></p>
-<hr/><p style="font-size:13px;color:#888;">${supportTxt()}</p>`
+  order_shipped:{
+    subject:'Your order has shipped! 📦 #[ORDER-ID]',preheader:"It's on its way!",
+    html:()=>`<h1>It's on its way! 📦</h1><p>Hi [Customer name],</p><p>Great news — your order has shipped and is headed your way.</p>
+<div class="info-box"><strong>Tracking number:</strong> [TRACKING-NUMBER]<br/><strong>Carrier:</strong> [UPS / FedEx / USPS / DHL]<br/><strong>Estimated delivery:</strong> [Date range]</div>
+${btnHtml('Track your package')}
+<hr/>${supportLine()}`
   },
-  order_delivered: {
-    subject: 'Your order was delivered ✅',
-    preheader: "Your package arrived — we hope you love it.",
-    html: () => `<h1>Delivered! ✅</h1><p>Hi [Customer name],</p><p>Your order has been delivered. We hope you love everything.</p><p>If anything isn't right, we're here to help — just reach out.</p>
-<p><a href="#" class="email-button" style="display:inline-block;background:${col()};color:white;padding:11px 26px;border-radius:7px;text-decoration:none;font-weight:500;font-size:14px;">Leave a review</a></p>
-<hr/><p style="font-size:13px;color:#888;">Something wrong with your order? ${supportTxt()}</p>`
+  order_delivered:{
+    subject:'Your order was delivered ✅',preheader:"Your package has arrived.",
+    html:()=>`<h1>Delivered! ✅</h1><p>Hi [Customer name],</p><p>Your order has been delivered. We hope you love everything!</p><p>If anything isn't right, we're here to help — just reach out.</p>
+${btnHtml('Leave a review')}
+<hr/>${supportLine()}`
   },
-  order_refund: {
-    subject: 'Your refund has been issued',
-    preheader: "A refund is on its way to your original payment method.",
-    html: () => `<h1>Refund issued</h1><p>Hi [Customer name],</p><p>We've processed a refund of <strong>$[XX.XX]</strong> to your original payment method.</p>
-<div class="section-banner">
-  <strong>Refund amount:</strong> $[XX.XX]<br/>
-  <strong>Payment method:</strong> [Card ending in XXXX / PayPal / etc.]<br/>
-  <strong>Processing time:</strong> 5–10 business days
-</div>
+  order_refund:{
+    subject:'Your refund has been issued',preheader:"A refund is on its way.",
+    html:()=>`<h1>Refund issued</h1><p>Hi [Customer name],</p><p>We've processed a refund of <strong>$[XX.XX]</strong> to your original payment method.</p>
+<div class="info-box"><strong>Refund amount:</strong> $[XX.XX]<br/><strong>Payment method:</strong> [Card ending in XXXX]<br/><strong>Processing time:</strong> 5–10 business days</div>
 <p>Refunds typically appear within 5–10 business days depending on your bank.</p>
-<hr/><p style="font-size:13px;color:#888;">Questions? ${supportTxt()}</p>`
+<hr/>${supportLine()}`
   },
-
-  welcome: {
-    subject: () => `Welcome to ${co()}! 🎉`,
-    preheader: () => `You're in — here's how to get started with ${co()}.`,
-    html: () => `<h1>Welcome to ${co()}! 🎉</h1><p>Hi [Name],</p><p>We're so glad you're here. Your account is ready and you can log in anytime.</p>
-<p><a href="#" class="email-button" style="display:inline-block;background:${col()};color:white;padding:11px 26px;border-radius:7px;text-decoration:none;font-weight:500;font-size:14px;">Get started →</a></p>
-<hr/>
-<h2>A few things to get you started</h2>
+  welcome:{
+    subject:()=>`Welcome to ${co()}! 🎉`,preheader:()=>`You're in — here's how to get started.`,
+    html:()=>`<h1>Welcome to ${co()}! 🎉</h1><p>Hi [Name],</p><p>We're so glad you're here. Your account is ready and you can log in anytime.</p>
+${btnHtml('Get started →')}
+<hr/><h2>A few things to get you started</h2>
 <ul>
   <li><strong>Set up your profile</strong> — Add your details so we know who you are.</li>
   <li><strong>Explore the dashboard</strong> — See everything available to you.</li>
-  <li><strong>Reach out</strong> — We're always happy to help.</li>
+  <li><strong>Reach out anytime</strong> — We're always happy to help.</li>
 </ul>
-<hr/><p style="font-size:13px;color:#888;">${supportTxt()}</p>`
+<hr/>${supportLine()}`
   },
-  password_reset: {
-    subject: () => `Reset your ${co()} password`,
-    preheader: "Use the button below to set a new password.",
-    html: () => `<h1>Reset your password</h1><p>Hi [Name],</p><p>We received a request to reset the password for your ${co()} account. Click the button below to set a new one.</p>
-<p><a href="#" class="email-button" style="display:inline-block;background:${col()};color:white;padding:11px 26px;border-radius:7px;text-decoration:none;font-weight:500;font-size:14px;">Reset password</a></p>
-<p style="color:#888;font-size:13px;">This link expires in <strong>24 hours</strong>.</p>
-<hr/><p style="font-size:13px;color:#888;">If you didn't request this, you can safely ignore this email. Your password won't change.</p>`
+  password_reset:{
+    subject:()=>`Reset your ${co()} password`,preheader:'Use the button below to set a new password.',
+    html:()=>`<h1>Reset your password</h1><p>Hi [Name],</p><p>We received a request to reset the password for your ${co()} account. Click the button below to set a new one.</p>
+${btnHtml('Reset password')}
+<p style="font-size:13px;color:#888">This link expires in <strong>24 hours</strong>.</p>
+<hr/><p style="font-size:13px;color:#888">If you didn't request this, you can safely ignore this email — your password won't change.</p>`
   },
-  verify_email: {
-    subject: () => `Verify your email — ${co()}`,
-    preheader: "One quick step to confirm your email address.",
-    html: () => `<h1>Verify your email</h1><p>Hi [Name],</p><p>Thanks for signing up. Click below to verify your email address and activate your account.</p>
-<p><a href="#" class="email-button" style="display:inline-block;background:${col()};color:white;padding:11px 26px;border-radius:7px;text-decoration:none;font-weight:500;font-size:14px;">Verify email address</a></p>
-<p style="color:#888;font-size:13px;">This link expires in <strong>48 hours</strong>.</p>
-<hr/><p style="font-size:13px;color:#888;">If you didn't create an account with ${co()}, please ignore this email.</p>`
+  verify_email:{
+    subject:()=>`Verify your email — ${co()}`,preheader:'One quick step to confirm your address.',
+    html:()=>`<h1>Verify your email</h1><p>Hi [Name],</p><p>Thanks for signing up. Click below to verify your email address and activate your account.</p>
+${btnHtml('Verify email address')}
+<p style="font-size:13px;color:#888">This link expires in <strong>48 hours</strong>.</p>
+<hr/><p style="font-size:13px;color:#888">If you didn't create an account with ${co()}, please ignore this email.</p>`
   },
-  subscription: {
-    subject: () => `You're now on ${co()} Pro ⭐`,
-    preheader: "Your upgrade is confirmed — here's what's unlocked.",
-    html: () => `<h1>You're now on Pro ⭐</h1><p>Hi [Name],</p><p>Your subscription to <strong>${co()} Pro</strong> is now active. Here's what you've unlocked:</p>
+  subscription:{
+    subject:()=>`You're now on ${co()} Pro ⭐`,preheader:"Your upgrade is confirmed.",
+    html:()=>`<h1>You're now on Pro ⭐</h1><p>Hi [Name],</p><p>Your subscription to <strong>${co()} Pro</strong> is now active. Here's what you've unlocked:</p>
 <ul>
   <li><strong>Feature one</strong> — [Brief description]</li>
   <li><strong>Feature two</strong> — [Brief description]</li>
   <li><strong>Feature three</strong> — [Brief description]</li>
 </ul>
-<p><a href="#" class="email-button" style="display:inline-block;background:${col()};color:white;padding:11px 26px;border-radius:7px;text-decoration:none;font-weight:500;font-size:14px;">Go to your dashboard</a></p>
-<hr/><p style="font-size:13px;color:#888;">${supportTxt()}</p>`
+${btnHtml('Go to your dashboard')}
+<hr/>${supportLine()}`
+  },
+  invoice:{
+    subject:'Invoice #[INV-001] from '+co(),preheader:'Your invoice is attached below.',
+    html:()=>`<h1>Invoice</h1>
+<div style="display:flex;justify-content:space-between;margin:16px 0;flex-wrap:wrap;gap:12px;">
+  <div><strong style="font-size:18px;">${co()}</strong>${settings.address?`<br/><span style="font-size:13px;color:#888">${settings.address}</span>`:''}</div>
+  <div style="text-align:right"><div style="font-size:13px;color:#888">Invoice #<strong>[INV-001]</strong></div><div style="font-size:13px;color:#888">Date: ${new Date().toLocaleDateString()}</div><div style="font-size:13px;color:#888">Due: [Due date]</div></div>
+</div>
+<hr/>
+<p><strong>Bill to:</strong><br/>[Client name]<br/>[Client address]</p>
+<table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;"><thead><tr style="background:#f5f2ee;"><th style="padding:10px 14px;text-align:left;border-bottom:2px solid #ddd;">Description</th><th style="padding:10px 14px;text-align:right;border-bottom:2px solid #ddd;">Amount</th></tr></thead>
+<tbody>
+<tr><td style="padding:10px 14px;border-bottom:1px solid #eee;">[Service or product description]</td><td style="padding:10px 14px;text-align:right;border-bottom:1px solid #eee;">$[XXX.XX]</td></tr>
+<tr><td style="padding:10px 14px;border-bottom:1px solid #eee;">[Service or product description]</td><td style="padding:10px 14px;text-align:right;border-bottom:1px solid #eee;">$[XXX.XX]</td></tr>
+</tbody>
+<tfoot>
+<tr><td style="padding:8px 14px;text-align:right;color:#888;">Subtotal</td><td style="padding:8px 14px;text-align:right;">$[XXX.XX]</td></tr>
+<tr><td style="padding:8px 14px;text-align:right;color:#888;">Tax</td><td style="padding:8px 14px;text-align:right;">$[XX.XX]</td></tr>
+<tr style="background:#f9f7f4;"><td style="padding:12px 14px;text-align:right;font-weight:700;font-size:16px;">Total Due</td><td style="padding:12px 14px;text-align:right;font-weight:700;font-size:16px;">$[XXX.XX]</td></tr>
+</tfoot></table>
+${btnHtml('Pay invoice')}
+<p style="font-size:13px;color:#888">Please pay by [due date]. ${settings.support?`Questions? <a href="mailto:${settings.support}">${settings.support}</a>`:''}</p>`
   }
 };
 
-function loadTemplate(key, btn) {
-  const t = TEMPLATES[key];
-  if (!t) return;
-  const subj = typeof t.subject === 'function' ? t.subject() : t.subject;
-  const pre = typeof t.preheader === 'function' ? t.preheader() : t.preheader;
-  document.getElementById('subject-field').value = subj;
-  document.getElementById('preheader-field').value = pre;
-  document.getElementById('wysiwyg').innerHTML = t.html();
-  updateMeta();
-  onEdit();
-  document.querySelectorAll('.tpl-btn').forEach(b => b.classList.remove('active'));
-  (btn || document.querySelector('.tpl-btn')).classList.add('active');
+function loadTemplate(key,btn){
+  const t=TEMPLATES[key];if(!t)return;
+  const subj=typeof t.subject==='function'?t.subject():t.subject;
+  const pre=typeof t.preheader==='function'?t.preheader():t.preheader;
+  document.getElementById('subject-field').value=subj;
+  document.getElementById('preheader-field').value=pre;
+  document.getElementById('wysiwyg').innerHTML=t.html();
+  updateMeta();onEdit();
+  document.querySelectorAll('.tpl-btn').forEach(b=>b.classList.remove('active'));
+  (btn||document.querySelector('.tpl-btn')).classList.add('active');
 }
 
-// ── RENDER & PREVIEW ─────────────────────────────────────────────
-function buildEmailHTML() {
-  const subject = document.getElementById('subject-field').value;
-  const preheader = document.getElementById('preheader-field').value;
-  const innerContent = document.getElementById('wysiwyg').innerHTML;
-  const c = settings.color || '#2d5a3d';
-
-  const ph = preheader
-    ? `<div style="display:none;max-height:0;overflow:hidden;font-size:1px;line-height:1px;color:transparent;">${preheader}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</div>`
-    : '';
-
-  const footerAddr = settings.address || '[Company Address]';
-  const footerSupport = settings.support ? `<a href="mailto:${settings.support}" style="color:#6b6459;">${settings.support}</a>` : '';
+/* ═══════════════════════════════════════════════════════════
+   EMAIL BUILDER
+═══════════════════════════════════════════════════════════ */
+function buildEmailHTML(){
+  const subject=document.getElementById('subject-field').value;
+  const preheader=document.getElementById('preheader-field').value;
+  const inner=document.getElementById('wysiwyg').innerHTML;
+  const c=settings.color||'#2d5a3d';
+  const ph=preheader?`<div style="display:none;max-height:0;overflow:hidden;font-size:1px;line-height:1px;color:transparent;">${preheader}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</div>`:'';
+  const socials=settings.social?settings.social.split(',').map(s=>s.trim()).filter(Boolean).map(s=>{const name=s.includes('twitter')||s.includes('x.com')?'Twitter':s.includes('instagram')?'Instagram':s.includes('linkedin')?'LinkedIn':s.includes('facebook')?'Facebook':'Link';return`<a href="${s}" style="color:#6b6459;font-size:12px;text-decoration:none;margin:0 4px;">${name}</a>`;}).join(' · '):'';
+  const unsubUrl=settings.unsub||'#';
+  const footerBg=lightenColor(c,0.9)||'#f5f2ee';
 
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="x-apple-disable-message-reformatting">
 <title>${subject}</title>
 <style>
 body,table,td,a{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%}
-img{border:0;height:auto;line-height:100%;outline:none;text-decoration:none}
-body{margin:0!important;padding:0!important;background-color:#f0ede8;font-family:Arial,sans-serif;}
-h1,h2,h3{font-family:Georgia,'Times New Roman',serif;}
-a.btn{display:inline-block;padding:11px 26px;border-radius:7px;color:white;text-decoration:none;font-weight:bold;}
-table{border-collapse:collapse;}
+table,td{mso-table-lspace:0pt;mso-table-rspace:0pt}
+img{border:0;height:auto;line-height:100%;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic}
+body{margin:0!important;padding:0!important;background:#f0ede8}
+@media only screen and (max-width:600px){.email-container{width:100%!important;padding:0 8px!important}.stack{display:block!important;width:100%!important}.hide-mobile{display:none!important}}
 </style>
 </head>
 <body style="margin:0;padding:0;background:#f0ede8;">
 ${ph}
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f0ede8;padding:28px 0;">
-<tr><td align="center" style="padding:0 16px;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;margin:0 auto;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f0ede8;padding:24px 0;">
+<tr><td align="center" style="padding:0 12px;">
+<!--[if mso]><table role="presentation" width="560"><tr><td><![endif]-->
+<table role="presentation" class="email-container" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;margin:0 auto;">
 
   <!-- HEADER -->
   <tr><td style="background:${c};padding:20px 32px;border-radius:10px 10px 0 0;">
-    <p style="margin:0;font-family:Georgia,serif;font-size:22px;color:#ffffff;letter-spacing:-0.2px;">${settings.company || 'Your Company'}</p>
-    ${settings.tagline ? `<p style="margin:4px 0 0;font-size:12px;color:rgba(255,255,255,0.7);">${settings.tagline}</p>` : ''}
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+      <td><p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:22px;color:#ffffff;letter-spacing:-0.3px;font-weight:normal;">${settings.company||'Your Company'}</p>
+      ${settings.tagline?`<p style="margin:3px 0 0;font-size:12px;color:rgba(255,255,255,0.72);">${settings.tagline}</p>`:''}</td>
+      ${settings.website?`<td align="right"><a href="${settings.website}" style="color:rgba(255,255,255,0.8);font-family:Arial,sans-serif;font-size:12px;text-decoration:none;">${settings.website.replace(/https?:\/\//,'')}</a></td>`:''}
+    </tr></table>
   </td></tr>
 
   <!-- BODY -->
   <tr><td style="background:#ffffff;padding:32px 32px 24px;">
-    <div style="font-family:Arial,sans-serif;font-size:15px;color:#444444;line-height:1.7;">
-${convertEditorToEmail(innerContent, c)}
-    </div>
+    ${convertEditorToEmail(inner,c)}
   </td></tr>
 
   <!-- FOOTER -->
-  <tr><td style="background:#f5f2ee;padding:18px 32px;border-radius:0 0 10px 10px;">
-    <p style="margin:0 0 5px;font-family:Arial,sans-serif;font-size:12px;color:#a09890;line-height:1.6;">
-      © ${new Date().getFullYear()} ${settings.company || 'Your Company'}${settings.address ? ' · ' + settings.address : ''}
+  <tr><td style="background:${footerBg};padding:20px 32px;border-radius:0 0 10px 10px;border-top:1px solid rgba(0,0,0,0.06);">
+    <p style="margin:0 0 6px;font-family:Arial,sans-serif;font-size:12px;color:#a09890;line-height:1.6;text-align:center;">
+      © ${new Date().getFullYear()} ${settings.company||'Your Company'}${settings.address?` · ${settings.address}`:''}
     </p>
-    ${footerSupport ? `<p style="margin:0;font-family:Arial,sans-serif;font-size:12px;color:#a09890;">${footerSupport} · <a href="#" style="color:#6b6459;">Unsubscribe</a></p>` : `<p style="margin:0;font-family:Arial,sans-serif;font-size:12px;color:#a09890;"><a href="#" style="color:#6b6459;">Unsubscribe</a></p>`}
+    ${settings.support||settings.phone?`<p style="margin:0 0 6px;font-family:Arial,sans-serif;font-size:12px;color:#a09890;text-align:center;">${[settings.support?`<a href="mailto:${settings.support}" style="color:#6b6459;">${settings.support}</a>`:'',settings.phone||''].filter(Boolean).join(' · ')}</p>`:''}
+    ${socials?`<p style="margin:0 0 6px;font-family:Arial,sans-serif;font-size:12px;color:#a09890;text-align:center;">${socials}</p>`:''}
+    <p style="margin:0;font-family:Arial,sans-serif;font-size:12px;color:#a09890;text-align:center;"><a href="${unsubUrl}" style="color:#6b6459;text-decoration:underline;">Unsubscribe</a> · <a href="${unsubUrl}" style="color:#6b6459;text-decoration:underline;">Manage preferences</a></p>
   </td></tr>
-
 </table>
+<!--[if mso]></td></tr></table><![endif]-->
 </td></tr>
 </table>
 </body>
 </html>`;
 }
 
-function convertEditorToEmail(html, accentColor) {
-  // Convert editor HTML to email-safe inline-style HTML
-  let out = html;
+function lightenColor(hex,amount){
+  try{
+    const n=parseInt(hex.replace('#',''),16);
+    const r=Math.min(255,Math.floor(((n>>16)+(255-(n>>16))*amount)));
+    const g=Math.min(255,Math.floor(((n>>8&0xFF)+(255-(n>>8&0xFF))*amount)));
+    const b=Math.min(255,Math.floor(((n&0xFF)+(255-(n&0xFF))*amount)));
+    return`#${((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1)}`;
+  }catch(e){return'#f5f2ee';}
+}
 
-  // Tables
-  out = out.replace(/<table class="order-table">/g, '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;margin:12px 0;">');
-  out = out.replace(/<th>/g, '<th style="background:#f5f2ee;padding:8px 12px;text-align:left;border-bottom:1.5px solid #ccc;font-size:11px;text-transform:uppercase;color:#6b6459;font-weight:500;">');
-  out = out.replace(/<td>/g, '<td style="padding:9px 12px;border-bottom:1px solid #eee;font-size:14px;color:#333;">');
-
-  // Section banner
-  out = out.replace(/<div class="section-banner">/g, '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="background:#f5f2ee;padding:14px 18px;border-radius:8px;font-family:Arial,sans-serif;font-size:13px;color:#555;line-height:1.65;">');
-  out = out.replace(/<\/div>/g, (match, offset) => {
-    // Only replace section-banner closing divs (rough heuristic — we'll clean up later)
-    return '</td></tr></table>';
-  });
-
+function convertEditorToEmail(html,c){
+  let out=html;
   // Headings
-  out = out.replace(/<h1>/g, '<h1 style="font-family:Georgia,serif;font-size:26px;font-weight:normal;color:#1c1a17;line-height:1.25;margin:0 0 16px;">');
-  out = out.replace(/<h2>/g, '<h2 style="font-family:Georgia,serif;font-size:20px;font-weight:normal;color:#1c1a17;margin:18px 0 10px;">');
-  out = out.replace(/<h3>/g, '<h3 style="font-family:Georgia,serif;font-size:16px;font-weight:normal;color:#1c1a17;margin:14px 0 8px;">');
-
+  out=out.replace(/<h1([^>]*)>/g,'<h1$1 style="font-family:Georgia,serif;font-size:26px;font-weight:normal;color:#1c1a17;line-height:1.25;margin:0 0 16px;">');
+  out=out.replace(/<h2([^>]*)>/g,'<h2$1 style="font-family:Georgia,serif;font-size:20px;font-weight:normal;color:#1c1a17;margin:18px 0 10px;">');
+  out=out.replace(/<h3([^>]*)>/g,'<h3$1 style="font-family:Georgia,serif;font-size:16px;font-weight:normal;color:#1c1a17;margin:14px 0 8px;">');
   // Paragraphs
-  out = out.replace(/<p>/g, '<p style="margin:0 0 14px;font-family:Arial,sans-serif;font-size:15px;color:#444;line-height:1.7;">');
-  out = out.replace(/<p style="/g, '<p style="margin:0 0 14px;font-family:Arial,sans-serif;font-size:15px;color:#444;line-height:1.7;');
-
+  out=out.replace(/<p>/g,'<p style="margin:0 0 14px;font-family:Arial,sans-serif;font-size:15px;color:#444;line-height:1.7;">');
+  out=out.replace(/<p style="font-size:13px;color:#888">/g,'<p style="margin:0 0 14px;font-family:Arial,sans-serif;font-size:13px;color:#888;line-height:1.7;">');
+  out=out.replace(/<p style="color:#888;font-size:13px">/g,'<p style="margin:0 0 14px;font-family:Arial,sans-serif;font-size:13px;color:#888;line-height:1.7;">');
+  // Tables - preserve existing inline styles
+  out=out.replace(/<table>/g,'<table role="presentation" cellpadding="0" cellspacing="0">');
+  // CTA buttons
+  out=out.replace(/class="email-button"/g,`style="display:inline-block;background:${c};color:white;padding:11px 26px;border-radius:7px;text-decoration:none;font-weight:bold;font-size:15px;font-family:Arial,sans-serif;"`);
+  // Info boxes
+  out=out.replace(/class="info-box"/g,'style="background:#e8f0fb;border-left:3px solid #1a4d8f;padding:12px 16px;border-radius:0 6px 6px 0;margin:12px 0;font-family:Arial,sans-serif;font-size:13px;color:#1a3a6b;line-height:1.65;"');
+  out=out.replace(/class="success-box"/g,`style="background:#e4ede7;border-left:3px solid ${c};padding:12px 16px;border-radius:0 6px 6px 0;margin:12px 0;font-family:Arial,sans-serif;font-size:13px;color:#1a3d28;line-height:1.65;"`);
+  out=out.replace(/class="warning-box"/g,'style="background:#fdf6e8;border-left:3px solid #b08d57;padding:12px 16px;border-radius:0 6px 6px 0;margin:12px 0;font-family:Arial,sans-serif;font-size:13px;color:#6b4a1a;line-height:1.65;"');
   // Lists
-  out = out.replace(/<ul>/g, '<ul style="margin:0 0 14px;padding-left:20px;">');
-  out = out.replace(/<ol>/g, '<ol style="margin:0 0 14px;padding-left:20px;">');
-  out = out.replace(/<li>/g, '<li style="margin-bottom:6px;font-family:Arial,sans-serif;font-size:15px;color:#444;line-height:1.65;">');
-
-  // Buttons
-  out = out.replace(/<a ([^>]*class="email-button"[^>]*)>/g, (m, attrs) => {
-    return `<a ${attrs} style="display:inline-block;background:${accentColor};color:white;padding:11px 26px;border-radius:7px;text-decoration:none;font-weight:bold;font-size:15px;font-family:Arial,sans-serif;">`;
-  });
-
-  // Inline links
-  out = out.replace(/<a href="([^"]*)" style="color[^"]*">/g, `<a href="$1" style="color:${accentColor};text-decoration:underline;">`);
-  out = out.replace(/<a href="([^"]*)">/g, `<a href="$1" style="color:${accentColor};text-decoration:underline;">`);
-
-  // Divider
-  out = out.replace(/<hr\s*\/?>/gi, '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:16px 0;"><tr><td style="border-top:1px solid #e8e4de;"></td></tr></table>');
-
+  out=out.replace(/<ul>/g,'<ul style="margin:0 0 14px;padding-left:20px;">');
+  out=out.replace(/<ol>/g,'<ol style="margin:0 0 14px;padding-left:20px;">');
+  out=out.replace(/<li>/g,'<li style="margin-bottom:6px;font-family:Arial,sans-serif;font-size:15px;color:#444;line-height:1.65;">');
+  // Links (not buttons)
+  out=out.replace(/<a href="([^"]*)" style="color:var\(--accent\)[^"]*">/g,`<a href="$1" style="color:${c};text-decoration:underline;">`);
+  out=out.replace(/<a href="mailto:([^"]*)">/g,`<a href="mailto:$1" style="color:${c};text-decoration:underline;">`);
+  out=out.replace(/<a href="([^"]*)">/g,`<a href="$1" style="color:${c};text-decoration:underline;">`);
+  // Dividers
+  out=out.replace(/<hr\s*\/?>/gi,'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:16px 0;"><tr><td style="border-top:1px solid #e8e4de;"></td></tr></table>');
+  // Strong
+  out=out.replace(/<strong>/g,'<strong style="font-weight:600;color:#1c1a17;">');
   // Blockquote
-  out = out.replace(/<blockquote>/g, '<blockquote style="border-left:3px solid ' + accentColor + ';margin:12px 0;padding:8px 16px;background:#f9f9f7;color:#555;">');
-
-  // Strong / em
-  out = out.replace(/<strong>/g, '<strong style="font-weight:600;color:#1c1a17;">');
-
-  return out;
+  out=out.replace(/<blockquote>/g,`<blockquote style="border-left:3px solid ${c};margin:12px 0;padding:8px 16px;background:#f9f9f7;color:#555;font-family:Arial,sans-serif;font-size:14px;">`);
+  return`<div style="font-family:Arial,sans-serif;font-size:15px;color:#444;line-height:1.7;">${out}</div>`;
 }
 
-function onEdit() {
-  updateCount();
-  debounce(renderPreview, 400)();
+/* ═══════════════════════════════════════════════════════════
+   EDITOR EVENTS
+═══════════════════════════════════════════════════════════ */
+function onEdit(){updateCount();debounce(renderPreview,400)();}
+
+const debounce=(fn,ms)=>{let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms);};};
+
+function renderPreview(){
+  const html=buildEmailHTML();
+  const iframe=document.getElementById('preview-frame');
+  try{
+    const doc=iframe.contentDocument||iframe.contentWindow.document;
+    doc.open();doc.write(html);doc.close();
+    setTimeout(()=>{const h=doc.documentElement?doc.documentElement.scrollHeight:400;iframe.style.height=Math.max(h,200)+'px';},120);
+  }catch(e){}
 }
 
-const debounce = (fn, ms) => {
-  let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
-};
+function setWidth(w){document.getElementById('preview-inbox').style.maxWidth=w+'px';setTimeout(renderPreview,60);}
 
-function renderPreview() {
-  const html = buildEmailHTML();
-  const iframe = document.getElementById('preview-frame');
-  try {
-    const doc = iframe.contentDocument || iframe.contentWindow.document;
-    doc.open(); doc.write(html); doc.close();
-    setTimeout(() => {
-      const h = doc.documentElement ? doc.documentElement.scrollHeight : 400;
-      iframe.style.height = Math.max(h, 200) + 'px';
-    }, 120);
-  } catch(e) {}
+function updateMeta(){
+  const subj=document.getElementById('subject-field').value||'No subject';
+  const pre=document.getElementById('preheader-field').value||'Preview text will appear here';
+  document.getElementById('inbox-subj').textContent=subj;
+  document.getElementById('inbox-pre').textContent=pre;
+  debounce(renderPreview,400)();
 }
 
-function setWidth(w) {
-  document.getElementById('preview-inbox').style.maxWidth = w + 'px';
-  setTimeout(renderPreview, 60);
+function updateCount(){
+  const text=document.getElementById('wysiwyg').innerText||'';
+  const words=text.trim().split(/\s+/).filter(w=>w.length>0).length;
+  document.getElementById('char-count').textContent=words+' word'+(words!==1?'s':'');
 }
 
-function updateMeta() {
-  const subj = document.getElementById('subject-field').value || 'No subject';
-  const pre = document.getElementById('preheader-field').value || 'Preview text will appear here';
-  document.getElementById('inbox-subj').textContent = subj;
-  document.getElementById('inbox-pre').textContent = pre;
-  debounce(renderPreview, 400)();
-}
-
-function updateCount() {
-  const text = document.getElementById('wysiwyg').innerText || '';
-  const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
-  document.getElementById('char-count').textContent = words + ' word' + (words !== 1 ? 's' : '');
-}
-
-function showHtmlModal() {
-  document.getElementById('html-view').value = buildEmailHTML();
+function showHtmlModal(){
+  document.getElementById('html-view').value=buildEmailHTML();
   document.getElementById('html-modal').classList.add('show');
 }
-
-function copyFromModal() {
-  const val = document.getElementById('html-view').value;
-  navigator.clipboard.writeText(val)
-    .then(() => showToast('HTML copied!', 'success'))
-    .catch(() => { document.getElementById('html-view').select(); document.execCommand('copy'); showToast('HTML copied!', 'success'); });
+function copyFromHtmlModal(){
+  const val=document.getElementById('html-view').value;
+  navigator.clipboard.writeText(val).then(()=>showToast('HTML copied!','success')).catch(()=>{document.getElementById('html-view').select();document.execCommand('copy');showToast('HTML copied!','success');});
+}
+function copyHTML(){
+  navigator.clipboard.writeText(buildEmailHTML()).then(()=>showToast('HTML copied!','success')).catch(()=>showToast('Copy failed','error'));
 }
 
-function copyHTML() {
-  navigator.clipboard.writeText(buildEmailHTML())
-    .then(() => showToast('HTML copied!', 'success'))
-    .catch(() => showToast('Copy failed', 'error'));
-}
-
-// ── SEND ────────────────────────────────────────────────────────
-async function sendEmail() {
-  // Check token freshness
-  if (!accessToken) {
-    const stored = localStorage.getItem('mailstudio_session');
-    if (stored) {
-      const sess = JSON.parse(stored);
-      if (sess.expiry && Date.now() < sess.expiry) {
-        accessToken = sess.token;
-      } else {
-        tokenClient.requestAccessToken({ prompt: '' });
-        setStatus('Re-authenticating…');
-        return;
-      }
-    } else {
-      showToast('Please sign in first.', 'error');
-      return;
-    }
+/* ═══════════════════════════════════════════════════════════
+   SEND
+═══════════════════════════════════════════════════════════ */
+async function sendEmail(){
+  if(!accessToken){
+    try{const s=localStorage.getItem('ms_session');if(s){const sess=JSON.parse(s);if(sess.expiry&&Date.now()<sess.expiry){accessToken=sess.token;}}}catch(e){}
   }
-
-  const to = document.getElementById('to-field').value.trim();
-  const replyTo = document.getElementById('replyto-field').value.trim();
-  const subject = document.getElementById('subject-field').value.trim();
-  const htmlBody = buildEmailHTML();
-
-  if (!to) { setStatus('Add a recipient.', 'err'); return; }
-  if (!subject) { setStatus('Add a subject line.', 'err'); return; }
-
-  const btn = document.getElementById('send-btn');
-  btn.disabled = true;
-  setStatus('Sending…');
-
-  try {
-    const raw = buildMime(to, replyTo, subject, htmlBody);
-    const encoded = btoa(unescape(encodeURIComponent(raw)))
-      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-
-    const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
-      method: 'POST',
-      headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ raw: encoded })
-    });
-
-    if (res.ok) {
-      setStatus('');
-      showToast('Email sent! ✓', 'success');
-    } else {
-      const err = await res.json();
-      if (err.error?.code === 401) {
-        accessToken = null;
-        localStorage.removeItem('mailstudio_session');
-        tokenClient.requestAccessToken({ prompt: '' });
-        setStatus('Session expired — signing in again…');
-      } else {
-        setStatus('Error: ' + (err.error?.message || 'Unknown'), 'err');
-      }
+  if(!accessToken){showToast('Please sign in first.','error');return;}
+  const to=document.getElementById('to-field').value.trim();
+  const replyTo=document.getElementById('replyto-field').value.trim();
+  const subject=document.getElementById('subject-field').value.trim();
+  const htmlBody=buildEmailHTML();
+  if(!to){setStatus('Add a recipient.','err');return;}
+  if(!subject){setStatus('Add a subject line.','err');return;}
+  const btn=document.getElementById('send-btn');
+  btn.disabled=true;setStatus('Sending…');
+  try{
+    const raw=buildMime(to,replyTo,subject,htmlBody);
+    const encoded=btoa(unescape(encodeURIComponent(raw))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+    const res=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{method:'POST',headers:{Authorization:'Bearer '+accessToken,'Content-Type':'application/json'},body:JSON.stringify({raw:encoded})});
+    if(res.ok){setStatus('');showToast('Email sent! ✓','success');}
+    else{
+      const err=await res.json();
+      if(err.error?.code===401){accessToken=null;localStorage.removeItem('ms_session');tokenClient.requestAccessToken({prompt:''});setStatus('Session expired — re-authenticating…');}
+      else setStatus('Error: '+(err.error?.message||'Unknown'),'err');
     }
-  } catch(e) { setStatus('Network error.', 'err'); }
-  btn.disabled = false;
+  }catch(e){setStatus('Network error.','err');}
+  btn.disabled=false;
 }
 
-function buildMime(to, replyTo, subject, htmlBody) {
-  const plain = htmlBody.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
-  const b = 'b' + Date.now().toString(36);
-  const encSubj = `=?UTF-8?B?${btoa(unescape(encodeURIComponent(subject)))}?=`;
-  const headers = [
-    'MIME-Version: 1.0',
-    `To: ${to}`,
-    `Subject: ${encSubj}`,
-    ...(replyTo ? [`Reply-To: ${replyTo}`] : []),
+function buildMime(to,replyTo,subject,htmlBody){
+  const plain=htmlBody.replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
+  const b='b'+Date.now().toString(36);
+  const encSubj=`=?UTF-8?B?${btoa(unescape(encodeURIComponent(subject)))}?=`;
+  return['MIME-Version: 1.0',`To: ${to}`,`Subject: ${encSubj}`,
+    ...(replyTo?[`Reply-To: ${replyTo}`]:[]),
     `Content-Type: multipart/alternative; boundary="${b}"`,
-    '',
-    `--${b}`,
-    'Content-Type: text/plain; charset=UTF-8',
-    '',
-    plain,
-    '',
-    `--${b}`,
-    'Content-Type: text/html; charset=UTF-8',
-    '',
-    htmlBody,
-    '',
-    `--${b}--`,
-  ];
-  return headers.join('\r\n');
+    '',`--${b}`,'Content-Type: text/plain; charset=UTF-8','',plain,'',
+    `--${b}`,'Content-Type: text/html; charset=UTF-8','',htmlBody,'',`--${b}--`
+  ].join('\r\n');
 }
 
-// ── UTILS ───────────────────────────────────────────────────────
-function setStatus(msg, type) {
-  const el = document.getElementById('status-msg');
-  el.textContent = msg;
-  el.className = 'status-msg' + (type ? ' ' + type : '');
+/* ═══════════════════════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════════════════════ */
+function setStatus(msg,type){
+  const el=document.getElementById('status-msg');
+  el.textContent=msg;el.className='status-msg'+(type?' '+type:'');
 }
-
 let toastT;
-function showToast(msg, type) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast' + (type ? ' ' + type : '');
+function showToast(msg,type){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast'+(type?' '+type:'');
   clearTimeout(toastT);
-  requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('show')));
-  toastT = setTimeout(() => t.classList.remove('show'), 3200);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add('show')));
+  toastT=setTimeout(()=>t.classList.remove('show'),3200);
 }
-
-// Close modals on backdrop click
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) overlay.classList.remove('show');
-  });
+function closeModal(id){document.getElementById(id).classList.remove('show');}
+document.querySelectorAll&&document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('.modal-overlay').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show');});});
 });
 </script>
 </body>
