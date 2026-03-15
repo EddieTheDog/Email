@@ -251,6 +251,39 @@ header{height:52px;background:var(--surface);border-bottom:1px solid var(--borde
 .toast.error{background:var(--danger)}
 .toast.info{background:var(--info)}
 
+/* ── SUBJECT ANALYZER ─── */
+.subject-analyzer{background:var(--surface);border-bottom:2px solid var(--border);padding:10px 18px;flex-shrink:0;display:none}
+.subject-analyzer.show{display:block}
+.sa-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.sa-score{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 10px;border-radius:20px;white-space:nowrap}
+.sa-score.great{background:#e4ede7;color:#1a3d28}
+.sa-score.good{background:#e8f0fb;color:#1a3a6b}
+.sa-score.warn{background:#fdf6e8;color:#7a5b1a}
+.sa-score.bad{background:#fdf0f0;color:#8b2f2f}
+.sa-pill{display:flex;align-items:center;gap:4px;font-size:11px;padding:3px 8px;border-radius:12px;white-space:nowrap}
+.sa-pill.ok{background:#e4ede7;color:#1a3d28}
+.sa-pill.warn{background:#fdf6e8;color:#7a5b1a}
+.sa-pill.bad{background:#fdf0f0;color:#8b2f2f}
+.sa-pill.info{background:#e8f0fb;color:#1a3a6b}
+.sa-category{display:flex;align-items:center;gap:6px;font-size:11.5px;padding:4px 10px;border-radius:12px;font-weight:500}
+.sa-cat-transactions{background:#e4ede7;color:#1a3d28}
+.sa-cat-updates{background:#e8f0fb;color:#1a3a6b}
+.sa-cat-promotions{background:#fdf6e8;color:#7a5b1a}
+.sa-cat-primary{background:#f5f2ee;color:#6b6459}
+.sa-divider{width:1px;height:14px;background:var(--border);flex-shrink:0}
+.sa-spam-word{background:#fdf0f0;color:#8b2f2f;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:500;font-family:'DM Mono',monospace}
+.sa-tip{font-size:11px;color:var(--text3);font-style:italic}
+
+/* ── HEADER PANEL ─── */
+.header-panel{background:#1c1a17;color:#e8e4de;padding:12px 18px;flex-shrink:0;font-family:'DM Mono',monospace;font-size:11.5px;line-height:1.7;display:none;max-height:180px;overflow-y:auto;border-bottom:2px solid #333}
+.header-panel.show{display:block}
+.hp-line{display:flex;gap:8px}
+.hp-key{color:#7dd3a8;min-width:200px;flex-shrink:0}
+.hp-val{color:#c8c4be}
+.hp-comment{color:#555;font-size:10.5px;padding-left:208px}
+.header-panel-toggle{font-size:11px;color:var(--text3);background:none;border:none;cursor:pointer;font-family:'Figtree',sans-serif;padding:0;transition:color .1s;display:flex;align-items:center;gap:4px}
+.header-panel-toggle:hover{color:var(--text)}
+
 /* ── LINK PROMPT ─── */
 #link-prompt{position:fixed;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;box-shadow:var(--shadow-lg);z-index:200;display:none;gap:7px;flex-direction:column;width:260px}
 #link-prompt.show{display:flex}
@@ -370,13 +403,35 @@ header{height:52px;background:var(--surface);border-bottom:1px solid var(--borde
         </div>
         <div class="env-row">
           <span class="env-label">Subject</span>
-          <input class="env-input" type="text" id="subject-field" placeholder="Subject line" oninput="updateMeta()"/>
+          <input class="env-input" type="text" id="subject-field" placeholder="Subject line — keep under 60 chars, front-load key info" oninput="updateMeta();analyzeSubject()"/>
+          <span id="subject-char-badge" style="font-size:11px;font-family:'DM Mono',monospace;color:var(--text3);white-space:nowrap;padding-right:4px"></span>
         </div>
         <div class="env-row">
           <span class="env-label">Preview text</span>
-          <input class="env-input" type="text" id="preheader-field" placeholder="Short teaser shown in inbox before opening…" oninput="updateMeta()"/>
+          <input class="env-input" type="text" id="preheader-field" placeholder="Complement the subject — don't repeat it. 80–100 chars ideal." oninput="updateMeta()"/>
+          <span id="preheader-char-badge" style="font-size:11px;font-family:'DM Mono',monospace;color:var(--text3);white-space:nowrap;padding-right:4px"></span>
+        </div>
+        <div class="env-row" style="min-height:30px">
+          <span class="env-label">Email type</span>
+          <select id="email-type-select" class="env-input" style="max-width:200px;font-size:13px" onchange="onEmailTypeChange()">
+            <option value="transactional">Transactional</option>
+            <option value="marketing">Marketing / Promotional</option>
+            <option value="newsletter">Newsletter / Updates</option>
+            <option value="account">Account / System</option>
+            <option value="personal">Personal</option>
+          </select>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:8px;padding-right:4px">
+            <button class="header-panel-toggle" onclick="toggleHeaderPanel()">
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><rect x="0.5" y="0.5" width="11" height="11" rx="1.5" stroke="currentColor"/><path d="M3 4h6M3 6h4M3 8h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              <span id="hp-toggle-label">Show MIME headers</span>
+            </button>
+          </div>
         </div>
       </div>
+      <!-- SUBJECT ANALYZER -->
+      <div class="subject-analyzer" id="subject-analyzer"></div>
+      <!-- HEADER PANEL -->
+      <div class="header-panel" id="header-panel"></div>
       <div class="split">
         <div class="editor-pane">
           <div class="pane-bar">
@@ -1466,7 +1521,22 @@ function loadTemplate(key,btn){
   document.getElementById('subject-field').value=subj;
   document.getElementById('preheader-field').value=pre;
   document.getElementById('wysiwyg').innerHTML=t.html();
+
+  // Auto-set email type
+  const typeMap={
+    scratch:'transactional',newsletter:'newsletter',announcement:'marketing',
+    followup:'personal',intro:'personal',meeting:'personal',
+    order_confirm:'transactional',order_shipped:'transactional',
+    order_delivered:'transactional',order_refund:'transactional',
+    welcome:'account',password_reset:'account',verify_email:'account',
+    subscription:'account',invoice:'transactional'
+  };
+  const sel = document.getElementById('email-type-select');
+  if(sel && typeMap[key]) sel.value = typeMap[key];
+
   updateMeta();onEdit();
+  if(subj) analyzeSubject();
+  if(headerPanelVisible) renderHeaderPanel();
   document.querySelectorAll('.tpl-btn').forEach(b=>b.classList.remove('active'));
   (btn||document.querySelector('.tpl-btn')).classList.add('active');
 }
@@ -1475,60 +1545,97 @@ function loadTemplate(key,btn){
    EMAIL BUILDER
 ═══════════════════════════════════════════════════════════ */
 function buildEmailHTML(){
-  const subject=document.getElementById('subject-field').value;
-  const preheader=document.getElementById('preheader-field').value;
+  const subject=document.getElementById('subject-field').value||'';
+  const preheader=document.getElementById('preheader-field').value||'';
   const inner=document.getElementById('wysiwyg').innerHTML;
+  const emailType=document.getElementById('email-type-select')?.value||'transactional';
   const c=settings.color||'#2d5a3d';
-  const ph=preheader?`<div style="display:none;max-height:0;overflow:hidden;font-size:1px;line-height:1px;color:transparent;">${preheader}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</div>`:'';
-  const socials=settings.social?settings.social.split(',').map(s=>s.trim()).filter(Boolean).map(s=>{const name=s.includes('twitter')||s.includes('x.com')?'Twitter':s.includes('instagram')?'Instagram':s.includes('linkedin')?'LinkedIn':s.includes('facebook')?'Facebook':'Link';return`<a href="${s}" style="color:#6b6459;font-size:12px;text-decoration:none;margin:0 4px;">${name}</a>`;}).join(' · '):'';
+  const isTransactional=['transactional','account'].includes(emailType);
   const unsubUrl=settings.unsub||'#';
-  const footerBg=lightenColor(c,0.9)||'#f5f2ee';
+  const footerBg=lightenColor(c,0.92)||'#f5f2ee';
+
+  // Proper preheader: text + invisible padding to prevent body bleed-through
+  const preheaderPadding='&zwnj;&nbsp;'.repeat(80);
+  const ph=preheader
+    ?`<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#ffffff;visibility:hidden;opacity:0;">${preheader} ${preheaderPadding}</div>`
+    :`<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;">&nbsp;</div>`;
+
+  const socials=settings.social?settings.social.split(',').map(s=>s.trim()).filter(Boolean).map(s=>{const name=s.includes('twitter')||s.includes('x.com')?'X':s.includes('instagram')?'Instagram':s.includes('linkedin')?'LinkedIn':s.includes('facebook')?'Facebook':'Link';return`<a href="${s}" style="color:#a09890;font-family:Arial,sans-serif;font-size:12px;text-decoration:none;margin:0 5px;">${name}</a>`;}).join('<span style="color:#ccc"> · </span>'):'';
+
+  const footerUnsub=isTransactional
+    ?`<p style="margin:6px 0 0;font-family:Arial,sans-serif;font-size:11px;color:#b0a898;text-align:center;line-height:1.7;">This is a transactional email regarding your account or order with ${settings.company||'us'}. <a href="${unsubUrl}" style="color:#a09890;text-decoration:underline;">Manage notifications</a></p>`
+    :`<p style="margin:6px 0 0;font-family:Arial,sans-serif;font-size:11px;color:#b0a898;text-align:center;line-height:1.7;">You&#8217;re receiving this because you subscribed to ${settings.company||'our'} updates. <a href="${unsubUrl}" style="color:#a09890;text-decoration:underline;">Unsubscribe</a> &nbsp;&middot;&nbsp; <a href="${unsubUrl}" style="color:#a09890;text-decoration:underline;">Manage preferences</a></p>`;
 
   return `<!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="x-apple-disable-message-reformatting">
+<meta name="format-detection" content="telephone=no,address=no,email=no,date=no,url=no">
 <title>${subject}</title>
+<!--[if mso]><noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript><![endif]-->
 <style>
 body,table,td,a{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%}
 table,td{mso-table-lspace:0pt;mso-table-rspace:0pt}
 img{border:0;height:auto;line-height:100%;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic}
-body{margin:0!important;padding:0!important;background:#f0ede8}
-@media only screen and (max-width:600px){.email-container{width:100%!important;padding:0 8px!important}.stack{display:block!important;width:100%!important}.hide-mobile{display:none!important}}
+a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;font-size:inherit!important;font-family:inherit!important;font-weight:inherit!important;line-height:inherit!important}
+u+#body a{color:inherit;text-decoration:none;font-size:inherit;font-family:inherit;font-weight:inherit;line-height:inherit}
+#MessageViewBody a{color:inherit;text-decoration:none;font-size:inherit;font-family:inherit;font-weight:inherit;line-height:inherit}
+body{margin:0!important;padding:0!important;background-color:#f0ede8;width:100%!important}
+@media only screen and (max-width:600px){
+  .email-container{width:100%!important}
+  .mob-pad{padding:24px 16px!important}
+  h1{font-size:24px!important;line-height:32px!important}
+  .mob-btn{display:block!important;width:auto!important}
+}
+@media(prefers-color-scheme:dark){
+  .dark-body{background-color:#1c1a17!important}
+  .dark-card{background-color:#2a2824!important}
+  .dark-text{color:#f0ede8!important}
+}
 </style>
 </head>
-<body style="margin:0;padding:0;background:#f0ede8;">
+<body id="body" class="dark-body" style="margin:0;padding:0;background-color:#f0ede8;">
 ${ph}
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f0ede8;padding:24px 0;">
-<tr><td align="center" style="padding:0 12px;">
-<!--[if mso]><table role="presentation" width="560"><tr><td><![endif]-->
-<table role="presentation" class="email-container" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;margin:0 auto;">
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#f0ede8;">
+<tr><td align="center" style="padding:28px 12px;">
+<!--[if mso]><table role="presentation" width="560" border="0" cellpadding="0" cellspacing="0"><tr><td><![endif]-->
+<table class="email-container" role="presentation" border="0" cellpadding="0" cellspacing="0" width="560" align="center" style="max-width:560px;width:100%;margin:0 auto;">
 
-  <!-- HEADER -->
-  <tr><td style="background:${c};padding:20px 32px;border-radius:10px 10px 0 0;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
-      <td><p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:22px;color:#ffffff;letter-spacing:-0.3px;font-weight:normal;">${settings.company||'Your Company'}</p>
-      ${settings.tagline?`<p style="margin:3px 0 0;font-size:12px;color:rgba(255,255,255,0.72);">${settings.tagline}</p>`:''}</td>
-      ${settings.website?`<td align="right"><a href="${settings.website}" style="color:rgba(255,255,255,0.8);font-family:Arial,sans-serif;font-size:12px;text-decoration:none;">${settings.website.replace(/https?:\/\//,'')}</a></td>`:''}
-    </tr></table>
-  </td></tr>
+  <!-- BRANDED HEADER -->
+  <tr>
+    <td style="background:${c};padding:22px 32px;border-radius:10px 10px 0 0;mso-padding-alt:22px 32px 22px 32px;">
+      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"><tr>
+        <td valign="middle">
+          <span style="display:block;font-family:Georgia,'Times New Roman',serif;font-size:22px;color:#ffffff;letter-spacing:-0.3px;line-height:1.2;font-weight:normal;">${settings.company||'Your Company'}</span>
+          ${settings.tagline?`<span style="display:block;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:rgba(255,255,255,0.72);margin-top:3px;">${settings.tagline}</span>`:''}
+        </td>
+        ${settings.website?`<td align="right" valign="middle"><a href="${settings.website}" style="font-family:Arial,sans-serif;font-size:12px;color:rgba(255,255,255,0.72);text-decoration:none;">${settings.website.replace(/https?:\/\//,'')}</a></td>`:''}
+      </tr></table>
+    </td>
+  </tr>
 
-  <!-- BODY -->
-  <tr><td style="background:#ffffff;padding:32px 32px 24px;">
-    ${convertEditorToEmail(inner,c)}
-  </td></tr>
+  <!-- MAIN CONTENT -->
+  <tr>
+    <td class="dark-card mob-pad" style="background:#ffffff;padding:32px 32px 28px 32px;">
+      ${convertEditorToEmail(inner,c)}
+    </td>
+  </tr>
 
   <!-- FOOTER -->
-  <tr><td style="background:${footerBg};padding:20px 32px;border-radius:0 0 10px 10px;border-top:1px solid rgba(0,0,0,0.06);">
-    <p style="margin:0 0 6px;font-family:Arial,sans-serif;font-size:12px;color:#a09890;line-height:1.6;text-align:center;">
-      © ${new Date().getFullYear()} ${settings.company||'Your Company'}${settings.address?` · ${settings.address}`:''}
-    </p>
-    ${settings.support||settings.phone?`<p style="margin:0 0 6px;font-family:Arial,sans-serif;font-size:12px;color:#a09890;text-align:center;">${[settings.support?`<a href="mailto:${settings.support}" style="color:#6b6459;">${settings.support}</a>`:'',settings.phone||''].filter(Boolean).join(' · ')}</p>`:''}
-    ${socials?`<p style="margin:0 0 6px;font-family:Arial,sans-serif;font-size:12px;color:#a09890;text-align:center;">${socials}</p>`:''}
-    <p style="margin:0;font-family:Arial,sans-serif;font-size:12px;color:#a09890;text-align:center;"><a href="${unsubUrl}" style="color:#6b6459;text-decoration:underline;">Unsubscribe</a> · <a href="${unsubUrl}" style="color:#6b6459;text-decoration:underline;">Manage preferences</a></p>
-  </td></tr>
+  <tr>
+    <td style="background:${footerBg};padding:20px 32px 24px;border-radius:0 0 10px 10px;border-top:1px solid rgba(0,0,0,0.05);">
+      ${socials?`<p style="margin:0 0 10px;text-align:center;line-height:2;">${socials}</p>`:''}
+      <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#a09890;line-height:1.7;text-align:center;">
+        &copy; ${new Date().getFullYear()} ${settings.company||'Your Company'}${settings.address?` &nbsp;&middot;&nbsp; ${settings.address}`:''}
+      </p>
+      ${settings.support||settings.phone?`<p style="margin:4px 0 0;font-family:Arial,sans-serif;font-size:12px;color:#a09890;text-align:center;">${[settings.support?`<a href="mailto:${settings.support}" style="color:#a09890;text-decoration:none;">${settings.support}</a>`:'',settings.phone||''].filter(Boolean).join(' &nbsp;&middot;&nbsp; ')}</p>`:''}
+      ${footerUnsub}
+    </td>
+  </tr>
+
 </table>
 <!--[if mso]></td></tr></table><![endif]-->
 </td></tr>
@@ -1657,15 +1764,243 @@ async function sendEmail(){
   btn.disabled=false;
 }
 
+/* ═══════════════════════════════════════════════════════════
+   SUBJECT LINE ANALYZER
+═══════════════════════════════════════════════════════════ */
+const SPAM_WORDS = ['free','win','winner','cash','prize','urgent','act now','limited time','click here','buy now','order now','guarantee','no cost','risk free','100%','!!!','make money','earn extra','work from home','miracle','amazing','incredible','once in a lifetime','exclusive offer','special promotion','dear friend','congratulations','you have been selected','apply now','call free','claim','collect','credit','double your','extra income','fast cash','financial freedom','get paid','giveaway','lowest price','money back','no fees','no hidden','offer expires','only $','pure profit','save big','satisfaction','trial','unsecured','compare rates','mortgage','refinance','pre-approved'];
+
+const TRANSACTIONAL_SIGNALS = ['order','confirmed','shipped','delivered','receipt','invoice','refund','reset','verify','verify email','your account','welcome','password','subscription','payment','tracking','booking','reservation','confirmation','#','no.'];
+const MARKETING_SIGNALS = ['sale','discount','off','deal','promo','offer','shop','new arrivals','collection','exclusive','limited','hurry','last chance','don\'t miss','flash','clearance'];
+const NEWSLETTER_SIGNALS = ['newsletter','update','news','digest','weekly','monthly','issue','edition','roundup','recap','what\'s new','our latest'];
+
+function detectEmailCategory(subject, emailType){
+  const s = subject.toLowerCase();
+  if(emailType==='transactional'||emailType==='account') return {cat:'Transactions', cls:'sa-cat-transactions', icon:'🧾'};
+  if(emailType==='newsletter') return {cat:'Updates', cls:'sa-cat-updates', icon:'📰'};
+  if(emailType==='personal') return {cat:'Primary', cls:'sa-cat-primary', icon:'👤'};
+  // Heuristic for marketing type
+  const transScore = TRANSACTIONAL_SIGNALS.filter(w=>s.includes(w)).length;
+  const marketScore = MARKETING_SIGNALS.filter(w=>s.includes(w)).length;
+  const newsScore = NEWSLETTER_SIGNALS.filter(w=>s.includes(w)).length;
+  if(transScore>0 && marketScore===0) return {cat:'Transactions', cls:'sa-cat-transactions', icon:'🧾'};
+  if(newsScore>marketScore) return {cat:'Updates', cls:'sa-cat-updates', icon:'📰'};
+  if(marketScore>0) return {cat:'Promotions', cls:'sa-cat-promotions', icon:'🏷️'};
+  return {cat:'Promotions', cls:'sa-cat-promotions', icon:'🏷️'};
+}
+
+function analyzeSubject(){
+  const subject = document.getElementById('subject-field').value;
+  const preheader = document.getElementById('preheader-field').value;
+  const emailType = document.getElementById('email-type-select')?.value||'transactional';
+  const analyzer = document.getElementById('subject-analyzer');
+  const badge = document.getElementById('subject-char-badge');
+  const preBadge = document.getElementById('preheader-char-badge');
+
+  // Character counts
+  const sLen = subject.length;
+  const pLen = preheader.length;
+  badge.textContent = sLen + ' chars';
+  badge.style.color = sLen===0?'var(--text3)':sLen<=60?'var(--accent)':sLen<=70?'var(--gold)':'var(--danger)';
+  preBadge.textContent = pLen ? pLen + ' chars' : '';
+  preBadge.style.color = pLen>=80&&pLen<=100?'var(--accent)':pLen>100?'var(--gold)':'var(--text3)';
+
+  if(!subject.trim()){analyzer.classList.remove('show');return;}
+  analyzer.classList.add('show');
+
+  const s = subject.toLowerCase();
+  const words = subject.trim().split(/\s+/).length;
+  const hasAllCaps = /[A-Z]{4,}/.test(subject);
+  const exclamations = (subject.match(/!/g)||[]).length;
+  const foundSpam = SPAM_WORDS.filter(w=>s.includes(w));
+  const hasNumber = /\d/.test(subject);
+  const hasEmoji = /[\u{1F300}-\u{1FFFF}]/u.test(subject);
+  const isDuplicate = preheader && subject.toLowerCase().trim()===preheader.toLowerCase().trim().slice(0,subject.length);
+  const startsWithRe = /^(re:|fwd:)/i.test(subject);
+
+  // Score 0-100
+  let score = 70;
+  if(sLen>=20&&sLen<=60) score+=10; else if(sLen>60) score-=8;
+  if(words>=4&&words<=9) score+=5;
+  if(foundSpam.length>0) score-=(foundSpam.length*12);
+  if(hasAllCaps) score-=15;
+  if(exclamations>1) score-=10; else if(exclamations===1&&emailType==='marketing') score+=2;
+  if(hasNumber) score+=5;
+  if(startsWithRe) score-=20;
+  if(isDuplicate) score-=10;
+  score = Math.max(0,Math.min(100,score));
+
+  const {cat, cls, icon} = detectEmailCategory(subject, emailType);
+
+  let scoreClass='good', scoreLabel='Good';
+  if(score>=85){scoreClass='great';scoreLabel='Excellent';}
+  else if(score>=70){scoreClass='good';scoreLabel='Good';}
+  else if(score>=50){scoreClass='warn';scoreLabel='Needs work';}
+  else{scoreClass='bad';scoreLabel='Poor';}
+
+  let pills='';
+
+  // Length
+  if(sLen<=60) pills+=`<span class="sa-pill ok">✓ ${sLen} chars</span>`;
+  else if(sLen<=70) pills+=`<span class="sa-pill warn">⚠ ${sLen} chars (trim to &lt;60)</span>`;
+  else pills+=`<span class="sa-pill bad">✗ ${sLen} chars — too long</span>`;
+
+  // Word count
+  if(words>=4&&words<=9) pills+=`<span class="sa-pill ok">✓ ${words} words</span>`;
+  else if(words<4) pills+=`<span class="sa-pill warn">⚠ ${words} words (aim 4–9)</span>`;
+  else pills+=`<span class="sa-pill warn">⚠ ${words} words (too long)</span>`;
+
+  // Spam words
+  if(foundSpam.length>0){
+    pills+=`<span class="sa-pill bad">✗ Spam words: ${foundSpam.slice(0,3).map(w=>`<span class="sa-spam-word">${w}</span>`).join(' ')}</span>`;
+  } else {
+    pills+=`<span class="sa-pill ok">✓ No spam words</span>`;
+  }
+
+  if(hasAllCaps) pills+=`<span class="sa-pill bad">✗ ALL CAPS detected</span>`;
+  if(exclamations>1) pills+=`<span class="sa-pill bad">✗ ${exclamations} exclamation marks</span>`;
+  if(startsWithRe) pills+=`<span class="sa-pill bad">✗ Fake Re:/Fwd: prefix</span>`;
+  if(isDuplicate) pills+=`<span class="sa-pill warn">⚠ Matches preview text</span>`;
+  if(hasNumber) pills+=`<span class="sa-pill ok">✓ Number boosts CTR</span>`;
+  if(hasEmoji) pills+=`<span class="sa-pill info">ℹ Emoji present</span>`;
+
+  // Preheader checks
+  if(!preheader) pills+=`<span class="sa-pill warn">⚠ Add preview text (80–100 chars)</span>`;
+  else if(pLen<40) pills+=`<span class="sa-pill warn">⚠ Preview text too short</span>`;
+  else if(pLen>100) pills+=`<span class="sa-pill warn">⚠ Preview text may clip (${pLen} chars)</span>`;
+  else pills+=`<span class="sa-pill ok">✓ Preview text ${pLen} chars</span>`;
+
+  analyzer.innerHTML=`<div class="sa-row">
+    <span class="sa-score ${scoreClass}">${scoreLabel} · ${score}/100</span>
+    <div class="sa-divider"></div>
+    <span class="sa-category ${cls}">${icon} Apple Mail: <strong>${cat}</strong></span>
+    <div class="sa-divider"></div>
+    ${pills}
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MIME HEADER GENERATOR
+═══════════════════════════════════════════════════════════ */
+let headerPanelVisible = false;
+
+function toggleHeaderPanel(){
+  headerPanelVisible = !headerPanelVisible;
+  document.getElementById('header-panel').classList.toggle('show', headerPanelVisible);
+  document.getElementById('hp-toggle-label').textContent = headerPanelVisible ? 'Hide MIME headers' : 'Show MIME headers';
+  if(headerPanelVisible) renderHeaderPanel();
+}
+
+function renderHeaderPanel(){
+  const emailType = document.getElementById('email-type-select')?.value||'transactional';
+  const subject = document.getElementById('subject-field').value||'[Subject]';
+  const replyTo = document.getElementById('replyto-field').value;
+  const unsubUrl = settings.unsub||'https://yourcompany.com/unsubscribe';
+  const supportEmail = settings.support||('noreply@'+(settings.company||'yourcompany').toLowerCase().replace(/\s+/g,'')+'.com');
+  const msgId = `<${Date.now()}.${Math.random().toString(36).slice(2)}@mailstudio>`;
+  const now = new Date().toUTCString();
+
+  const isTransactional = ['transactional','account'].includes(emailType);
+  const isMarketing = emailType==='marketing';
+  const isNewsletter = emailType==='newsletter';
+
+  // Build header lines as [{key,val,comment}]
+  const lines=[
+    {k:'MIME-Version',v:'1.0',c:'Required — declares MIME compliance'},
+    {k:'Date',v:now,c:'RFC 5322 date header'},
+    {k:'Message-ID',v:msgId,c:'Unique ID for threading & deduplication'},
+    {k:'From',v:`${settings.company||'Your Company'} <${supportEmail}>`,c:'Display name + sending address'},
+    ...(replyTo?[{k:'Reply-To',v:replyTo,c:'Where replies go — separate from sending address'}]:[]),
+    {k:'Subject',v:subject,c:'Email subject (UTF-8 encoded in actual MIME)'},
+    {k:'Content-Type',v:'multipart/alternative; boundary="==BOUNDARY=="',c:'Declares HTML + plain text parts'},
+    {k:'Content-Transfer-Encoding',v:'quoted-printable',c:'Safe encoding for special characters'},
+  ];
+
+  if(isTransactional){
+    lines.push({k:'X-Priority',v:'1 (Highest)',c:'Signals urgency — used by Outlook & some filters'});
+    lines.push({k:'X-MSMail-Priority',v:'High',c:'Outlook-specific priority flag'});
+    lines.push({k:'Importance',v:'High',c:'RFC 2156 importance — helps Outlook & Apple Mail'});
+    lines.push({k:'X-Transaction-Type',v:'transactional',c:'Custom header — signals transactional nature'});
+    lines.push({k:'Auto-Submitted',v:'auto-generated',c:'RFC 3834 — tells clients this is automated'});
+  } else if(isMarketing){
+    lines.push({k:'List-Unsubscribe',v:`<${unsubUrl}>, <mailto:${supportEmail}?subject=unsubscribe>`,c:'Required by Gmail/Yahoo (RFC 2369) — shows Unsubscribe button in Apple Mail'});
+    lines.push({k:'List-Unsubscribe-Post',v:'List-Unsubscribe=One-Click',c:'RFC 8058 one-click unsubscribe — required for bulk Gmail senders 2024+'});
+    lines.push({k:'Precedence',v:'bulk',c:'Signals bulk/marketing mail to inbox providers'});
+    lines.push({k:'X-Mailer',v:'MailStudio/1.0',c:'Identifies sending client'});
+  } else if(isNewsletter){
+    lines.push({k:'List-Unsubscribe',v:`<${unsubUrl}>, <mailto:${supportEmail}?subject=unsubscribe>`,c:'Required for broadcast emails — enables native unsub button'});
+    lines.push({k:'List-Unsubscribe-Post',v:'List-Unsubscribe=One-Click',c:'RFC 8058 one-click — mandatory for Gmail 5k+ senders'});
+    lines.push({k:'Precedence',v:'list',c:'Signals newsletter/list mail'});
+    lines.push({k:'List-Archive',v:`<${settings.website||'https://yourcompany.com/archive'}>`,c:'Link to email archive — good for Updates categorization'});
+  }
+
+  lines.push({k:'X-Spam-Status',v:'No',c:'Pre-declare spam status (cosmetic, but helps some filters)'});
+
+  const html=lines.map(l=>`<div class="hp-line"><span class="hp-key">${l.k}:</span><span class="hp-val">${l.v}</span></div>${l.c?`<div class="hp-comment">// ${l.c}</div>`:''}`).join('');
+  document.getElementById('header-panel').innerHTML=`<div style="font-size:10px;color:#666;margin-bottom:8px;font-family:'Figtree',sans-serif;letter-spacing:.06em;text-transform:uppercase">Generated MIME headers for: <strong style="color:#7dd3a8">${emailType.toUpperCase()}</strong> — these are injected automatically when you send</div>${html}`;
+}
+
+function onEmailTypeChange(){
+  analyzeSubject();
+  if(headerPanelVisible) renderHeaderPanel();
+}
+
 function buildMime(to,replyTo,subject,htmlBody){
-  const plain=htmlBody.replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
-  const b='b'+Date.now().toString(36);
-  const encSubj=`=?UTF-8?B?${btoa(unescape(encodeURIComponent(subject)))}?=`;
-  return['MIME-Version: 1.0',`To: ${to}`,`Subject: ${encSubj}`,
-    ...(replyTo?[`Reply-To: ${replyTo}`]:[]),
+  const emailType = document.getElementById('email-type-select')?.value||'transactional';
+  const isTransactional = ['transactional','account'].includes(emailType);
+  const isMarketing = emailType==='marketing';
+  const isNewsletter = emailType==='newsletter';
+  const unsubUrl = settings.unsub||'https://yourcompany.com/unsubscribe';
+  const supportEmail = settings.support||'noreply@yourcompany.com';
+  const msgId = `<${Date.now()}.${Math.random().toString(36).slice(2)}@mailstudio>`;
+  const plain = htmlBody.replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
+  const b = 'boundary_' + Date.now().toString(36);
+  const encSubj = `=?UTF-8?B?${btoa(unescape(encodeURIComponent(subject)))}?=`;
+
+  const headers = [
+    'MIME-Version: 1.0',
+    `Date: ${new Date().toUTCString()}`,
+    `Message-ID: ${msgId}`,
+    `To: ${to}`,
+    `Subject: ${encSubj}`,
+    ...(replyTo ? [`Reply-To: ${replyTo}`] : []),
     `Content-Type: multipart/alternative; boundary="${b}"`,
-    '',`--${b}`,'Content-Type: text/plain; charset=UTF-8','',plain,'',
-    `--${b}`,'Content-Type: text/html; charset=UTF-8','',htmlBody,'',`--${b}--`
+  ];
+
+  // Type-specific headers
+  if(isTransactional){
+    headers.push('X-Priority: 1 (Highest)');
+    headers.push('X-MSMail-Priority: High');
+    headers.push('Importance: High');
+    headers.push('X-Transaction-Type: transactional');
+    headers.push('Auto-Submitted: auto-generated');
+  } else if(isMarketing){
+    headers.push(`List-Unsubscribe: <${unsubUrl}>, <mailto:${supportEmail}?subject=unsubscribe>`);
+    headers.push('List-Unsubscribe-Post: List-Unsubscribe=One-Click');
+    headers.push('Precedence: bulk');
+    headers.push('X-Mailer: MailStudio/1.0');
+  } else if(isNewsletter){
+    headers.push(`List-Unsubscribe: <${unsubUrl}>, <mailto:${supportEmail}?subject=unsubscribe>`);
+    headers.push('List-Unsubscribe-Post: List-Unsubscribe=One-Click');
+    headers.push('Precedence: list');
+    if(settings.website) headers.push(`List-Archive: <${settings.website}/archive>`);
+  }
+
+  return [
+    ...headers,
+    '',
+    `--${b}`,
+    'Content-Type: text/plain; charset=UTF-8',
+    'Content-Transfer-Encoding: quoted-printable',
+    '',
+    plain,
+    '',
+    `--${b}`,
+    'Content-Type: text/html; charset=UTF-8',
+    'Content-Transfer-Encoding: quoted-printable',
+    '',
+    htmlBody,
+    '',
+    `--${b}--`,
   ].join('\r\n');
 }
 
