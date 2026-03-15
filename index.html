@@ -322,6 +322,18 @@ header{height:52px;background:var(--surface);border-bottom:1px solid var(--borde
 .pi-btn{padding:4px 8px;border-radius:4px;border:1px solid var(--border);background:transparent;font-size:11px;color:var(--text2);cursor:pointer;font-family:'Figtree',sans-serif;transition:all .1s}
 .pi-btn:hover{background:var(--surface2)}
 .pi-btn.danger:hover{background:var(--danger2);color:var(--danger);border-color:var(--danger)}
+
+/* ── TOGGLE SWITCH ─── */
+.toggle-switch{position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0}
+.toggle-switch input{opacity:0;width:0;height:0}
+.toggle-track{position:absolute;inset:0;background:var(--border2);border-radius:12px;cursor:pointer;transition:background .2s}
+.toggle-track::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:white;border-radius:50%;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.toggle-switch input:checked + .toggle-track{background:var(--danger)}
+.toggle-switch input:checked + .toggle-track::before{transform:translateX(20px)}
+
+/* ── SECURITY TIERS ─── */
+.sec-tier-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:var(--radius-sm);gap:12px;flex-wrap:wrap}
+.sec-tier-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -629,6 +641,7 @@ header{height:52px;background:var(--surface);border-bottom:1px solid var(--borde
       <button class="modal-tab active" onclick="switchSettingsTab('brand',this)">Brand</button>
       <button class="modal-tab" onclick="switchSettingsTab('contact',this)">Contact</button>
       <button class="modal-tab" onclick="switchSettingsTab('defaults',this)">Defaults</button>
+      <button class="modal-tab" onclick="switchSettingsTab('security',this)">Security</button>
     </div>
     <div id="settings-tab-brand">
       <div class="modal-field"><label>Company name</label><input type="text" id="s-company" placeholder="Acme Inc."/></div>
@@ -667,6 +680,66 @@ header{height:52px;background:var(--surface);border-bottom:1px solid var(--borde
         </select>
       </div>
       <div class="modal-field"><label>Unsubscribe link URL</label><input type="url" id="s-unsub" placeholder="https://yourcompany.com/unsubscribe"/></div>
+    </div>
+    <div id="settings-tab-security" style="display:none">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:18px;line-height:1.6">
+        Control how the reCAPTCHA challenge behaves before every send. The v3 score (0–100) measures bot likelihood — higher is safer. Each tier triggers a different challenge level.
+      </p>
+
+      <!-- Force bot mode toggle -->
+      <div style="background:var(--danger2);border:1.5px solid #e8b4b4;border-radius:var(--radius);padding:14px 16px;margin-bottom:18px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+          <div>
+            <div style="font-size:13.5px;font-weight:600;color:var(--danger);margin-bottom:3px">🤖 Force maximum security mode</div>
+            <div style="font-size:12px;color:#a05050;line-height:1.5">Ignores your real score. Every send is treated as maximum risk — hardest puzzle, double verification required.</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="s-force-bot" onchange="updateBotModePreview()"/>
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Score tier table -->
+      <div style="font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:8px">Score behavior tiers</div>
+      <div id="security-tier-preview" style="display:flex;flex-direction:column;gap:6px">
+        <div class="sec-tier" data-tier="high">
+          <div class="sec-tier-bar" style="background:var(--accent2);border:1.5px solid rgba(45,90,61,.2)">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="sec-tier-dot" style="background:#2d5a3d"></span>
+              <span style="font-size:13px;font-weight:600;color:var(--accent-text)">Score 70–100</span>
+            </div>
+            <span style="font-size:12px;color:var(--accent-text)">✓ Checkbox only — quick tick, no puzzle</span>
+          </div>
+        </div>
+        <div class="sec-tier" data-tier="mid">
+          <div class="sec-tier-bar" style="background:var(--gold2);border:1.5px solid rgba(176,141,87,.3)">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="sec-tier-dot" style="background:#b08d57"></span>
+              <span style="font-size:13px;font-weight:600;color:#7a5b1a">Score 40–69</span>
+            </div>
+            <span style="font-size:12px;color:#7a5b1a">⚠ Image challenge — solve the puzzle</span>
+          </div>
+        </div>
+        <div class="sec-tier" data-tier="low">
+          <div class="sec-tier-bar" style="background:var(--danger2);border:1.5px solid rgba(139,47,47,.2)">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="sec-tier-dot" style="background:#8b2f2f"></span>
+              <span style="font-size:13px;font-weight:600;color:var(--danger)">Score 0–39</span>
+            </div>
+            <span style="font-size:12px;color:var(--danger)">🛑 Double verification — puzzle + second v3 confirm</span>
+          </div>
+        </div>
+        <div class="sec-tier" data-tier="forced" style="display:none">
+          <div class="sec-tier-bar" style="background:#1c1a17;border:1.5px solid #444">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="sec-tier-dot" style="background:#ff4444"></span>
+              <span style="font-size:13px;font-weight:600;color:#f0ede8">All scores</span>
+            </div>
+            <span style="font-size:12px;color:#ccc">🤖 Force mode — always treated as score 0</span>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="modal-btns">
       <button class="modal-cancel" onclick="closeSettings()">Cancel</button>
@@ -783,7 +856,7 @@ header{height:52px;background:var(--surface);border-bottom:1px solid var(--borde
     <div class="modal-title" style="margin-bottom:6px">Verify before sending</div>
     <p class="modal-sub" id="captcha-send-summary" style="margin-bottom:4px"></p>
     <div id="captcha-score-badge" style="margin:0 auto 16px;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;width:fit-content;background:var(--surface2);color:var(--text3)">Checking risk score…</div>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:16px">Complete the challenge below to send.</p>
+    <p id="captcha-instructions" style="font-size:13px;color:var(--text2);margin-bottom:16px">Complete the challenge below to send.</p>
     <div style="display:flex;justify-content:center;margin-bottom:16px">
       <div class="g-recaptcha"
            data-sitekey="6LdMeYssAAAAABYetUbAaCnrTWo-dGNAhygdYPqV"
@@ -818,7 +891,8 @@ let tokenClient, accessToken;
 
 let settings = {
   company:'Your Company', tagline:'', support:'', phone:'', address:'', social:'',
-  website:'', color:'#2d5a3d', taxRate:0, shippingCost:0, currency:'USD', unsub:''
+  website:'', color:'#2d5a3d', taxRate:0, shippingCost:0, currency:'USD', unsub:'',
+  forceMaxSecurity: false
 };
 
 let catalog = []; // array of product objects
@@ -968,7 +1042,9 @@ function openSettings(){
   document.getElementById('s-shipping-cost').value=settings.shippingCost||'';
   document.getElementById('s-currency').value=settings.currency||'USD';
   document.getElementById('s-unsub').value=settings.unsub||'';
+  document.getElementById('s-force-bot').checked=settings.forceMaxSecurity||false;
   document.querySelectorAll('.color-swatch').forEach(s=>s.classList.toggle('selected',s.dataset.color===settings.color));
+  updateBotModePreview();
   document.getElementById('settings-modal').classList.add('show');
 }
 function closeSettings(){document.getElementById('settings-modal').classList.remove('show');}
@@ -984,19 +1060,30 @@ function saveSettings(){
   settings.shippingCost=parseFloat(document.getElementById('s-shipping-cost').value)||0;
   settings.currency=document.getElementById('s-currency').value;
   settings.unsub=document.getElementById('s-unsub').value.trim();
+  settings.forceMaxSecurity=document.getElementById('s-force-bot').checked;
   saveToStorage();
   closeSettings();
   debounce(renderPreview,100)();
   if(settings.taxRate){document.getElementById('order-tax').value=settings.taxRate;}
   if(settings.shippingCost){document.getElementById('order-shipping').value=settings.shippingCost;}
-  showToast('Settings saved ✓','success');
+  const secMsg=settings.forceMaxSecurity?' (Force security mode ON 🤖)':'';
+  showToast('Settings saved ✓'+secMsg,'success');
 }
 function switchSettingsTab(tab,btn){
-  ['brand','contact','defaults'].forEach(t=>{
+  ['brand','contact','defaults','security'].forEach(t=>{
     document.getElementById('settings-tab-'+t).style.display=t===tab?'block':'none';
   });
   document.querySelectorAll('#settings-modal .modal-tab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
+}
+function updateBotModePreview(){
+  const forced=document.getElementById('s-force-bot').checked;
+  document.querySelectorAll('.sec-tier[data-tier="high"],.sec-tier[data-tier="mid"],.sec-tier[data-tier="low"]').forEach(el=>{
+    el.style.display=forced?'none':'block';
+    el.style.opacity=forced?'0.35':'1';
+  });
+  const forcedTier=document.querySelector('.sec-tier[data-tier="forced"]');
+  if(forcedTier) forcedTier.style.display=forced?'block':'none';
 }
 function pickSwatch(el){
   document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('selected'));
@@ -2039,15 +2126,33 @@ function copyHTML(){
    SEND
 ═══════════════════════════════════════════════════════════ */
 /* ═══════════════════════════════════════════════════════════
-   SEND — Max-security two-layer reCAPTCHA
-   v3 runs silently for risk scoring (informational display only)
-   Enterprise v2 checkbox is ALWAYS required — no bypass at any score
+   SEND — Three-tier reCAPTCHA + force mode
+   v3 score drives challenge level:
+     70–100 → checkbox only (easy tick)
+     40–69  → image challenge (solve puzzle)
+     0–39   → double verify (puzzle + second v3 confirm)
+   Force mode → always treats score as 0 (hardest path)
 ═══════════════════════════════════════════════════════════ */
-const V3_SITE_KEY  = '6LfadIssAAAAAG9SVNKJg-uvwAefxw3hi8IAj2cN';
-const V2_SITE_KEY  = '6LdMeYssAAAAABYetUbAaCnrTWo-dGNAhygdYPqV';
+const V3_SITE_KEY = '6LfadIssAAAAAG9SVNKJg-uvwAefxw3hi8IAj2cN';
+const V2_SITE_KEY = '6LdMeYssAAAAABYetUbAaCnrTWo-dGNAhygdYPqV';
 
-let pendingSendData = null;
-let v2WidgetId = null;
+let pendingSendData  = null;
+let v2WidgetId       = null;
+let currentV3Score   = null; // score 0-100 from last v3 execute
+let requireDoubleVerify = false; // true when score < 40 or force mode
+
+function getEffectiveScore(rawScore){
+  // Force mode overrides real score to 0 (worst tier)
+  if(settings.forceMaxSecurity) return 0;
+  return rawScore;
+}
+
+function getTierFromScore(score){
+  if(score === null) return 'mid'; // unknown → medium
+  if(score >= 70)   return 'high';
+  if(score >= 40)   return 'mid';
+  return 'low';
+}
 
 function sendEmail(){
   if(!accessToken){
@@ -2063,63 +2168,119 @@ function sendEmail(){
   if(!to)     { setStatus('Add a recipient.','err'); return; }
   if(!subject){ setStatus('Add a subject line.','err'); return; }
 
-  pendingSendData = {to, replyTo, subject, htmlBody};
+  pendingSendData      = {to, replyTo, subject, htmlBody};
+  currentV3Score       = null;
+  requireDoubleVerify  = false;
 
-  // Open the modal immediately — challenge is always required
-  openV2ChallengeModal();
+  // Open modal immediately — user sees it while v3 scores in background
+  openV2ChallengeModal(null);
 
-  // v3 runs in parallel just to populate the score badge (informational only)
-  // It does NOT gate sending — the v2 checkbox is always the gate
+  // v3 runs in background — result updates the modal's score badge + adjusts challenge tier
   try{
     grecaptcha.ready(async()=>{
       try{
         const token = await grecaptcha.execute(V3_SITE_KEY, {action:'SEND_EMAIL'});
-        const scoreBadge = document.getElementById('captcha-score-badge');
-        let score = null;
+        let rawScore = null;
         try{
           const payload = JSON.parse(atob(token.split('.')[1]));
-          score = payload.score ?? null;
+          rawScore = payload.score !== undefined ? Math.round(payload.score * 100) : null;
         }catch(e){}
 
-        if(score !== null && scoreBadge){
-          const pct  = Math.round(score * 100);
-          const isOk = score >= 0.5;
-          scoreBadge.style.background = isOk ? 'var(--accent2)' : 'var(--gold2)';
-          scoreBadge.style.color      = isOk ? 'var(--accent-text)' : '#7a5b1a';
-          scoreBadge.textContent      = isOk
-            ? `✓ Risk score ${pct}/100 — looks good`
-            : `⚠ Risk score ${pct}/100 — complete the challenge below`;
-        } else if(scoreBadge){
-          scoreBadge.style.background = 'var(--surface2)';
-          scoreBadge.style.color      = 'var(--text3)';
-          scoreBadge.textContent      = 'Risk score unavailable — complete challenge to continue';
-        }
+        const effectiveScore = getEffectiveScore(rawScore);
+        currentV3Score = effectiveScore;
+        const tier = getTierFromScore(effectiveScore);
+        requireDoubleVerify = (tier === 'low');
+
+        updateScoreBadge(effectiveScore, rawScore, tier);
+        updateChallengeInstructions(tier);
+
+        // Reset widget so Google serves the appropriate challenge for this tier
+        try{
+          if(v2WidgetId !== null) grecaptcha.enterprise.reset(v2WidgetId);
+          else                    grecaptcha.enterprise.reset();
+        }catch(e){}
+
       }catch(e){
-        const scoreBadge = document.getElementById('captcha-score-badge');
-        if(scoreBadge){
-          scoreBadge.style.background = 'var(--surface2)';
-          scoreBadge.style.color      = 'var(--text3)';
-          scoreBadge.textContent      = 'Complete the challenge to send';
-        }
+        // v3 failed — treat as mid tier
+        currentV3Score = null;
+        requireDoubleVerify = false;
+        updateScoreBadge(null, null, 'mid');
+        updateChallengeInstructions('mid');
       }
     });
-  }catch(e){}
+  }catch(e){
+    updateScoreBadge(null, null, 'mid');
+    updateChallengeInstructions('mid');
+  }
 }
 
-function openV2ChallengeModal(){
+function updateScoreBadge(effectiveScore, rawScore, tier){
+  const badge = document.getElementById('captcha-score-badge');
+  if(!badge) return;
+
+  const forced = settings.forceMaxSecurity;
+
+  if(forced){
+    badge.style.background = '#1c1a17';
+    badge.style.color      = '#f0ede8';
+    badge.textContent      = `🤖 Force mode ON — real score: ${rawScore !== null ? rawScore : '?'}/100 → treated as 0`;
+    return;
+  }
+
+  if(effectiveScore === null){
+    badge.style.background = 'var(--surface2)';
+    badge.style.color      = 'var(--text3)';
+    badge.textContent      = 'Risk score unavailable — medium security applied';
+    return;
+  }
+
+  const configs = {
+    high: { bg:'var(--accent2)', col:'var(--accent-text)', text:`✓ Score ${effectiveScore}/100 — low risk, checkbox only` },
+    mid:  { bg:'var(--gold2)',   col:'#7a5b1a',            text:`⚠ Score ${effectiveScore}/100 — medium risk, image challenge required` },
+    low:  { bg:'var(--danger2)', col:'var(--danger)',       text:`🛑 Score ${effectiveScore}/100 — high risk, double verification required` },
+  };
+  const cfg = configs[tier] || configs.mid;
+  badge.style.background = cfg.bg;
+  badge.style.color      = cfg.col;
+  badge.textContent      = cfg.text;
+}
+
+function updateChallengeInstructions(tier){
+  const instr = document.getElementById('captcha-instructions');
+  if(!instr) return;
+  const forced = settings.forceMaxSecurity;
+  if(forced || tier === 'low'){
+    instr.innerHTML = '🛑 High risk detected. Solve the challenge below, then a second verification will run before sending.';
+    instr.style.color = 'var(--danger)';
+    instr.style.fontWeight = '500';
+  } else if(tier === 'mid'){
+    instr.textContent = '⚠ Complete the image challenge below to send.';
+    instr.style.color = 'var(--text2)';
+    instr.style.fontWeight = '400';
+  } else {
+    instr.textContent = '✓ Low risk detected. Tick the checkbox below to send.';
+    instr.style.color = 'var(--accent)';
+    instr.style.fontWeight = '400';
+  }
+}
+
+function openV2ChallengeModal(initialScore){
   const summary = document.getElementById('captcha-send-summary');
   summary.innerHTML = `To: <strong>${pendingSendData.to}</strong>
     &nbsp;&middot;&nbsp; <span style="color:var(--text3);font-size:12px">${pendingSendData.subject}</span>`;
 
-  // Reset score badge to loading state
-  const scoreBadge = document.getElementById('captcha-score-badge');
-  scoreBadge.style.background = 'var(--surface2)';
-  scoreBadge.style.color      = 'var(--text3)';
-  scoreBadge.textContent      = 'Checking risk score…';
+  // Show initial loading state on badge
+  const badge = document.getElementById('captcha-score-badge');
+  if(badge){
+    badge.style.background = 'var(--surface2)';
+    badge.style.color      = 'var(--text3)';
+    badge.textContent      = settings.forceMaxSecurity ? '🤖 Force mode ON — scoring…' : 'Scoring…';
+  }
 
+  updateChallengeInstructions('mid'); // default until v3 resolves
   document.getElementById('captcha-error').style.display = 'none';
 
-  // Reset the v2 widget so a fresh challenge loads each time
+  // Reset v2 widget for fresh challenge
   try{
     if(v2WidgetId !== null) grecaptcha.enterprise.reset(v2WidgetId);
     else                    grecaptcha.enterprise.reset();
@@ -2143,19 +2304,67 @@ async function confirmSend(){
 
   if(!v2Token){
     document.getElementById('captcha-error').style.display = 'block';
+    document.getElementById('captcha-error').textContent = 'Please complete the verification above.';
     return;
   }
 
   document.getElementById('captcha-error').style.display = 'none';
-  document.getElementById('captcha-modal').classList.remove('show');
 
+  // ── Double-verify path: score was < 40 or force mode ─────────
+  // Must pass a second fresh v3 execute before we allow send
+  if(requireDoubleVerify || settings.forceMaxSecurity){
+    const confirmBtn = document.getElementById('captcha-confirm-btn');
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Running second check…';
+
+    try{
+      await new Promise((resolve, reject)=>{
+        grecaptcha.ready(async()=>{
+          try{
+            const token2 = await grecaptcha.execute(V3_SITE_KEY, {action:'DOUBLE_VERIFY'});
+            let score2 = null;
+            try{
+              const p = JSON.parse(atob(token2.split('.')[1]));
+              score2 = p.score !== undefined ? Math.round(p.score * 100) : null;
+            }catch(e){}
+
+            const effective2 = getEffectiveScore(score2);
+            if(!settings.forceMaxSecurity && effective2 !== null && effective2 < 40){
+              // Second check also low — block the send
+              reject(new Error(`Second verification failed (score ${effective2}/100). Send blocked.`));
+            } else {
+              resolve();
+            }
+          }catch(e){ resolve(); } // v3 unavailable — let it through
+        });
+      });
+    }catch(err){
+      confirmBtn.disabled = false;
+      confirmBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" style="display:inline;vertical-align:middle;margin-right:5px"><path d="M2 2l12 6-12 6V9.5l8-1.5-8-1.5V2z" fill="white"/></svg>Send email';
+      document.getElementById('captcha-error').style.display = 'block';
+      document.getElementById('captcha-error').textContent = err.message;
+      // Reset v2 so they have to solve it again
+      try{
+        if(v2WidgetId !== null) grecaptcha.enterprise.reset(v2WidgetId);
+        else                    grecaptcha.enterprise.reset();
+      }catch(e){}
+      return;
+    }
+
+    confirmBtn.disabled = false;
+    confirmBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" style="display:inline;vertical-align:middle;margin-right:5px"><path d="M2 2l12 6-12 6V9.5l8-1.5-8-1.5V2z" fill="white"/></svg>Send email';
+  }
+
+  // All checks passed — close modal and send
+  document.getElementById('captcha-modal').classList.remove('show');
   const data = pendingSendData;
   pendingSendData = null;
+  currentV3Score = null;
+  requireDoubleVerify = false;
   try{
     if(v2WidgetId !== null) grecaptcha.enterprise.reset(v2WidgetId);
-    else grecaptcha.enterprise.reset();
+    else                    grecaptcha.enterprise.reset();
   }catch(e){}
-
   await doSend(data);
 }
 
