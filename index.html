@@ -4,6 +4,9 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Mail Studio Pro</title>
+<!-- reCAPTCHA v3 (invisible, score-based) — runs silently on send -->
+<script src="https://www.google.com/recaptcha/api.js?render=6LfadIssAAAAAG9SVNKJg-uvwAefxw3hi8IAj2cN" async defer></script>
+<!-- reCAPTCHA Enterprise (v2 checkbox) — fallback modal if v3 score is low -->
 <script src="https://www.google.com/recaptcha/enterprise.js" async defer></script>
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Figtree:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
@@ -774,12 +777,14 @@ header{height:52px;background:var(--surface);border-bottom:1px solid var(--borde
   </div>
 </div>
 
-<!-- RECAPTCHA SEND MODAL -->
+<!-- RECAPTCHA SEND MODAL — shown only when v3 score is low (fallback challenge) -->
 <div class="modal-overlay" id="captcha-modal">
-  <div class="modal" style="width:400px;text-align:center">
-    <div class="modal-title" style="margin-bottom:6px">Verify before sending</div>
-    <p class="modal-sub" id="captcha-send-summary" style="margin-bottom:20px"></p>
-    <div style="display:flex;justify-content:center;margin-bottom:20px">
+  <div class="modal" style="width:420px;text-align:center">
+    <div class="modal-title" style="margin-bottom:6px">One more step</div>
+    <p class="modal-sub" id="captcha-send-summary" style="margin-bottom:4px"></p>
+    <div id="captcha-score-badge" style="display:none;margin:0 auto 16px;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;width:fit-content"></div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:16px">Please verify you're human to continue.</p>
+    <div style="display:flex;justify-content:center;margin-bottom:16px">
       <div class="g-recaptcha"
            data-sitekey="6LdMeYssAAAAABYetUbAaCnrTWo-dGNAhygdYPqV"
            data-action="SEND_EMAIL"
@@ -793,6 +798,11 @@ header{height:52px;background:var(--surface);border-bottom:1px solid var(--borde
         Send email
       </button>
     </div>
+    <p style="font-size:10.5px;color:var(--text3);margin-top:14px;line-height:1.5">
+      Protected by reCAPTCHA —
+      <a href="https://policies.google.com/privacy" target="_blank" style="color:var(--text3)">Privacy</a> &amp;
+      <a href="https://policies.google.com/terms" target="_blank" style="color:var(--text3)">Terms</a>
+    </p>
   </div>
 </div>
 
@@ -2029,80 +2039,159 @@ function copyHTML(){
    SEND
 ═══════════════════════════════════════════════════════════ */
 /* ═══════════════════════════════════════════════════════════
-   SEND — reCAPTCHA Enterprise gated
+   SEND — Two-layer reCAPTCHA:
+   1. v3 invisible (score-based) runs silently first
+   2. If score < 0.5 or v3 unavailable → show Enterprise v2 checkbox modal
+   Score threshold 0.5 is Google's recommended default
 ═══════════════════════════════════════════════════════════ */
-let pendingSendData = null; // holds {to, replyTo, subject, htmlBody} while captcha modal is open
+const V3_SITE_KEY  = '6LfadIssAAAAAG9SVNKJg-uvwAefxw3hi8IAj2cN'; // v3 invisible
+const V2_SITE_KEY  = '6LdMeYssAAAAABYetUbAaCnrTWo-dGNAhygdYPqV'; // Enterprise v2 checkbox
+const SCORE_THRESHOLD = 0.5; // 0.0 = bot, 1.0 = human
+
+let pendingSendData = null;
+let v2WidgetId = null; // track rendered enterprise widget id
 
 function sendEmail(){
-  // Auth check first
   if(!accessToken){
     try{const s=localStorage.getItem('ms_session');if(s){const sess=JSON.parse(s);if(sess.expiry&&Date.now()<sess.expiry){accessToken=sess.token;}}}catch(e){}
   }
   if(!accessToken){showToast('Please sign in first.','error');return;}
 
-  const to=document.getElementById('to-field').value.trim();
-  const replyTo=document.getElementById('replyto-field').value.trim();
-  const subject=document.getElementById('subject-field').value.trim();
-  const htmlBody=buildEmailHTML();
+  const to      = document.getElementById('to-field').value.trim();
+  const replyTo = document.getElementById('replyto-field').value.trim();
+  const subject = document.getElementById('subject-field').value.trim();
+  const htmlBody = buildEmailHTML();
 
-  if(!to){setStatus('Add a recipient.','err');return;}
-  if(!subject){setStatus('Add a subject line.','err');return;}
+  if(!to)     { setStatus('Add a recipient.','err'); return; }
+  if(!subject){ setStatus('Add a subject line.','err'); return; }
 
-  // Store data and open captcha modal
-  pendingSendData={to,replyTo,subject,htmlBody};
-  const summary=document.getElementById('captcha-send-summary');
-  summary.innerHTML=`Sending to <strong>${to}</strong><br><span style="font-size:12px;color:var(--text3)">${subject}</span>`;
-  document.getElementById('captcha-error').style.display='none';
+  pendingSendData = {to, replyTo, subject, htmlBody};
 
-  // Reset widget if already rendered
+  // ── Layer 1: v3 invisible score check ────────────────────────
+  setStatus('Verifying…');
+  const btn = document.getElementById('send-btn');
+  btn.disabled = true;
+
   try{
-    if(typeof grecaptcha!=='undefined'&&grecaptcha.enterprise){
-      grecaptcha.enterprise.reset();
-    }
-  }catch(e){}
+    grecaptcha.ready(async()=>{
+      try{
+        const token = await grecaptcha.execute(V3_SITE_KEY, {action:'SEND_EMAIL'});
+        // v3 returned a token — decode the score from the JWT payload (middle segment)
+        // Note: we read the score client-side for UX; real enforcement would be server-side
+        let score = null;
+        try{
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          score = payload.score ?? null;
+        }catch(e){ score = null; }
+
+        if(score !== null && score >= SCORE_THRESHOLD){
+          // ✓ High confidence human — send directly, no checkbox needed
+          setStatus('');
+          btn.disabled = false;
+          await doSend(pendingSendData);
+          pendingSendData = null;
+        } else {
+          // ✗ Low score or unknown — escalate to v2 Enterprise checkbox
+          btn.disabled = false;
+          setStatus('');
+          openV2ChallengeModal(score);
+        }
+      }catch(err){
+        // v3 execute failed (e.g. not loaded yet) — fall back to v2
+        btn.disabled = false;
+        setStatus('');
+        openV2ChallengeModal(null);
+      }
+    });
+  }catch(e){
+    // grecaptcha not loaded at all — fall back to v2 modal
+    btn.disabled = false;
+    setStatus('');
+    openV2ChallengeModal(null);
+  }
+}
+
+function openV2ChallengeModal(v3Score){
+  const summary = document.getElementById('captcha-send-summary');
+  summary.innerHTML = `Sending to <strong>${pendingSendData.to}</strong><br>
+    <span style="font-size:12px;color:var(--text3)">${pendingSendData.subject}</span>`;
+
+  // Show score badge if we have one
+  const scoreBadge = document.getElementById('captcha-score-badge');
+  if(v3Score !== null){
+    const pct = Math.round(v3Score * 100);
+    const col = v3Score < 0.3 ? '#8b2f2f' : '#7a5b1a';
+    const bg  = v3Score < 0.3 ? '#fdf0f0' : '#fdf6e8';
+    scoreBadge.style.display = 'block';
+    scoreBadge.style.background = bg;
+    scoreBadge.style.color = col;
+    scoreBadge.textContent = `Risk score: ${pct}/100 — additional verification required`;
+  } else {
+    scoreBadge.style.display = 'none';
+  }
+
+  document.getElementById('captcha-error').style.display = 'none';
+
+  // Render or reset the Enterprise v2 widget
+  const widgetEl = document.getElementById('captcha-widget');
+  if(v2WidgetId !== null){
+    try{ grecaptcha.enterprise.reset(v2WidgetId); }catch(e){}
+  } else {
+    // First render — widget auto-renders from the g-recaptcha div attributes
+    // but we need the widget id for reset; capture it on next tick
+    setTimeout(()=>{
+      try{
+        // Get all rendered widgets and grab the last one
+        v2WidgetId = 0; // enterprise widget IDs start at 0 for auto-render
+      }catch(e){}
+    }, 500);
+  }
 
   document.getElementById('captcha-modal').classList.add('show');
 }
 
 function closeCaptchaModal(){
   document.getElementById('captcha-modal').classList.remove('show');
-  pendingSendData=null;
-  try{if(typeof grecaptcha!=='undefined'&&grecaptcha.enterprise)grecaptcha.enterprise.reset();}catch(e){}
+  pendingSendData = null;
+  try{
+    if(v2WidgetId !== null) grecaptcha.enterprise.reset(v2WidgetId);
+    else grecaptcha.enterprise.reset();
+  }catch(e){}
 }
 
 async function confirmSend(){
-  // Check captcha response
-  let captchaResponse='';
-  try{
-    captchaResponse=grecaptcha.enterprise.getResponse();
-  }catch(e){
-    captchaResponse='';
-  }
+  let v2Token = '';
+  try{ v2Token = grecaptcha.enterprise.getResponse(v2WidgetId ?? undefined); }catch(e){ v2Token = ''; }
 
-  if(!captchaResponse){
-    document.getElementById('captcha-error').style.display='block';
+  if(!v2Token){
+    document.getElementById('captcha-error').style.display = 'block';
     return;
   }
 
-  document.getElementById('captcha-error').style.display='none';
+  document.getElementById('captcha-error').style.display = 'none';
   document.getElementById('captcha-modal').classList.remove('show');
-  await doSend(pendingSendData);
-  pendingSendData=null;
-  try{if(typeof grecaptcha!=='undefined'&&grecaptcha.enterprise)grecaptcha.enterprise.reset();}catch(e){}
+
+  const data = pendingSendData;
+  pendingSendData = null;
+  try{
+    if(v2WidgetId !== null) grecaptcha.enterprise.reset(v2WidgetId);
+    else grecaptcha.enterprise.reset();
+  }catch(e){}
+
+  await doSend(data);
 }
 
-async function doSend({to,replyTo,subject,htmlBody}){
-  const btn=document.getElementById('send-btn');
-  btn.disabled=true;
+async function doSend({to, replyTo, subject, htmlBody}){
+  const btn = document.getElementById('send-btn');
+  btn.disabled = true;
   setStatus('Sending…');
   try{
-    const raw=buildMime(to,replyTo,subject,htmlBody);
-    // TextEncoder-based base64url — handles full Unicode HTML reliably
-    const bytes=new TextEncoder().encode(raw);
-    let binary='';
-    for(let i=0;i<bytes.length;i++) binary+=String.fromCharCode(bytes[i]);
-    const encoded=btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-    const res=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{
+    const raw = buildMime(to, replyTo, subject, htmlBody);
+    const bytes = new TextEncoder().encode(raw);
+    let binary = '';
+    for(let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+    const encoded = btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+    const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{
       method:'POST',
       headers:{Authorization:'Bearer '+accessToken,'Content-Type':'application/json'},
       body:JSON.stringify({raw:encoded})
@@ -2110,23 +2199,23 @@ async function doSend({to,replyTo,subject,htmlBody}){
     if(res.ok){
       setStatus('');
       showToast('Email sent! ✓','success');
-    }else{
-      const err=await res.json();
+    } else {
+      const err = await res.json();
       if(err.error?.code===401){
         accessToken=null;
         localStorage.removeItem('ms_session');
         tokenClient.requestAccessToken({prompt:''});
         setStatus('Session expired — re-authenticating…');
-      }else{
+      } else {
         setStatus('Error: '+(err.error?.message||'Unknown'),'err');
-        showToast('Send failed — check status bar','error');
+        showToast('Send failed','error');
       }
     }
   }catch(e){
     setStatus('Network error: '+e.message,'err');
     showToast('Network error','error');
   }
-  btn.disabled=false;
+  btn.disabled = false;
 }
 
 /* ═══════════════════════════════════════════════════════════
