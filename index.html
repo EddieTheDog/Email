@@ -150,8 +150,8 @@ header{height:52px;background:var(--surface);border-bottom:1px solid var(--borde
 .product-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:0;overflow:hidden;transition:all .15s;cursor:pointer;position:relative}
 .product-card:hover{border-color:var(--accent);box-shadow:var(--shadow)}
 .product-card.selected{border-color:var(--accent);background:var(--accent2)}
-.prod-img{width:100%;height:110px;object-fit:cover;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0}
-.prod-img img{width:100%;height:100%;object-fit:cover}
+.prod-img{width:100%;height:120px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:36px;flex-shrink:0;overflow:hidden;position:relative}
+.prod-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .prod-body{padding:10px 12px}
 .prod-name{font-size:13.5px;font-weight:500;color:var(--text);margin-bottom:3px;line-height:1.3}
 .prod-sku{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:6px}
@@ -177,8 +177,9 @@ header{height:52px;background:var(--surface);border-bottom:1px solid var(--borde
 .cart-header{padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .cart-title{font-size:13px;font-weight:600;color:var(--text)}
 .cart-items{flex:1;overflow-y:auto;padding:12px 16px}
-.cart-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.cart-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
 .cart-item:last-child{border-bottom:none}
+.ci-thumb{width:42px;height:42px;border-radius:6px;background:var(--surface2);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:18px;border:1px solid var(--border)}
 .ci-info{flex:1;min-width:0}
 .ci-name{font-size:13.5px;font-weight:500;color:var(--text);margin-bottom:2px}
 .ci-sku{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace}
@@ -205,8 +206,8 @@ header{height:52px;background:var(--surface);border-bottom:1px solid var(--borde
 /* ── MINI PRODUCT LIST IN ORDER PANEL ─── */
 .mini-prod-card{display:flex;align-items:center;gap:8px;padding:8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);margin-bottom:6px;background:var(--surface);cursor:pointer;transition:all .12s}
 .mini-prod-card:hover{border-color:var(--accent);background:var(--accent2)}
-.mini-prod-img{width:36px;height:36px;border-radius:4px;background:var(--surface2);object-fit:cover;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;overflow:hidden}
-.mini-prod-img img{width:100%;height:100%;object-fit:cover}
+.mini-prod-img{width:38px;height:38px;border-radius:6px;background:var(--surface2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;overflow:hidden;position:relative;border:1px solid var(--border)}
+.mini-prod-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .mini-prod-info{flex:1;min-width:0}
 .mini-prod-name{font-size:12.5px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mini-prod-price{font-size:12px;color:var(--accent);font-weight:600}
@@ -294,6 +295,13 @@ header{height:52px;background:var(--surface);border-bottom:1px solid var(--borde
 .lp-btn.primary{background:var(--accent);color:white;border-color:var(--accent)}
 .lp-btn:hover{background:var(--surface2)}
 .lp-btn.primary:hover{opacity:.87;background:var(--accent)}
+
+/* ── PRODUCT IMAGE UPLOAD ─── */
+.p-upload-zone{border:2px dashed var(--border2);border-radius:var(--radius);padding:20px 16px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg);min-height:88px;display:flex;align-items:center;justify-content:center;position:relative}
+.p-upload-zone:hover,.p-upload-zone.dragover{border-color:var(--accent);background:var(--accent2)}
+.p-upload-zone.has-image{padding:6px;border-style:solid;border-color:var(--border);background:var(--surface2)}
+#p-upload-placeholder{pointer-events:none}
+#p-upload-preview{width:100%}
 
 /* ── CSV UPLOAD ─── */
 .upload-zone{border:2px dashed var(--border2);border-radius:var(--radius);padding:24px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg)}
@@ -681,9 +689,23 @@ header{height:52px;background:var(--surface);border-bottom:1px solid var(--borde
       <div class="modal-field"><label>Category</label><input type="text" id="p-category" placeholder="Apparel"/></div>
     </div>
     <div class="modal-field"><label>Description</label><textarea id="p-desc" placeholder="Brief product description…"></textarea></div>
-    <div class="modal-field"><label>Image URL (optional)</label><input type="url" id="p-image" placeholder="https://…" oninput="previewProductImage()"/></div>
-    <div id="p-image-preview" style="display:none;margin-top:6px"><img id="p-img-el" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid var(--border)"/></div>
-    <div class="modal-field"><label>Emoji icon (if no image)</label><input type="text" id="p-emoji" placeholder="📦" maxlength="2"/></div>
+    <div class="modal-field">
+      <label>Product photo</label>
+      <div id="p-upload-zone" class="p-upload-zone" onclick="document.getElementById('p-file-input').click()" ondragover="pImgDragOver(event)" ondragleave="pImgDragLeave(event)" ondrop="pImgDrop(event)">
+        <div id="p-upload-placeholder">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" style="opacity:.4;display:block;margin:0 auto 8px"><rect x="1" y="5" width="26" height="18" rx="3" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="11" r="2" stroke="currentColor" stroke-width="1.5"/><path d="M1 18l7-5 5 4 4-3 10 6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          <span style="font-size:13px;color:var(--text2);display:block">Click or drag &amp; drop a photo</span>
+          <span style="font-size:11px;color:var(--text3);display:block;margin-top:3px">JPG, PNG, WebP — resized &amp; stored locally</span>
+        </div>
+        <div id="p-upload-preview" style="display:none;position:relative">
+          <img id="p-img-el" style="width:100%;height:140px;object-fit:cover;border-radius:6px;display:block"/>
+          <button onclick="event.stopPropagation();clearProductImage()" style="position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:rgba(28,26,23,.7);border:none;color:white;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">✕</button>
+        </div>
+      </div>
+      <input type="file" id="p-file-input" accept="image/*" style="display:none" onchange="handleProductImageFile(this.files[0])"/>
+      <input type="hidden" id="p-image"/>
+    </div>
+    <div class="modal-field"><label>Emoji icon (shown if no photo)</label><input type="text" id="p-emoji" placeholder="📦" maxlength="2"/></div>
     <div class="modal-btns">
       <button class="modal-cancel" onclick="closeProductModal()">Cancel</button>
       <button class="modal-save" onclick="saveProduct()">Save product</button>
@@ -945,7 +967,11 @@ function customColor(val){
 ═══════════════════════════════════════════════════════════ */
 function renderCatalog(filter=''){
   const grid=document.getElementById('catalog-grid');
-  const products=filter?catalog.filter(p=>p.name.toLowerCase().includes(filter.toLowerCase())||((p.sku||'').toLowerCase().includes(filter.toLowerCase()))||(p.category||'').toLowerCase().includes(filter.toLowerCase())):catalog;
+  const products=filter?catalog.filter(p=>
+    p.name.toLowerCase().includes(filter.toLowerCase())||
+    ((p.sku||'').toLowerCase().includes(filter.toLowerCase()))||
+    ((p.category||'').toLowerCase().includes(filter.toLowerCase()))
+  ):catalog;
   if(!products.length){
     grid.innerHTML=`<div class="empty-catalog"><svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect x="4" y="8" width="40" height="32" rx="3" stroke="currentColor" stroke-width="2"/><path d="M16 24h16M24 16v16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p>${filter?'No products match your search.':'No products yet. Add your first product or import a CSV file.'}</p>${!filter?`<button class="btn-primary" onclick="openProductModal()">Add first product</button>`:''}</div>`;
     return;
@@ -953,10 +979,12 @@ function renderCatalog(filter=''){
   grid.innerHTML=products.map(p=>{
     const stock=parseInt(p.stock)||0;
     const badge=p.stock===undefined?'':(stock===0?'<span class="prod-badge badge-outofstock">Out of stock</span>':stock<10?'<span class="prod-badge badge-lowstock">Low stock</span>':'<span class="prod-badge badge-instock">In stock</span>');
-    const img=p.image?`<div class="prod-img"><img src="${p.image}" alt="" onerror="this.parentElement.innerHTML='${p.emoji||'📦'}'" /></div>`:`<div class="prod-img" style="font-size:36px">${p.emoji||'📦'}</div>`;
+    const imgBlock=p.image
+      ?`<div class="prod-img" data-fallback="${p.emoji||'📦'}"><img src="${p.image}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;display:block" onload="this.style.opacity=1" onerror="prodImgError(this)"/></div>`
+      :`<div class="prod-img" style="font-size:36px">${p.emoji||'📦'}</div>`;
     const compare=p.comparePrice&&parseFloat(p.comparePrice)>parseFloat(p.price)?`<s style="font-size:11px;color:var(--text3)">${fmt(p.comparePrice)}</s> `:'';
     return `<div class="product-card" data-id="${p.id}">
-      ${img}${badge}
+      ${imgBlock}${badge}
       <div class="prod-body">
         <div class="prod-name">${p.name}</div>
         ${p.sku?`<div class="prod-sku">${p.sku}</div>`:''}
@@ -970,12 +998,20 @@ function renderCatalog(filter=''){
     </div>`;
   }).join('');
 }
+function prodImgError(imgEl){
+  const container=imgEl.parentElement;
+  const fallback=container.dataset.fallback||'📦';
+  container.style.fontSize='36px';
+  container.innerHTML=fallback;
+}
 function filterCatalog(val){renderCatalog(val);}
 
 function openProductModal(id){
   editingProductId=id||null;
   const modal=document.getElementById('product-modal');
   document.getElementById('product-modal-title').textContent=id?'Edit product':'Add product';
+  // Always reset image UI first
+  clearProductImage();
   if(id){
     const p=catalog.find(x=>x.id===id);
     if(p){
@@ -986,41 +1022,115 @@ function openProductModal(id){
       document.getElementById('p-stock').value=p.stock!=undefined?p.stock:'';
       document.getElementById('p-category').value=p.category||'';
       document.getElementById('p-desc').value=p.description||'';
-      document.getElementById('p-image').value=p.image||'';
       document.getElementById('p-emoji').value=p.emoji||'';
-      previewProductImage();
+      // Load existing image (base64 or URL) into upload zone
+      if(p.image){
+        document.getElementById('p-image').value=p.image;
+        showProductImagePreview(p.image);
+      }
     }
   }else{
-    ['p-name','p-sku','p-price','p-compare','p-stock','p-category','p-desc','p-image','p-emoji'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('p-image-preview').style.display='none';
+    ['p-name','p-sku','p-price','p-compare','p-stock','p-category','p-desc','p-emoji'].forEach(id=>document.getElementById(id).value='');
   }
   modal.classList.add('show');
 }
-function closeProductModal(){document.getElementById('product-modal').classList.remove('show');}
-function previewProductImage(){
-  const url=document.getElementById('p-image').value.trim();
-  const preview=document.getElementById('p-image-preview');
-  const img=document.getElementById('p-img-el');
-  if(url){preview.style.display='block';img.src=url;}else preview.style.display='none';
+function closeProductModal(){
+  document.getElementById('product-modal').classList.remove('show');
+  clearProductImage();
+}
+function pImgDragOver(e){e.preventDefault();document.getElementById('p-upload-zone').classList.add('dragover');}
+function pImgDragLeave(e){document.getElementById('p-upload-zone').classList.remove('dragover');}
+function pImgDrop(e){
+  e.preventDefault();
+  document.getElementById('p-upload-zone').classList.remove('dragover');
+  const file=e.dataTransfer.files[0];
+  if(file&&file.type.startsWith('image/')) handleProductImageFile(file);
+}
+
+function handleProductImageFile(file){
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const originalDataUrl=e.target.result;
+    // Resize to max 480px wide/tall, JPEG @80% — keeps localStorage lean
+    resizeImage(originalDataUrl, 480, 0.80, (resized)=>{
+      document.getElementById('p-image').value=resized;
+      showProductImagePreview(resized);
+    });
+  };
+  reader.readAsDataURL(file);
+}
+
+function resizeImage(dataUrl, maxSize, quality, callback){
+  const img=new Image();
+  img.onload=()=>{
+    let w=img.width, h=img.height;
+    if(w>maxSize||h>maxSize){
+      if(w>h){h=Math.round(h*(maxSize/w));w=maxSize;}
+      else{w=Math.round(w*(maxSize/h));h=maxSize;}
+    }
+    const canvas=document.createElement('canvas');
+    canvas.width=w; canvas.height=h;
+    const ctx=canvas.getContext('2d');
+    ctx.drawImage(img,0,0,w,h);
+    callback(canvas.toDataURL('image/jpeg',quality));
+  };
+  img.src=dataUrl;
+}
+
+function showProductImagePreview(src){
+  const zone=document.getElementById('p-upload-zone');
+  const placeholder=document.getElementById('p-upload-placeholder');
+  const preview=document.getElementById('p-upload-preview');
+  const imgEl=document.getElementById('p-img-el');
+  imgEl.src=src;
+  placeholder.style.display='none';
+  preview.style.display='block';
+  zone.classList.add('has-image');
+}
+
+function clearProductImage(){
+  document.getElementById('p-image').value='';
+  document.getElementById('p-img-el').src='';
+  document.getElementById('p-upload-placeholder').style.display='block';
+  document.getElementById('p-upload-preview').style.display='none';
+  document.getElementById('p-upload-zone').classList.remove('has-image');
+  document.getElementById('p-file-input').value='';
 }
 function saveProduct(){
   const name=document.getElementById('p-name').value.trim();
   const price=document.getElementById('p-price').value;
   if(!name||!price){showToast('Name and price are required','error');return;}
+  const imageData=document.getElementById('p-image').value.trim();
   const product={
     id:editingProductId||'prod_'+Date.now(),
-    name,sku:document.getElementById('p-sku').value.trim(),
+    name,
+    sku:document.getElementById('p-sku').value.trim(),
     price:parseFloat(price),
     comparePrice:document.getElementById('p-compare').value?parseFloat(document.getElementById('p-compare').value):undefined,
     stock:document.getElementById('p-stock').value!==''?parseInt(document.getElementById('p-stock').value):undefined,
     category:document.getElementById('p-category').value.trim(),
     description:document.getElementById('p-desc').value.trim(),
-    image:document.getElementById('p-image').value.trim(),
+    image:imageData||undefined,
     emoji:document.getElementById('p-emoji').value.trim()||'📦',
   };
   if(editingProductId){const i=catalog.findIndex(p=>p.id===editingProductId);if(i!==-1)catalog[i]=product;}
   else catalog.push(product);
-  saveToStorage();closeProductModal();renderCatalog();
+  try{
+    saveToStorage();
+  }catch(e){
+    // localStorage quota exceeded — try saving without images
+    if(e.name==='QuotaExceededError'||e.code===22){
+      showToast('Storage full — try smaller images or remove unused products','error');
+      // Still save the product but without the image
+      product.image=undefined;
+      if(editingProductId){const i=catalog.findIndex(p=>p.id===editingProductId);if(i!==-1)catalog[i]=product;}
+      else catalog[catalog.length-1]=product;
+      saveToStorage();
+    }
+  }
+  closeProductModal();
+  renderCatalog();
   if(currentTab==='order')renderOrderProducts();
   showToast(editingProductId?'Product updated ✓':'Product added ✓','success');
 }
@@ -1103,14 +1213,18 @@ function exportCatalogCSV(){
 function renderOrderProducts(){
   const list=document.getElementById('order-product-list');
   if(!catalog.length){list.innerHTML=`<div style="color:var(--text3);font-size:13px">No products in catalog yet.<br><br><button class="btn-primary" onclick="openTab('catalog')">Go to catalog</button></div>`;return;}
-  list.innerHTML=catalog.map(p=>`
-    <div class="mini-prod-card" onclick="addToCart('${p.id}')">
-      <div class="mini-prod-img">${p.image?`<img src="${p.image}" alt="" onerror="this.parentElement.innerHTML='${p.emoji||'📦'}'"/>`:(p.emoji||'📦')}</div>
+  list.innerHTML=catalog.map(p=>{
+    const imgHtml=p.image
+      ?`<div class="mini-prod-img" data-fallback="${p.emoji||'📦'}"><img src="${p.image}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;display:block" onerror="prodImgError(this)"/></div>`
+      :`<div class="mini-prod-img" style="font-size:16px">${p.emoji||'📦'}</div>`;
+    return `<div class="mini-prod-card" onclick="addToCart('${p.id}')">
+      ${imgHtml}
       <div class="mini-prod-info">
         <div class="mini-prod-name">${p.name}</div>
         <div class="mini-prod-price">${fmt(p.price)}</div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function addToCart(productId){
@@ -1138,10 +1252,14 @@ function clearCart(){cart=[];renderCart();updateCartTotals();}
 
 function renderCart(){
   const el=document.getElementById('cart-items');
-  document.getElementById('cart-count').textContent=`${cart.length} item${cart!==1?'s':''}`;
+  document.getElementById('cart-count').textContent=`${cart.length} item${cart.length!==1?'s':''}`;
   if(!cart.length){el.innerHTML=`<div style="color:var(--text3);font-size:13px;text-align:center;padding:30px 0">Add products from the left panel</div>`;return;}
-  el.innerHTML=cart.map(({product:p,qty})=>`
-    <div class="cart-item">
+  el.innerHTML=cart.map(({product:p,qty})=>{
+    const thumb=p.image
+      ?`<div class="ci-thumb" data-fallback="${p.emoji||'📦'}"><img src="${p.image}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;border-radius:4px;display:block" onerror="prodImgError(this)"/></div>`
+      :`<div class="ci-thumb" style="font-size:18px;display:flex;align-items:center;justify-content:center;">${p.emoji||'📦'}</div>`;
+    return `<div class="cart-item">
+      ${thumb}
       <div class="ci-info">
         <div class="ci-name">${p.name}</div>
         ${p.sku?`<div class="ci-sku">${p.sku}</div>`:''}
@@ -1155,7 +1273,8 @@ function renderCart(){
         <span class="ci-price">${fmt(p.price*qty)}</span>
         <span class="ci-remove" onclick="removeFromCart('${p.id}')">✕</span>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function updateCartTotals(){
