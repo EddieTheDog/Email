@@ -777,13 +777,13 @@ header{height:52px;background:var(--surface);border-bottom:1px solid var(--borde
   </div>
 </div>
 
-<!-- RECAPTCHA SEND MODAL — shown only when v3 score is low (fallback challenge) -->
+<!-- RECAPTCHA SEND MODAL — always shown before every send, regardless of v3 score -->
 <div class="modal-overlay" id="captcha-modal">
   <div class="modal" style="width:420px;text-align:center">
-    <div class="modal-title" style="margin-bottom:6px">One more step</div>
+    <div class="modal-title" style="margin-bottom:6px">Verify before sending</div>
     <p class="modal-sub" id="captcha-send-summary" style="margin-bottom:4px"></p>
-    <div id="captcha-score-badge" style="display:none;margin:0 auto 16px;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;width:fit-content"></div>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:16px">Please verify you're human to continue.</p>
+    <div id="captcha-score-badge" style="margin:0 auto 16px;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;width:fit-content;background:var(--surface2);color:var(--text3)">Checking risk score…</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:16px">Complete the challenge below to send.</p>
     <div style="display:flex;justify-content:center;margin-bottom:16px">
       <div class="g-recaptcha"
            data-sitekey="6LdMeYssAAAAABYetUbAaCnrTWo-dGNAhygdYPqV"
@@ -2039,17 +2039,15 @@ function copyHTML(){
    SEND
 ═══════════════════════════════════════════════════════════ */
 /* ═══════════════════════════════════════════════════════════
-   SEND — Two-layer reCAPTCHA:
-   1. v3 invisible (score-based) runs silently first
-   2. If score < 0.5 or v3 unavailable → show Enterprise v2 checkbox modal
-   Score threshold 0.5 is Google's recommended default
+   SEND — Max-security two-layer reCAPTCHA
+   v3 runs silently for risk scoring (informational display only)
+   Enterprise v2 checkbox is ALWAYS required — no bypass at any score
 ═══════════════════════════════════════════════════════════ */
-const V3_SITE_KEY  = '6LfadIssAAAAAG9SVNKJg-uvwAefxw3hi8IAj2cN'; // v3 invisible
-const V2_SITE_KEY  = '6LdMeYssAAAAABYetUbAaCnrTWo-dGNAhygdYPqV'; // Enterprise v2 checkbox
-const SCORE_THRESHOLD = 0.5; // 0.0 = bot, 1.0 = human
+const V3_SITE_KEY  = '6LfadIssAAAAAG9SVNKJg-uvwAefxw3hi8IAj2cN';
+const V2_SITE_KEY  = '6LdMeYssAAAAABYetUbAaCnrTWo-dGNAhygdYPqV';
 
 let pendingSendData = null;
-let v2WidgetId = null; // track rendered enterprise widget id
+let v2WidgetId = null;
 
 function sendEmail(){
   if(!accessToken){
@@ -2067,85 +2065,65 @@ function sendEmail(){
 
   pendingSendData = {to, replyTo, subject, htmlBody};
 
-  // ── Layer 1: v3 invisible score check ────────────────────────
-  setStatus('Verifying…');
-  const btn = document.getElementById('send-btn');
-  btn.disabled = true;
+  // Open the modal immediately — challenge is always required
+  openV2ChallengeModal();
 
+  // v3 runs in parallel just to populate the score badge (informational only)
+  // It does NOT gate sending — the v2 checkbox is always the gate
   try{
     grecaptcha.ready(async()=>{
       try{
         const token = await grecaptcha.execute(V3_SITE_KEY, {action:'SEND_EMAIL'});
-        // v3 returned a token — decode the score from the JWT payload (middle segment)
-        // Note: we read the score client-side for UX; real enforcement would be server-side
+        const scoreBadge = document.getElementById('captcha-score-badge');
         let score = null;
         try{
           const payload = JSON.parse(atob(token.split('.')[1]));
           score = payload.score ?? null;
-        }catch(e){ score = null; }
+        }catch(e){}
 
-        if(score !== null && score >= SCORE_THRESHOLD){
-          // ✓ High confidence human — send directly, no checkbox needed
-          setStatus('');
-          btn.disabled = false;
-          await doSend(pendingSendData);
-          pendingSendData = null;
-        } else {
-          // ✗ Low score or unknown — escalate to v2 Enterprise checkbox
-          btn.disabled = false;
-          setStatus('');
-          openV2ChallengeModal(score);
+        if(score !== null && scoreBadge){
+          const pct  = Math.round(score * 100);
+          const isOk = score >= 0.5;
+          scoreBadge.style.background = isOk ? 'var(--accent2)' : 'var(--gold2)';
+          scoreBadge.style.color      = isOk ? 'var(--accent-text)' : '#7a5b1a';
+          scoreBadge.textContent      = isOk
+            ? `✓ Risk score ${pct}/100 — looks good`
+            : `⚠ Risk score ${pct}/100 — complete the challenge below`;
+        } else if(scoreBadge){
+          scoreBadge.style.background = 'var(--surface2)';
+          scoreBadge.style.color      = 'var(--text3)';
+          scoreBadge.textContent      = 'Risk score unavailable — complete challenge to continue';
         }
-      }catch(err){
-        // v3 execute failed (e.g. not loaded yet) — fall back to v2
-        btn.disabled = false;
-        setStatus('');
-        openV2ChallengeModal(null);
+      }catch(e){
+        const scoreBadge = document.getElementById('captcha-score-badge');
+        if(scoreBadge){
+          scoreBadge.style.background = 'var(--surface2)';
+          scoreBadge.style.color      = 'var(--text3)';
+          scoreBadge.textContent      = 'Complete the challenge to send';
+        }
       }
     });
-  }catch(e){
-    // grecaptcha not loaded at all — fall back to v2 modal
-    btn.disabled = false;
-    setStatus('');
-    openV2ChallengeModal(null);
-  }
+  }catch(e){}
 }
 
-function openV2ChallengeModal(v3Score){
+function openV2ChallengeModal(){
   const summary = document.getElementById('captcha-send-summary');
-  summary.innerHTML = `Sending to <strong>${pendingSendData.to}</strong><br>
-    <span style="font-size:12px;color:var(--text3)">${pendingSendData.subject}</span>`;
+  summary.innerHTML = `To: <strong>${pendingSendData.to}</strong>
+    &nbsp;&middot;&nbsp; <span style="color:var(--text3);font-size:12px">${pendingSendData.subject}</span>`;
 
-  // Show score badge if we have one
+  // Reset score badge to loading state
   const scoreBadge = document.getElementById('captcha-score-badge');
-  if(v3Score !== null){
-    const pct = Math.round(v3Score * 100);
-    const col = v3Score < 0.3 ? '#8b2f2f' : '#7a5b1a';
-    const bg  = v3Score < 0.3 ? '#fdf0f0' : '#fdf6e8';
-    scoreBadge.style.display = 'block';
-    scoreBadge.style.background = bg;
-    scoreBadge.style.color = col;
-    scoreBadge.textContent = `Risk score: ${pct}/100 — additional verification required`;
-  } else {
-    scoreBadge.style.display = 'none';
-  }
+  scoreBadge.style.background = 'var(--surface2)';
+  scoreBadge.style.color      = 'var(--text3)';
+  scoreBadge.textContent      = 'Checking risk score…';
 
   document.getElementById('captcha-error').style.display = 'none';
 
-  // Render or reset the Enterprise v2 widget
-  const widgetEl = document.getElementById('captcha-widget');
-  if(v2WidgetId !== null){
-    try{ grecaptcha.enterprise.reset(v2WidgetId); }catch(e){}
-  } else {
-    // First render — widget auto-renders from the g-recaptcha div attributes
-    // but we need the widget id for reset; capture it on next tick
-    setTimeout(()=>{
-      try{
-        // Get all rendered widgets and grab the last one
-        v2WidgetId = 0; // enterprise widget IDs start at 0 for auto-render
-      }catch(e){}
-    }, 500);
-  }
+  // Reset the v2 widget so a fresh challenge loads each time
+  try{
+    if(v2WidgetId !== null) grecaptcha.enterprise.reset(v2WidgetId);
+    else                    grecaptcha.enterprise.reset();
+  }catch(e){}
 
   document.getElementById('captcha-modal').classList.add('show');
 }
