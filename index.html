@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Mail Studio Pro</title>
+<script src="https://www.google.com/recaptcha/enterprise.js" async defer></script>
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Figtree:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -770,6 +771,28 @@ header{height:52px;background:var(--surface);border-bottom:1px solid var(--borde
   <div class="lp-btns">
     <button class="lp-btn" onclick="hideLinkPrompt()">Cancel</button>
     <button class="lp-btn primary" onclick="applyLink()">Insert</button>
+  </div>
+</div>
+
+<!-- RECAPTCHA SEND MODAL -->
+<div class="modal-overlay" id="captcha-modal">
+  <div class="modal" style="width:400px;text-align:center">
+    <div class="modal-title" style="margin-bottom:6px">Verify before sending</div>
+    <p class="modal-sub" id="captcha-send-summary" style="margin-bottom:20px"></p>
+    <div style="display:flex;justify-content:center;margin-bottom:20px">
+      <div class="g-recaptcha"
+           data-sitekey="6LdMeYssAAAAABYetUbAaCnrTWo-dGNAhygdYPqV"
+           data-action="SEND_EMAIL"
+           id="captcha-widget"></div>
+    </div>
+    <div id="captcha-error" style="display:none;font-size:12px;color:var(--danger);margin-bottom:12px">Please complete the verification above.</div>
+    <div class="modal-btns" style="justify-content:center;gap:10px">
+      <button class="modal-cancel" onclick="closeCaptchaModal()">Cancel</button>
+      <button class="modal-save" id="captcha-confirm-btn" onclick="confirmSend()">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" style="display:inline;vertical-align:middle;margin-right:5px"><path d="M2 2l12 6-12 6V9.5l8-1.5-8-1.5V2z" fill="white"/></svg>
+        Send email
+      </button>
+    </div>
   </div>
 </div>
 
@@ -2005,34 +2028,104 @@ function copyHTML(){
 /* ═══════════════════════════════════════════════════════════
    SEND
 ═══════════════════════════════════════════════════════════ */
-async function sendEmail(){
+/* ═══════════════════════════════════════════════════════════
+   SEND — reCAPTCHA Enterprise gated
+═══════════════════════════════════════════════════════════ */
+let pendingSendData = null; // holds {to, replyTo, subject, htmlBody} while captcha modal is open
+
+function sendEmail(){
+  // Auth check first
   if(!accessToken){
     try{const s=localStorage.getItem('ms_session');if(s){const sess=JSON.parse(s);if(sess.expiry&&Date.now()<sess.expiry){accessToken=sess.token;}}}catch(e){}
   }
   if(!accessToken){showToast('Please sign in first.','error');return;}
+
   const to=document.getElementById('to-field').value.trim();
   const replyTo=document.getElementById('replyto-field').value.trim();
   const subject=document.getElementById('subject-field').value.trim();
   const htmlBody=buildEmailHTML();
+
   if(!to){setStatus('Add a recipient.','err');return;}
   if(!subject){setStatus('Add a subject line.','err');return;}
+
+  // Store data and open captcha modal
+  pendingSendData={to,replyTo,subject,htmlBody};
+  const summary=document.getElementById('captcha-send-summary');
+  summary.innerHTML=`Sending to <strong>${to}</strong><br><span style="font-size:12px;color:var(--text3)">${subject}</span>`;
+  document.getElementById('captcha-error').style.display='none';
+
+  // Reset widget if already rendered
+  try{
+    if(typeof grecaptcha!=='undefined'&&grecaptcha.enterprise){
+      grecaptcha.enterprise.reset();
+    }
+  }catch(e){}
+
+  document.getElementById('captcha-modal').classList.add('show');
+}
+
+function closeCaptchaModal(){
+  document.getElementById('captcha-modal').classList.remove('show');
+  pendingSendData=null;
+  try{if(typeof grecaptcha!=='undefined'&&grecaptcha.enterprise)grecaptcha.enterprise.reset();}catch(e){}
+}
+
+async function confirmSend(){
+  // Check captcha response
+  let captchaResponse='';
+  try{
+    captchaResponse=grecaptcha.enterprise.getResponse();
+  }catch(e){
+    captchaResponse='';
+  }
+
+  if(!captchaResponse){
+    document.getElementById('captcha-error').style.display='block';
+    return;
+  }
+
+  document.getElementById('captcha-error').style.display='none';
+  document.getElementById('captcha-modal').classList.remove('show');
+  await doSend(pendingSendData);
+  pendingSendData=null;
+  try{if(typeof grecaptcha!=='undefined'&&grecaptcha.enterprise)grecaptcha.enterprise.reset();}catch(e){}
+}
+
+async function doSend({to,replyTo,subject,htmlBody}){
   const btn=document.getElementById('send-btn');
-  btn.disabled=true;setStatus('Sending…');
+  btn.disabled=true;
+  setStatus('Sending…');
   try{
     const raw=buildMime(to,replyTo,subject,htmlBody);
     // TextEncoder-based base64url — handles full Unicode HTML reliably
-    const bytes = new TextEncoder().encode(raw);
-    let binary = '';
-    for(let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-    const encoded = btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-    const res=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{method:'POST',headers:{Authorization:'Bearer '+accessToken,'Content-Type':'application/json'},body:JSON.stringify({raw:encoded})});
-    if(res.ok){setStatus('');showToast('Email sent! ✓','success');}
-    else{
+    const bytes=new TextEncoder().encode(raw);
+    let binary='';
+    for(let i=0;i<bytes.length;i++) binary+=String.fromCharCode(bytes[i]);
+    const encoded=btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+    const res=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{
+      method:'POST',
+      headers:{Authorization:'Bearer '+accessToken,'Content-Type':'application/json'},
+      body:JSON.stringify({raw:encoded})
+    });
+    if(res.ok){
+      setStatus('');
+      showToast('Email sent! ✓','success');
+    }else{
       const err=await res.json();
-      if(err.error?.code===401){accessToken=null;localStorage.removeItem('ms_session');tokenClient.requestAccessToken({prompt:''});setStatus('Session expired — re-authenticating…');}
-      else setStatus('Error: '+(err.error?.message||'Unknown'),'err');
+      if(err.error?.code===401){
+        accessToken=null;
+        localStorage.removeItem('ms_session');
+        tokenClient.requestAccessToken({prompt:''});
+        setStatus('Session expired — re-authenticating…');
+      }else{
+        setStatus('Error: '+(err.error?.message||'Unknown'),'err');
+        showToast('Send failed — check status bar','error');
+      }
     }
-  }catch(e){setStatus('Network error.','err');}
+  }catch(e){
+    setStatus('Network error: '+e.message,'err');
+    showToast('Network error','error');
+  }
   btn.disabled=false;
 }
 
