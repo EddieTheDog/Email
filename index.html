@@ -1544,6 +1544,97 @@ function loadTemplate(key,btn){
 /* ═══════════════════════════════════════════════════════════
    EMAIL BUILDER
 ═══════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════
+   SCHEMA.ORG JSON-LD GENERATOR
+   Powers Gmail: Summary Cards, Purchases view, package tracking
+   Apple Mail: Transactions tab categorization
+═══════════════════════════════════════════════════════════ */
+function buildSchemaJsonLD(){
+  const emailType=document.getElementById('email-type-select')?.value||'transactional';
+  const subject=document.getElementById('subject-field').value||'';
+  const currency=settings.currency||'USD';
+  const company=settings.company||'Your Company';
+  const website=settings.website||'https://yourcompany.com';
+  const subjectLower=subject.toLowerCase();
+
+  // Only inject schema for transactional/account emails
+  if(!['transactional','account'].includes(emailType)) return '';
+
+  // ORDER schema - for order confirmation emails with cart items
+  if(cart && cart.length>0 && (subjectLower.includes('order')||subjectLower.includes('confirm')||subjectLower.includes('receipt')||subjectLower.includes('invoice'))){
+    const subtotal=cart.reduce((s,{product:p,qty})=>s+p.price*qty,0);
+    const discountPct=parseFloat(document.getElementById('order-discount')?.value)||0;
+    const taxPct=parseFloat(document.getElementById('order-tax')?.value)||0;
+    const shippingCost=parseFloat(document.getElementById('order-shipping')?.value)||0;
+    const discountAmt=subtotal*(discountPct/100);
+    const taxableAmt=subtotal-discountAmt;
+    const total=taxableAmt+taxableAmt*(taxPct/100)+shippingCost;
+    const orderNum=document.getElementById('order-number')?.value||'ORD-001';
+    const customer=document.getElementById('order-customer')?.value||'';
+    const address=document.getElementById('order-address')?.value||'';
+    const payment=document.getElementById('order-payment')?.value||'';
+
+    const offers=cart.map(({product:p,qty})=>({
+      "@type":"Offer",
+      "itemOffered":Object.assign({"@type":"Product","name":p.name},
+        p.sku?{"sku":p.sku}:{},
+        p.image?{"image":p.image}:{},
+        p.description?{"description":p.description}:{}
+      ),
+      "price":p.price.toFixed(2),
+      "priceCurrency":currency,
+      "eligibleQuantity":{"@type":"QuantitativeValue","value":String(qty)}
+    }));
+
+    const schema={
+      "@context":"http://schema.org",
+      "@type":"Order",
+      "merchant":{"@type":"Organization","name":company,"url":website},
+      "orderNumber":orderNum,
+      "orderStatus":"http://schema.org/OrderProcessing",
+      "orderDate":new Date().toISOString(),
+      "priceCurrency":currency,
+      "price":total.toFixed(2),
+      "acceptedOffer":offers.length===1?offers[0]:offers,
+      "url":website,
+      "potentialAction":{"@type":"ViewAction","url":website,"name":"View order"}
+    };
+    if(customer) schema.customer={"@type":"Person","name":customer};
+    if(payment) schema.paymentMethodId=payment;
+    if(discountAmt>0){schema.discount=discountAmt.toFixed(2);schema.discountCurrency=currency;}
+    schema.priceSpecification={"@type":"PriceSpecification","validFrom":new Date().toISOString()};
+    if(address){
+      const parts=address.split(',').map(s=>s.trim());
+      schema.billingAddress={"@type":"PostalAddress","streetAddress":parts[0]||address};
+      if(parts[1]) schema.billingAddress.addressLocality=parts[1];
+      if(parts[2]) schema.billingAddress.addressRegion=parts[2];
+      if(parts[3]) schema.billingAddress.postalCode=parts[3];
+    }
+    return '<script type="application/ld+json">\n'+JSON.stringify(schema,null,2)+'\n<\/script>';
+  }
+
+  // ACCOUNT / password reset / verification
+  if(subjectLower.includes('password')||subjectLower.includes('reset')||subjectLower.includes('verify')||subjectLower.includes('confirm your')){
+    const schema={
+      "@context":"http://schema.org",
+      "@type":"EmailMessage",
+      "about":{"@type":"Service","name":company,"url":website},
+      "sender":{"@type":"Organization","name":company,"url":website}
+    };
+    return '<script type="application/ld+json">\n'+JSON.stringify(schema,null,2)+'\n<\/script>';
+  }
+
+  // Fallback for any transactional email - basic Order placeholder
+  const schema={
+    "@context":"http://schema.org",
+    "@type":"EmailMessage",
+    "about":{"@type":"Organization","name":company,"url":website},
+    "sender":{"@type":"Organization","name":company,"url":website}
+  };
+  return '<script type="application/ld+json">\n'+JSON.stringify(schema,null,2)+'\n<\/script>';
+}
+
 function buildEmailHTML(){
   const subject=document.getElementById('subject-field').value||'';
   const preheader=document.getElementById('preheader-field').value||'';
@@ -1575,6 +1666,7 @@ function buildEmailHTML(){
 <meta name="x-apple-disable-message-reformatting">
 <meta name="format-detection" content="telephone=no,address=no,email=no,date=no,url=no">
 <title>${subject}</title>
+${buildSchemaJsonLD()}
 <!--[if mso]><noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript><![endif]-->
 <style>
 body,table,td,a{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%}
@@ -1656,37 +1748,54 @@ function lightenColor(hex,amount){
 
 function convertEditorToEmail(html,c){
   let out=html;
-  // Headings
-  out=out.replace(/<h1([^>]*)>/g,'<h1$1 style="font-family:Georgia,serif;font-size:26px;font-weight:normal;color:#1c1a17;line-height:1.25;margin:0 0 16px;">');
-  out=out.replace(/<h2([^>]*)>/g,'<h2$1 style="font-family:Georgia,serif;font-size:20px;font-weight:normal;color:#1c1a17;margin:18px 0 10px;">');
-  out=out.replace(/<h3([^>]*)>/g,'<h3$1 style="font-family:Georgia,serif;font-size:16px;font-weight:normal;color:#1c1a17;margin:14px 0 8px;">');
-  // Paragraphs
-  out=out.replace(/<p>/g,'<p style="margin:0 0 14px;font-family:Arial,sans-serif;font-size:15px;color:#444;line-height:1.7;">');
-  out=out.replace(/<p style="font-size:13px;color:#888">/g,'<p style="margin:0 0 14px;font-family:Arial,sans-serif;font-size:13px;color:#888;line-height:1.7;">');
-  out=out.replace(/<p style="color:#888;font-size:13px">/g,'<p style="margin:0 0 14px;font-family:Arial,sans-serif;font-size:13px;color:#888;line-height:1.7;">');
-  // Tables - preserve existing inline styles
-  out=out.replace(/<table>/g,'<table role="presentation" cellpadding="0" cellspacing="0">');
-  // CTA buttons
-  out=out.replace(/class="email-button"/g,`style="display:inline-block;background:${c};color:white;padding:11px 26px;border-radius:7px;text-decoration:none;font-weight:bold;font-size:15px;font-family:Arial,sans-serif;"`);
-  // Info boxes
+
+  // ── Headings: only style tags that DON'T already have a style attribute ──
+  out=out.replace(/<h1(?!\s[^>]*style=)(\s[^>]*)?>|<h1>/g,'<h1 style="font-family:Georgia,\'Times New Roman\',serif;font-size:26px;font-weight:normal;color:#1c1a17;line-height:1.3;margin:0 0 16px 0;mso-line-height-rule:exactly;">');
+  out=out.replace(/<h2(?!\s[^>]*style=)(\s[^>]*)?>|<h2>/g,'<h2 style="font-family:Georgia,\'Times New Roman\',serif;font-size:20px;font-weight:normal;color:#1c1a17;line-height:1.35;margin:18px 0 10px 0;">');
+  out=out.replace(/<h3(?!\s[^>]*style=)(\s[^>]*)?>|<h3>/g,'<h3 style="font-family:Georgia,\'Times New Roman\',serif;font-size:16px;font-weight:500;color:#1c1a17;margin:14px 0 8px 0;">');
+
+  // ── Paragraphs: bare <p> only, don't touch <p style="..."> ──
+  out=out.replace(/<p>/g,'<p style="margin:0 0 14px 0;font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#444444;line-height:1.7;mso-line-height-rule:exactly;">');
+  // Specific known partial-style patterns from templates
+  out=out.replace(/<p style="font-size:13px;color:#888(?:888)?">/g,'<p style="margin:0 0 10px 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#888888;line-height:1.7;">');
+  out=out.replace(/<p style="color:#888(?:888)?;font-size:13px">/g,'<p style="margin:0 0 10px 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#888888;line-height:1.7;">');
+
+  // ── Tables: only add role/cellpadding to bare <table> — leave <table style="..." and <table role="..." alone ──
+  out=out.replace(/<table(?!\s[^>]*(style|role)=)>/g,'<table role="presentation" cellpadding="0" cellspacing="0" border="0">');
+
+  // ── CTA buttons: replace class with full inline style ──
+  // Handle both: class="email-button" and class="email-button" style="..." (dedupe)
+  out=out.replace(/class="email-button"(?:\s+style="[^"]*")?/g,`style="display:inline-block;background:${c};color:#ffffff !important;padding:11px 26px;border-radius:7px;text-decoration:none !important;font-weight:bold;font-size:15px;font-family:Arial,Helvetica,sans-serif;mso-padding-alt:11px 26px;"`);
+
+  // ── Info / success / warning boxes ──
   out=out.replace(/class="info-box"/g,'style="background:#e8f0fb;border-left:3px solid #1a4d8f;padding:12px 16px;border-radius:0 6px 6px 0;margin:12px 0;font-family:Arial,sans-serif;font-size:13px;color:#1a3a6b;line-height:1.65;"');
   out=out.replace(/class="success-box"/g,`style="background:#e4ede7;border-left:3px solid ${c};padding:12px 16px;border-radius:0 6px 6px 0;margin:12px 0;font-family:Arial,sans-serif;font-size:13px;color:#1a3d28;line-height:1.65;"`);
   out=out.replace(/class="warning-box"/g,'style="background:#fdf6e8;border-left:3px solid #b08d57;padding:12px 16px;border-radius:0 6px 6px 0;margin:12px 0;font-family:Arial,sans-serif;font-size:13px;color:#6b4a1a;line-height:1.65;"');
-  // Lists
-  out=out.replace(/<ul>/g,'<ul style="margin:0 0 14px;padding-left:20px;">');
-  out=out.replace(/<ol>/g,'<ol style="margin:0 0 14px;padding-left:20px;">');
-  out=out.replace(/<li>/g,'<li style="margin-bottom:6px;font-family:Arial,sans-serif;font-size:15px;color:#444;line-height:1.65;">');
-  // Links (not buttons)
-  out=out.replace(/<a href="([^"]*)" style="color:var\(--accent\)[^"]*">/g,`<a href="$1" style="color:${c};text-decoration:underline;">`);
-  out=out.replace(/<a href="mailto:([^"]*)">/g,`<a href="mailto:$1" style="color:${c};text-decoration:underline;">`);
-  out=out.replace(/<a href="([^"]*)">/g,`<a href="$1" style="color:${c};text-decoration:underline;">`);
-  // Dividers
-  out=out.replace(/<hr\s*\/?>/gi,'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:16px 0;"><tr><td style="border-top:1px solid #e8e4de;"></td></tr></table>');
-  // Strong
-  out=out.replace(/<strong>/g,'<strong style="font-weight:600;color:#1c1a17;">');
-  // Blockquote
-  out=out.replace(/<blockquote>/g,`<blockquote style="border-left:3px solid ${c};margin:12px 0;padding:8px 16px;background:#f9f9f7;color:#555;font-family:Arial,sans-serif;font-size:14px;">`);
-  return`<div style="font-family:Arial,sans-serif;font-size:15px;color:#444;line-height:1.7;">${out}</div>`;
+
+  // ── Lists: bare tags only ──
+  out=out.replace(/<ul>/g,'<ul style="margin:0 0 14px 0;padding-left:20px;">');
+  out=out.replace(/<ol>/g,'<ol style="margin:0 0 14px 0;padding-left:20px;">');
+  out=out.replace(/<li>/g,'<li style="margin-bottom:6px;font-family:Arial,sans-serif;font-size:15px;color:#444444;line-height:1.65;">');
+
+  // ── Links: only rewrite <a> tags that have NO style attribute yet ──
+  // First fix CSS var references from the editor
+  out=out.replace(/style="color:var\(--accent\)[^"]*"/g,`style="color:${c};text-decoration:underline;"`);
+  // Then style bare <a href> that don't have style yet
+  out=out.replace(/<a((?:\s+(?!style=)\w+="[^"]*")*)\s+href="([^"]*)"((?:\s+(?!style=)\w+="[^"]*")*)>/g,
+    `<a$1 href="$2"$3 style="color:${c};text-decoration:underline;">`);
+  // Fallback: any remaining bare <a href="..."> with no style
+  out=out.replace(/<a href="([^"]*)"(?![^>]*style=)>/g,`<a href="$1" style="color:${c};text-decoration:underline;">`);
+
+  // ── Dividers ──
+  out=out.replace(/<hr\s*\/?>/gi,`<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:16px 0;"><tr><td style="border-top:1px solid #e8e4de;font-size:0;line-height:0;">&nbsp;</td></tr></table>`);
+
+  // ── Bold — bare <strong> only ──
+  out=out.replace(/<strong(?!\s[^>]*style=)>/g,'<strong style="font-weight:600;color:#1c1a17;">');
+
+  // ── Blockquote ──
+  out=out.replace(/<blockquote(?!\s[^>]*style=)>/g,`<blockquote style="border-left:3px solid ${c};margin:12px 0;padding:8px 16px;background:#f9f9f7;color:#555555;font-family:Arial,sans-serif;font-size:14px;line-height:1.65;">`);
+
+  return `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#444444;line-height:1.7;">${out}</div>`;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1752,7 +1861,11 @@ async function sendEmail(){
   btn.disabled=true;setStatus('Sending…');
   try{
     const raw=buildMime(to,replyTo,subject,htmlBody);
-    const encoded=btoa(unescape(encodeURIComponent(raw))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+    // TextEncoder-based base64url — handles full Unicode HTML reliably
+    const bytes = new TextEncoder().encode(raw);
+    let binary = '';
+    for(let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+    const encoded = btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
     const res=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{method:'POST',headers:{Authorization:'Bearer '+accessToken,'Content-Type':'application/json'},body:JSON.stringify({raw:encoded})});
     if(res.ok){setStatus('');showToast('Email sent! ✓','success');}
     else{
@@ -1952,9 +2065,19 @@ function buildMime(to,replyTo,subject,htmlBody){
   const unsubUrl = settings.unsub||'https://yourcompany.com/unsubscribe';
   const supportEmail = settings.support||'noreply@yourcompany.com';
   const msgId = `<${Date.now()}.${Math.random().toString(36).slice(2)}@mailstudio>`;
-  const plain = htmlBody.replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
+  // Strip HTML tags and decode entities for plain text fallback
+  const plain = htmlBody
+    .replace(/<style[\s\S]*?<\/style>/gi,'')
+    .replace(/<script[\s\S]*?<\/script>/gi,'')
+    .replace(/<[^>]+>/g,'')
+    .replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#8217;/g,"'").replace(/&middot;/g,'·').replace(/&copy;/g,'©').replace(/&zwnj;/g,'')
+    .replace(/\s+/g,' ').trim();
   const b = 'boundary_' + Date.now().toString(36);
-  const encSubj = `=?UTF-8?B?${btoa(unescape(encodeURIComponent(subject)))}?=`;
+  // Encode subject properly for non-ASCII characters
+  const subjectBytes = new TextEncoder().encode(subject);
+  let subjectBinary = '';
+  for(let i=0;i<subjectBytes.length;i++) subjectBinary+=String.fromCharCode(subjectBytes[i]);
+  const encSubj = `=?UTF-8?B?${btoa(subjectBinary)}?=`;
 
   const headers = [
     'MIME-Version: 1.0',
@@ -1990,13 +2113,11 @@ function buildMime(to,replyTo,subject,htmlBody){
     '',
     `--${b}`,
     'Content-Type: text/plain; charset=UTF-8',
-    'Content-Transfer-Encoding: quoted-printable',
     '',
     plain,
     '',
     `--${b}`,
     'Content-Type: text/html; charset=UTF-8',
-    'Content-Transfer-Encoding: quoted-printable',
     '',
     htmlBody,
     '',
